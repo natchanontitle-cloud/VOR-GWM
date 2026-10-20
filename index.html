@@ -1,0 +1,1086 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+<title>Pending RO Splitter</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single working column — upload strip, file summary, store table with per-row export */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --fg:#17201d; --muted:#5d6b66; --line:#dbe2df;
+  --accent:#0f6b5c; --accent-ink:#ffffff; --accent-soft:#e1efeb;
+  --warn:#a86400; --warn-soft:#fbefd9; --crit:#b3261e; --crit-soft:#fbe4e2;
+  --font-body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111715; --surface:#19211e; --fg:#e4ebe8; --muted:#97a6a0; --line:#2b3632;
+  --accent:#4cc2a8; --accent-ink:#06231d; --accent-soft:#18332c;
+  --warn:#f0b354; --warn-soft:#3a2c14; --crit:#ff8a80; --crit-soft:#3d1c1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111715; --surface:#19211e; --fg:#e4ebe8; --muted:#97a6a0; --line:#2b3632;
+  --accent:#4cc2a8; --accent-ink:#06231d; --accent-soft:#18332c;
+  --warn:#f0b354; --warn-soft:#3a2c14; --crit:#ff8a80; --crit-soft:#3d1c1a; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header h1{font-size:1.6rem;margin:0;line-height:1.25;text-wrap:balance;font-weight:700}
+header p{margin:4px 0 0;color:var(--muted);max-width:65ch}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.drop{border:1.5px dashed var(--line);background:var(--surface);border-radius:12px;padding:22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.drop .ico{width:44px;height:44px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.drop .txt{flex:1;min-width:200px}
+.drop strong{display:block;font-size:1.02rem}
+.drop span{color:var(--muted);font-size:.9rem}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+button,.btn{font:inherit;font-size:.9rem;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button:disabled{opacity:.45;cursor:not-allowed}
+.banner{background:var(--warn-soft);color:var(--fg);border-radius:8px;padding:10px 14px;font-size:.9rem;border-left:3px solid var(--warn)}
+.summary{display:flex;flex-wrap:wrap;gap:10px 28px;align-items:end;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.stat{display:flex;flex-direction:column;min-width:0}
+.stat .k{font-size:.75rem;color:var(--muted);letter-spacing:.03em}
+.stat .v{font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums}
+.stat.file .v{font-size:.95rem;font-family:var(--font-mono);word-break:break-all}
+.field{display:flex;flex-direction:column;gap:3px;font-size:.75rem;color:var(--muted)}
+select,input[type=search]{font:inherit;font-size:.9rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.toolbar input[type=search]{flex:1;min-width:180px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border-radius:999px;padding:4px 12px;font-size:.82rem}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.tablebox{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:.75rem;color:var(--muted);font-weight:500;letter-spacing:.03em;background:var(--surface);position:sticky;top:0}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--bg)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--font-mono)}
+td.store{font-weight:500;min-width:200px}
+.pill{display:inline-block;font-family:var(--font-mono);font-size:.78rem;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.crit{background:var(--crit-soft);color:var(--crit)}
+.rsm{color:var(--muted);font-size:.85rem}
+input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:.9rem;max-width:calc(100% - 32px)}
+.foot{font-size:.82rem;color:var(--muted)}
+@media (max-width:640px){td.store{min-width:0}.actions{margin-left:0;width:100%}.actions button{flex:1;justify-content:center}.hide-sm{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.vh{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.rsmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;align-items:start}
+.rsmcard{border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.rsmcard summary{cursor:pointer;padding:10px 12px;display:flex;flex-direction:column;gap:1px;list-style:none}
+.rsmcard summary::-webkit-details-marker{display:none}
+.rsmcard summary::after{content:"ดูรายชื่อ Partner ▾";font-size:.75rem;color:var(--accent);margin-top:4px}
+.rsmcard[open] summary::after{content:"ซ่อนรายชื่อ ▴"}
+.rsmcard .rn{font-weight:600;font-size:1rem}
+.rsmcard .rstat{font-size:.84rem}
+.rsmcard ul{list-style:none;margin:0;padding:0 12px 10px;display:flex;flex-direction:column;gap:4px;font-size:.84rem;max-height:340px;overflow:auto}
+.rsmcard li{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:baseline;border-top:1px solid var(--line);padding-top:4px}
+.rsmcard .pn{min-width:0}
+.banner.ok{background:var(--accent-soft);border-left-color:var(--accent)}
+ul.miss{margin:6px 0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+/* dashboard */
+:root{--c1:#2a78d6;--c2:#eb6834;--k-part:#2a78d6;--k-war:#eb6834;--k-tech:#1baf7a;--k-cust:#eda100;--k-other:#6250d6;--k-none:#b9bdb9;
+  --age0:#86b6ef;--age1:#6da7ec;--age2:#3987e5;--age3:#256abf;--age4:#184f95;--age5:#0d366b;--grid:#e6ebe9;--ink2:#52514e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#3987e5;--c2:#d95926;--k-part:#3987e5;--k-war:#d95926;--k-tech:#199e70;--k-cust:#c98500;--k-other:#9085e9;--k-none:#4c5452;
+  --age0:#184f95;--age1:#1c5cab;--age2:#256abf;--age3:#3987e5;--age4:#6da7ec;--age5:#9ec5f4;--grid:#26302d;--ink2:#c3c2b7}}
+:root[data-theme="dark"]{--c1:#3987e5;--c2:#d95926;--k-part:#3987e5;--k-war:#d95926;--k-tech:#199e70;--k-cust:#c98500;--k-other:#9085e9;--k-none:#4c5452;
+  --age0:#184f95;--age1:#1c5cab;--age2:#256abf;--age3:#3987e5;--age4:#6da7ec;--age5:#9ec5f4;--grid:#26302d;--ink2:#c3c2b7}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}
+.tabs button{border:none;border-bottom:2px solid transparent;border-radius:0;background:none;padding:10px 14px;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.dash{display:flex;flex-direction:column;gap:14px}
+.dbar{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface)}
+.seg button{border:none;border-radius:0;padding:8px 14px}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.dbar .field select{min-width:200px;max-width:100%}
+.scope{margin-left:auto;color:var(--muted);font-size:.9rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.kpi .k{font-size:.78rem;color:var(--muted)}
+.kpi .v{font-size:1.45rem;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi.warn .v{color:var(--warn)} .kpi.crit .v{color:var(--crit)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card.wide{grid-column:1/-1}
+.card h3{margin:0;font-size:.95rem;font-weight:600}
+.chart{width:100%;min-width:0}
+.chart svg{display:block;overflow:visible}
+.chart .grid{stroke:var(--grid);stroke-width:1}
+.chart .base{stroke:var(--muted);stroke-width:1}
+.chart .axis{fill:var(--muted);font-size:11px;font-family:var(--font-body)}
+.chart .val{fill:var(--fg);font-size:11px;font-family:var(--font-mono)}
+.chart .bar.click{cursor:pointer}
+.chart .bar:hover path{opacity:.82}
+.pie{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.pie svg{flex:none}
+.pie .slice{stroke:var(--surface);stroke-width:2}
+.pie .slice:hover{opacity:.85}
+.legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:1;min-width:170px;font-size:.88rem}
+.legend li{display:flex;align-items:center;gap:8px}
+.legend .lt{flex:1}
+.legend .lv{font-variant-numeric:tabular-nums;font-family:var(--font-mono);font-size:.82rem}
+.legend small{color:var(--muted)}
+.sw{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
+.rankhead{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.rankf{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.rankf input{min-width:200px}
+.tablebox.flat{border:none;border-radius:0}
+table.rank td{vertical-align:top}
+.rank .sub,.sub{color:var(--muted);font-size:.78rem}
+.mono{font-family:var(--font-mono);font-size:.82rem}
+.cause{display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.detail{font-size:.84rem;margin-top:2px;max-width:46ch}
+.refs{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.ref{font-family:var(--font-mono);font-size:.72rem;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.pill.muted{background:var(--bg);color:var(--muted)}
+.pill{white-space:nowrap}
+.late{color:var(--crit)}
+.dtip{position:fixed;z-index:20;background:var(--fg);color:var(--bg);padding:7px 10px;border-radius:7px;font-size:.82rem;pointer-events:none;max-width:260px}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}.scope{margin-left:0;width:100%}.rankf{margin-left:0;width:100%}.rankf input{flex:1;min-width:0}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Aftersales · Pending RO</div>
+    <h1>Pending RO · Dashboard และแยกไฟล์ตาม Store</h1>
+    <p>อัปโหลดไฟล์ Pending RO แล้วดู Dashboard แบบ Overview, ราย RSM หรือราย Partner พร้อมอันดับวันค้างซ่อมและสาเหตุ จากนั้นแยกไฟล์ส่ง Dealer ได้ในแท็บถัดไป ไฟล์ถูกประมวลผลในเบราว์เซอร์ของคุณเท่านั้น</p>
+  </header>
+
+  <label class="drop" id="drop" for="file">
+    <div class="ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div>
+    <div class="txt"><strong>ลากไฟล์ .xlsx มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</strong><span>รองรับ .xlsx / .xls / .csv · ระบบหาคอลัมน์ Store_Name ให้อัตโนมัติ</span></div>
+    <input type="file" id="file" accept=".xlsx,.xls,.xlsm,.csv">
+  </label>
+
+  <div class="banner" id="sampleBanner" hidden>กำลังแสดง <b>ข้อมูลตัวอย่าง</b> (ร้านสมมติ) — อัปโหลดไฟล์จริงด้านบนเพื่อแทนที่</div>
+
+  <section class="summary" id="summary" hidden>
+    <div class="stat file"><span class="k">ไฟล์</span><span class="v" id="sFile">–</span></div>
+    <div class="stat"><span class="k">จำนวน RO</span><span class="v" id="sRows">0</span></div>
+    <div class="stat"><span class="k">จำนวน Store</span><span class="v" id="sStores">0</span></div>
+    <label class="field">Sheet<select id="sheetSel"></select></label>
+    <label class="field">แยกตามคอลัมน์<select id="colSel"></select></label>
+    <button id="fullBtn" class="primary" style="margin-left:auto">ดาวน์โหลด Excel ทั้งไฟล์ (กรอก RSM แล้ว)</button>
+  </section>
+
+  <section class="card rsmpanel" id="rsmPanel">
+    <div class="rankhead"><h3>RSM ที่รับผิดชอบ</h3><span class="sub" id="rsmSrc"></span>
+      <div class="rankf"><label class="btn" for="rsmFile">อัปโหลดไฟล์ RSM</label><input type="file" id="rsmFile" class="vh" accept=".xlsx,.xls,.csv"><button id="rsmReset" hidden>กลับไปใช้ไฟล์ค่าเริ่มต้น</button></div></div>
+    <div class="banner" id="rsmWarn" hidden></div>
+    <div class="rsmgrid" id="rsmGrid"></div>
+  </section>
+
+  <nav class="tabs" id="tabs" hidden role="tablist">
+    <button data-tab="dash" role="tab" aria-selected="true">Dashboard</button>
+    <button data-tab="split" role="tab" aria-selected="false">แยกไฟล์ Excel</button>
+  </nav>
+
+  <section id="dash" hidden class="dash">
+    <div class="dbar">
+      <div class="seg" id="dView" role="group" aria-label="มุมมอง">
+        <button data-v="overview" aria-pressed="true">Overview</button>
+        <button data-v="rsm" aria-pressed="false">ราย RSM</button>
+        <button data-v="store" aria-pressed="false">ราย Partner</button>
+      </div>
+      <label class="field" id="dRsmWrap" hidden>RSM<select id="dRsm"></select></label>
+      <label class="field" id="dStoreWrap" hidden>Partner<select id="dStore"></select></label>
+      <div class="scope">กำลังดู: <b id="dScope">ทุก Partner</b></div>
+    </div>
+    <div class="kpis" id="dKpi"></div>
+    <div class="grid2">
+      <div class="card wide"><h3 id="dBar1T">RO ค้างแยกตาม RSM</h3><div id="dBar1" class="chart"></div></div>
+      <div class="card"><h3>ติดที่อะไร</h3><div id="dCause"></div></div>
+      <div class="card"><h3>จอด / ไม่จอด</h3><div id="dPark"></div></div>
+      <div class="card"><h3>อายุงานค้าง (วัน)</h3><div id="dAge" class="chart"></div></div>
+      <div class="card"><h3>ค้างเฉลี่ย (วัน) ตามสาเหตุ</h3><div id="dCauseAge" class="chart"></div></div>
+      <div class="card wide" id="dTopWrap"><h3>Top 20 Partner ที่มี RO ค้างมากสุด · คลิกเพื่อเจาะลึก</h3><div id="dTop" class="chart"></div></div>
+    </div>
+    <div class="card">
+      <div class="rankhead"><h3>อันดับวันค้างซ่อม</h3><span class="sub" id="dRankCount"></span>
+        <div class="rankf"><input type="search" id="dQ" placeholder="ค้นหา SP / Partner / เลข PO…" aria-label="ค้นหาในอันดับ"><select id="dCauseF" aria-label="กรองตามสาเหตุ"></select></div></div>
+      <div class="tablebox flat"><table class="rank">
+        <thead><tr><th class="num">#</th><th class="num">วันค้าง</th><th>SP</th><th>Partner</th><th>รถ</th><th>ติดที่อะไร</th><th class="num">ETA</th></tr></thead>
+        <tbody id="dRankBody"></tbody></table></div>
+      <button id="dMore" hidden style="align-self:center"></button>
+    </div>
+  </section>
+
+  <section id="work" hidden style="display:flex;flex-direction:column;gap:12px">
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="ค้นหาชื่อ Store…" aria-label="ค้นหาชื่อ Store">
+      <div class="chips" id="chips"></div>
+      <div class="actions">
+        <button id="zipBtn" class="primary">ZIP แยกโฟลเดอร์ตาม RSM</button>
+        <button id="bookBtn">รวมร้านที่เลือกเป็นไฟล์เดียว</button>
+      </div>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr>
+          <th style="width:36px"><input type="checkbox" id="all" aria-label="เลือกทั้งหมด"></th>
+          <th>Store</th><th class="hide-sm" id="rsmHead">RSM</th>
+          <th class="num">RO</th><th class="num hide-sm" id="ageHead">ค้างนานสุด</th><th class="num hide-sm" id="tagHead">Tech · Warranty · Part</th><th></th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="foot" id="foot"></div>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="dtip" id="dtip" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const norm = s => String(s ?? '').toLowerCase().replace(/[\s_\-.]/g,'');
+// Stores not yet listed in the mapping tab → RSM
+const EXTRA_RSM = {'GWM Thaiyont Next Sisaket':'Kiattikhun'};
+let tpl = null;
+let wb = null, fileBase = 'Pending_RO', state = null, rsmFilter = 'ALL', selected = new Set();
+
+/* ---------- downloads (artifact capability, falls back to a normal link when opened as a local file) ---------- */
+let dlPromise = null;
+function getDownloads(){
+  if (!dlPromise) dlPromise = (window.claude && typeof window.claude.use === 'function')
+    ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+  return dlPromise;
+}
+getDownloads();
+async function saveFile(name, blob){
+  const d = await getDownloads();
+  if (d) {
+    try { await d.save({ filename: name, data: blob }); toast('บันทึก ' + name + ' แล้ว'); }
+    catch (e) {
+      if (e && e.code === 'declined') toast('ยกเลิกการดาวน์โหลด');
+      else if (e && e.code === 'rate_limited') toast('มีหน้าต่างยืนยันค้างอยู่ ลองอีกครั้งในไม่กี่วินาที');
+      else toast('ดาวน์โหลดไม่สำเร็จ: ' + (e && e.message || 'ไม่ทราบสาเหตุ'));
+    }
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+let tt; function toast(msg){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true,3200); }
+
+/* ---------- reading ---------- */
+function sheetCells(ws){
+  if (!ws || !ws['!ref']) return [];
+  const R = XLSX.utils.decode_range(ws['!ref']), out = [];
+  for (let r = R.s.r; r <= R.e.r; r++){
+    const row = [];
+    for (let c = R.s.c; c <= R.e.c; c++){
+      const cell = ws[XLSX.utils.encode_cell({r,c})];
+      row.push(cell && cell.v !== undefined && cell.v !== '' ? {t:cell.t, v:cell.v, z:cell.z, w:cell.w} : null);
+    }
+    row.excelRow = r + 1;
+    out.push(row);
+  }
+  out.startRow = R.s.r; out.startCol = R.s.c;
+  return out;
+}
+const txt = cell => cell ? String(cell.w ?? cell.v).trim() : '';
+function findHeader(rows){
+  const lim = Math.min(rows.length, 30);
+  for (let r = 0; r < lim; r++){
+    const c = rows[r].findIndex(x => /^(store(name)?|dealer(name)?|storename)$/.test(norm(txt(x))) || norm(txt(x)) === 'storename');
+    if (c >= 0) return {r, c};
+  }
+  let best = 0, bestN = -1;
+  for (let r = 0; r < lim; r++){ const n = rows[r].filter(Boolean).length; if (n > bestN){ bestN = n; best = r; } }
+  return {r: best, c: -1};
+}
+function analyse(sheetName, forceCol){
+  const rows = sheetCells(wb.Sheets[sheetName]);
+  const h = findHeader(rows);
+  const header = (rows[h.r] || []).map((x,i) => txt(x) || ('Column ' + (i+1)));
+  let col = forceCol ?? h.c; if (col < 0) col = 0;
+  // trim trailing empty columns
+  let last = header.length - 1;
+  while (last > 0 && !txt((rows[h.r]||[])[last]) && rows.slice(h.r+1).every(r => !r[last])) last--;
+  const hdr = header.slice(0, last+1);
+  const data = rows.slice(h.r+1).map(r => Object.assign(r.slice(0, last+1), {excelRow: r.excelRow})).filter(r => r.some(Boolean));
+  let rsmCol = hdr.findIndex(x => norm(x) === 'rsm');
+  const ageCol = hdr.findIndex(x => /pendingday|pendingdays|aging|ageday/.test(norm(x)));
+  const remarkCol = hdr.findIndex(x => norm(x) === 'remark');
+  const parkCol = hdr.findIndex(x => norm(x) === 'สถานะรถ');
+  const addCols = EXTRA_HEADERS.slice();
+  for (const r of data) r.extra = remarkCol >= 0 ? extrasOf(r[remarkCol] ? String(r[remarkCol].v) : '') : null;
+  // RSM comes from the mapping tab (Store_Name + RSM) — the 2nd tab first, else any other tab that has both columns.
+  // When a store is in the mapping, its RSM overrides the row's own RSM, in the filter and in the exported files.
+  const rsmMap = new Map(); let rsmSource = '';
+  const order = [wb.SheetNames[1], ...wb.SheetNames.filter((n,i) => i !== 1)].filter(n => n && n !== sheetName);
+  for (const n of order){
+    const rr = sheetCells(wb.Sheets[n]); const hh = findHeader(rr); if (hh.c < 0) continue;
+    const rc = (rr[hh.r]||[]).findIndex(x => norm(txt(x)) === 'rsm'); if (rc < 0) continue;
+    for (const r of rr.slice(hh.r+1)){ const k = txt(r[hh.c]), v = r[rc] && r[rc].t !== 'e' ? txt(r[rc]) : ''; if (k && v && !rsmMap.has(k)) rsmMap.set(k, v); }
+    if (rsmMap.size){ rsmSource = n; break; }
+  }
+  const groups = new Map();
+  for (const r of data){
+    const key = txt(r[col]) || '(ไม่ระบุ Store)';
+    if (!groups.has(key)){ const b = rsmIndex().get(nkey(key)); groups.set(key, {name:key, rows:[], rsm:new Set(), maxAge:null, tech:0, war:0, part:0, noEta:0, book:b || null, region: b ? b.region : '', src: b ? 'file' : EXTRA_RSM[key] ? 'extra' : rsmMap.has(key) ? 'tab' : ''}); }
+    const g = groups.get(key); g.rows.push(r);
+    if (r.extra){ if (r.extra.tech) g.tech++; if (r.extra.war) g.war++; if (r.extra.part){ g.part++; if (!r.extra.eta) g.noEta++; } }
+    const own = rsmCol >= 0 && r[rsmCol] && r[rsmCol].t !== 'e' && !/^#/.test(txt(r[rsmCol])) ? txt(r[rsmCol]) : '';
+    const rv = (g.book && g.book.rsm) || EXTRA_RSM[key] || rsmMap.get(key) || own || '';
+    if (!g.src && rv) g.src = 'row';
+    if (rv && !g.rsm.size) g.rsm.add(rv);
+    if (ageCol >= 0 && r[ageCol] && typeof r[ageCol].v === 'number') g.maxAge = Math.max(g.maxAge ?? -Infinity, r[ageCol].v);
+  }
+  const list = [...groups.values()].sort((a,b) => b.rows.length - a.rows.length || a.name.localeCompare(b.name));
+  list.forEach(g => g.rsmText = [...g.rsm].join(', '));
+  if (rsmCol < 0) rsmCol = -2;
+  const finalMap = new Map(list.map(g => [g.name, [...g.rsm][0] || '']));
+  state = {sheetName, hdr, col, data, list, rsmCol, ageCol, rsmMap: finalMap, rsmSource: rsmBook.source, remarkCol, parkCol, addCols, headerRow:h.r + (rows.startRow||0), startCol: rows.startCol||0};
+  selected = new Set(list.map(g => g.name));
+  rsmFilter = 'ALL';
+  render();
+}
+
+/* ---------- reading the Remark: JS / YS / PO-BO numbers, ETA, จอด / ไม่จอด ---------- */
+const EXTRA_HEADERS = ['Tech (JS)', 'Warranty (YS)', 'Part (PO/BO)', 'ETA'];
+function codes(text, prefixes){
+  const out = []; const re = new RegExp('\\b(' + prefixes + ')\\s*[-:.]?\\s*(\\d{6,})', 'gi'); let m;
+  while ((m = re.exec(text))) { const v = m[1].toUpperCase() + '-' + m[2]; if (!out.includes(v)) out.push(v); }
+  return out.join(', ');
+}
+function normDate(d, mo, y){
+  d = +d; mo = +mo; if (!d || !mo || d > 31 || mo > 12) return '';
+  if (y === undefined || y === '') y = new Date().getFullYear();
+  y = +y; if (y < 100) y = y >= 60 ? y + 2500 - 543 : 2000 + y; else if (y > 2400) y -= 543;
+  return String(d).padStart(2,'0') + '/' + String(mo).padStart(2,'0') + '/' + y;
+}
+function etaOf(text){
+  // takes the last date written after "ETA" (dealers often update it, e.g. "ETA 22.09.2026 --> 24.09.2026")
+  let last = ''; const re = /ETA[^0-9\n]{0,6}(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?(?:\s*-*>\s*(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?)?/gi; let m;
+  while ((m = re.exec(text))) last = m[4] ? normDate(m[4], m[5], m[6] ?? m[3]) : normDate(m[1], m[2], m[3]);
+  return last;
+}
+function parkOf(text){
+  const t = text.replace(/รถ\s*จอด\s*ซ่อม/g, '');
+  if (/ไม่\s*จอด/.test(t)) return 'Not Parking';
+  if (/จอด/.test(t)) return 'Parking';
+  return '';
+}
+function extrasOf(text){
+  text = text || '';
+  return {tech: codes(text,'JS'), war: codes(text,'YS'), part: codes(text,'PO|BO'), eta: etaOf(text), park: parkOf(text)};
+}
+
+/* ---------- writing ---------- */
+function buildSheet(hdr0, rows, rsmValue){
+  const ws = {}; const add = state.addCols || []; const hdr = hdr0.concat(add);
+  const keyOf = {'Tech (JS)':'tech', 'Warranty (YS)':'war', 'Part (PO/BO)':'part', 'ETA':'eta'};
+  rows.forEach((row,i) => { const ex = row.extra || {};
+    add.forEach((h,j) => { if (ex[keyOf[h]]) ws[XLSX.utils.encode_cell({r:i+1, c:hdr0.length+j})] = {t:'s', v:ex[keyOf[h]]}; });
+    if (state.parkCol >= 0 && ex.park && !row[state.parkCol]) ws[XLSX.utils.encode_cell({r:i+1, c:state.parkCol})] = {t:'s', v:ex.park}; });
+  hdr.forEach((h,c) => ws[XLSX.utils.encode_cell({r:0,c})] = {t:'s', v:h});
+  rows.forEach((row,i) => row.forEach((cell,c) => {
+    if (!cell) return;
+    const o = {t:cell.t, v: typeof cell.v === 'string' ? cell.v.replace(/\r\n?/g,'\n') : cell.v}; if (cell.z) o.z = cell.z;
+    ws[XLSX.utils.encode_cell({r:i+1,c})] = o;
+  }));
+  if (rsmValue && state.rsmCol >= 0) rows.forEach((row,i) => ws[XLSX.utils.encode_cell({r:i+1,c:state.rsmCol})] = {t:'s', v:rsmValue});
+  const ref = XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:rows.length, c:hdr.length-1}});
+  ws['!ref'] = ref; ws['!autofilter'] = {ref};
+  ws['!cols'] = hdr.map((h,c) => {
+    let w = h.length;
+    for (const r of rows.slice(0,400)){ const s = (c < hdr0.length ? txt(r[c]) : '').split('\n')[0]; if (s.length > w) w = s.length; }
+    if (c >= hdr0.length) w = Math.max(w, 22);
+    return {wch: Math.min(Math.max(w+2, 8), 50)};
+  });
+  return ws;
+}
+
+/* ---------- template writer: copies the original .xlsx and keeps only the chosen rows,
+   so dropdowns, table style, column widths, row heights and every column stay exactly as the source ---------- */
+const dec = new TextDecoder(), enc = new TextEncoder();
+const attr = (tag, name) => { const m = new RegExp('\\s' + name.replace(':','\\:') + '="([^"]*)"').exec(tag || ''); return m ? m[1] : null; };
+const xmlEsc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const xmlUnesc = s => String(s).replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&apos;/g,"'").replace(/&amp;/g,'&');
+function joinPath(dir, rel){ if (rel.startsWith('/')) return rel.slice(1); const parts = dir.split('/').filter(Boolean); for (const seg of rel.split('/')){ if (seg === '..') parts.pop(); else if (seg && seg !== '.') parts.push(seg); } return parts.join('/'); }
+async function prepareTemplate(buf){
+  try{
+    const z = await JSZip.loadAsync(buf);
+    if (!z.file('xl/workbook.xml')) return null;
+    const files = {};
+    for (const p of Object.keys(z.files)) if (!z.files[p].dir) files[p] = await z.file(p).async('uint8array');
+    const get = p => files[p] ? dec.decode(files[p]) : null;
+    const wbx = get('xl/workbook.xml'), rels = get('xl/_rels/workbook.xml.rels') || '';
+    const relTags = [...rels.matchAll(/<Relationship\b[^>]*>/g)].map(m => m[0]);
+    const sheets = {};
+    for (const m of wbx.matchAll(/<sheet\b[^>]*>/g)){
+      const rid = attr(m[0], 'r:id'), rel = relTags.find(t => attr(t,'Id') === rid);
+      if (rel) sheets[xmlUnesc(attr(m[0],'name'))] = joinPath('xl', attr(rel,'Target'));
+    }
+    return {files, get, sheets, parsed:{}};
+  } catch(e){ return null; }
+}
+function parseSheet(path){
+  if (tpl.parsed[path]) return tpl.parsed[path];
+  const xml = tpl.get(path);
+  const i = xml.indexOf('<sheetData'), k = xml.indexOf('>', i) + 1, e = xml.indexOf('</sheetData>');
+  const selfClosed = xml[k-2] === '/';
+  const prefix = selfClosed ? xml.slice(0, i) + '<sheetData>' : xml.slice(0, k);
+  const body = selfClosed ? '' : xml.slice(k, e);
+  const suffix = selfClosed ? '</sheetData>' + xml.slice(k) : xml.slice(e);
+  const rows = (body.match(/<row\b[^>]*?\/>|<row\b[^>]*>[\s\S]*?<\/row>/g) || []).map(x => ({r: +attr(x.slice(0, x.indexOf('>')+1), 'r'), xml: x}));
+  const dir = path.slice(0, path.lastIndexOf('/')), base = path.slice(path.lastIndexOf('/')+1);
+  const srels = tpl.get(dir + '/_rels/' + base + '.rels') || '';
+  const tables = [...srels.matchAll(/<Relationship\b[^>]*>/g)].map(m => m[0]).filter(t => /\/table/.test(attr(t,'Type') || '')).map(t => joinPath(dir, attr(t,'Target')));
+  return tpl.parsed[path] = {prefix, rows, suffix, tables};
+}
+function colLetter(n){ let s = ''; n++; while (n){ const m = (n-1) % 26; s = String.fromCharCode(65+m) + s; n = Math.floor((n-1)/26); } return s; }
+function colIndex(letters){ let n = 0; for (const ch of letters) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; }
+const inlineCell = (ref, style, text) => `<c r="${ref}"${style ? ` s="${style}"` : ''} t="inlineStr"><is><t xml:space="preserve">${xmlEsc(text)}</t></is></c>`;
+// adds/overrides cells: sets = [{col: index, text, onlyIfEmpty}]
+function withCells(rowXml, rowNum, sets, lastCol){
+  if (!sets.length) return rowXml;
+  const open = rowXml.match(/^<row\b[^>]*?\/?>/)[0];
+  const cells = rowXml.endsWith('/>') && open === rowXml ? [] : (rowXml.match(/<c\b[^>]*?\/>|<c\b[^>]*>[\s\S]*?<\/c>/g) || []);
+  const list = cells.map(x => ({col: colIndex((attr(x.match(/^<c\b[^>]*>/)[0],'r')||'A').replace(/\d+/g,'')), xml: x}));
+  const lastStyle = (() => { const c = list[list.length-1]; return c ? attr(c.xml.match(/^<c\b[^>]*>/)[0], 's') : null; })();
+  for (const st of sets){
+    const ref = colLetter(st.col) + rowNum, i = list.findIndex(c => c.col === st.col);
+    if (i >= 0){
+      const has = /<v>|<is>/.test(list[i].xml);
+      if (st.onlyIfEmpty && has) continue;
+      list[i].xml = inlineCell(ref, attr(list[i].xml.match(/^<c\b[^>]*>/)[0], 's') || st.style || lastStyle, st.text);
+    } else list.push({col: st.col, xml: inlineCell(ref, st.style ?? lastStyle, st.text)});
+  }
+  list.sort((a,b) => a.col - b.col);
+  let o = open.replace(/\/>$/, '>').replace(/\sspans="(\d+):\d+"/, (m, a) => ` spans="${a}:${lastCol + 1}"`);
+  return o + list.map(c => c.xml).join('') + '</row>';
+}
+function fixRow(rowXml, newR, rsmLetter, rsmVal){
+  let out = rowXml.replace(/^<row\b[^>]*>/, t => t.replace(/(\s)r="\d+"/, `$1r="${newR}"`));
+  return out.replace(/<c\b[^>]*?\/>|<c\b[^>]*>[\s\S]*?<\/c>/g, cell => {
+    const open = cell.match(/^<c\b[^>]*?\/?>/)[0];
+    const col = (attr(open,'r') || '').replace(/\d+/g,'');
+    let attrs = open.replace(/^<c/, '').replace(/\/?>$/, '').replace(/(\s)r="([A-Z]+)\d+"/, `$1r="$2${newR}"`);
+    if (rsmVal && col === rsmLetter){
+      return `<c${attrs.replace(/\st="[^"]*"/,'')} t="inlineStr"><is><t>${xmlEsc(rsmVal)}</t></is></c>`;
+    }
+    if (open.endsWith('/>')) return `<c${attrs}/>`;
+    let inner = cell.slice(open.length, -4).replace(/<f\b[^>]*\/>|<f\b[^>]*>[\s\S]*?<\/f>/g, '');
+    if (attr(open,'t') === 'str'){
+      const v = (inner.match(/<v>([\s\S]*?)<\/v>/) || [,''])[1];
+      return `<c${attrs.replace(/\st="[^"]*"/,'')} t="inlineStr"><is><t xml:space="preserve">${v}</t></is></c>`;
+    }
+    return `<c${attrs}>${inner}</c>`;
+  });
+}
+function clampRefs(str, hr, lastRow){
+  return str.replace(/([A-Z]+)(\d+)(?::([A-Z]+)(\d+))?/g, (m, c1, r1, c2, r2) => {
+    r1 = +r1; if (!c2) return r1 > lastRow ? c1 + lastRow : m;
+    r2 = +r2; if (r2 <= hr) return m;
+    return `${c1}${Math.min(r1, lastRow)}:${c2}${lastRow}`;
+  });
+}
+function buildFromTemplate(groups){
+  const path = tpl.sheets[state.sheetName]; const sh = parseSheet(path);
+  const hr = state.headerRow + 1;                       // header row, 1-based
+  const keep = new Map();                               // excel row -> RSM for that row
+  const extraOf = new Map();
+  for (const g of groups) for (const r of g.rows){ keep.set(r.excelRow, state.rsmMap.get(g.name) || null); extraOf.set(r.excelRow, r.extra); }
+  const sc = state.startCol || 0, firstNew = sc + state.hdr.length, lastCol = firstNew + state.addCols.length - 1;
+  const parkIdx = state.parkCol >= 0 ? sc + state.parkCol : -1;
+  const keyOf = {'Tech (JS)':'tech', 'Warranty (YS)':'war', 'Part (PO/BO)':'part', 'ETA':'eta'};
+  const rsmLetter = state.rsmCol >= 0 ? colLetter(state.rsmCol + (state.startCol || 0)) : null;
+  let n = 0; const outRows = [];
+  for (const row of sh.rows){
+    if (row.r < hr) outRows.push(row.xml);
+    else if (row.r === hr) outRows.push(withCells(row.xml, hr, state.addCols.map((h,i) => ({col: firstNew + i, text: h})), lastCol));
+    else if (keep.has(row.r)){
+      const nr = hr + (++n), ex = extraOf.get(row.r) || {};
+      const sets = state.addCols.map((h,i) => ({col: firstNew + i, text: ex[keyOf[h]] || ''})).filter(x => x.text);
+      if (parkIdx >= 0 && ex.park) sets.push({col: parkIdx, text: ex.park, onlyIfEmpty: true});
+      outRows.push(withCells(fixRow(row.xml, nr, rsmLetter, keep.get(row.r)), nr, sets, lastCol));
+    }
+  }
+  const lastRow = hr + Math.max(n, 1);
+  const widen = v => state.addCols.length ? v.replace(/:([A-Z]+)(\d+)$/, (m, c, r) => ':' + colLetter(lastCol) + r) : v;
+  let prefix = sh.prefix.replace(/<dimension ref="([^"]*)"/, (m, v) => `<dimension ref="${widen(clampRefs(v, hr, lastRow))}"`);
+  if (state.addCols.length){
+    const widths = {'Tech (JS)':24, 'Warranty (YS)':20, 'Part (PO/BO)':24, 'ETA':12};
+    const cols = state.addCols.map((h,i) => `<col min="${firstNew+i+1}" max="${firstNew+i+1}" width="${widths[h]||16}" customWidth="1"/>`).join('');
+    prefix = prefix.includes('</cols>') ? prefix.replace('</cols>', cols + '</cols>') : prefix.replace('<sheetData>', '<cols>' + cols + '</cols><sheetData>');
+  }
+  const suffix = sh.suffix.replace(/(sqref=")([^"]*)"/g, (m, p, v) => p + clampRefs(v, hr, lastRow) + '"')
+                          .replace(/(<xm:sqref>)([^<]*)/g, (m, p, v) => p + clampRefs(v, hr, lastRow))
+                          .replace(/(<(?:mergeCell|autoFilter)\b[^>]*\sref=")([^"]*)"/g, (m, p, v) => p + clampRefs(v, hr, lastRow) + '"');
+  const files = Object.assign({}, tpl.files);
+  const xmlOut = {};
+  xmlOut[path] = prefix + outRows.join('') + suffix;
+  for (const t of sh.tables) if (tpl.files[t]){
+    xmlOut[t] = tpl.get(t).replace(/(<(?:table|autoFilter)\b[^>]*\sref=")([^"]*)"/g, (m, p, v) => p + widen(clampRefs(v, hr, lastRow)) + '"')
+                          .replace(/<tableColumns count="(\d+)">([\s\S]*?)<\/tableColumns>/, (m, c, inner) => {
+                            if (!state.addCols.length) return m;
+                            let id = Math.max(0, ...[...inner.matchAll(/\sid="(\d+)"/g)].map(x => +x[1]));
+                            return `<tableColumns count="${+c + state.addCols.length}">${inner}${state.addCols.map(h => `<tableColumn id="${++id}" name="${xmlEsc(h)}"/>`).join('')}</tableColumns>`;
+                          })
+                          .replace(/<calculatedColumnFormula>[\s\S]*?<\/calculatedColumnFormula>/g, '');
+  }
+  // formulas were turned into values, so drop the calculation chain
+  if (files['xl/calcChain.xml']){
+    delete files['xl/calcChain.xml'];
+    xmlOut['[Content_Types].xml'] = tpl.get('[Content_Types].xml').replace(/<Override\b[^>]*calcChain[^>]*\/>/g, '');
+    xmlOut['xl/_rels/workbook.xml.rels'] = tpl.get('xl/_rels/workbook.xml.rels').replace(/<Relationship\b[^>]*calcChain[^>]*\/>/g, '');
+  }
+  // shared strings: keep only the strings still used, so no other store's text stays inside the file
+  if (files['xl/sharedStrings.xml']){
+    const sst = tpl.sstCache || (tpl.sstCache = (() => { const x = tpl.get('xl/sharedStrings.xml'); return {open: x.match(/<sst\b[^>]*>/)[0], head: x.slice(0, x.indexOf('<sst')), items: x.match(/<si>[\s\S]*?<\/si>|<si\/>/g) || []}; })());
+    const sheetPaths = Object.values(tpl.sheets).filter(p => files[p]);
+    const texts = {}; for (const p of sheetPaths) texts[p] = xmlOut[p] ?? tpl.get(p);
+    const used = new Map(); const order = [];
+    for (const p of sheetPaths) for (const m of texts[p].matchAll(/<c\b[^>]*\st="s"[^>]*>[\s\S]*?<\/c>/g)){
+      const v = m[0].match(/<v>(\d+)<\/v>/); if (v && !used.has(+v[1])){ used.set(+v[1], order.length); order.push(+v[1]); }
+    }
+    for (const p of sheetPaths) xmlOut[p] = texts[p].replace(/<c\b[^>]*\st="s"[^>]*>[\s\S]*?<\/c>/g, c => c.replace(/<v>(\d+)<\/v>/, (m, i) => `<v>${used.get(+i)}</v>`));
+    const open = sst.open.replace(/\scount="\d+"/, ` count="${order.length}"`).replace(/\suniqueCount="\d+"/, ` uniqueCount="${order.length}"`);
+    xmlOut['xl/sharedStrings.xml'] = sst.head + open + order.map(i => sst.items[i] || '<si><t></t></si>').join('') + '</sst>';
+  }
+  const z = new JSZip();
+  for (const [p, data] of Object.entries(files)) z.file(p, xmlOut[p] !== undefined ? enc.encode(xmlOut[p]) : data);
+  for (const [p, x] of Object.entries(xmlOut)) if (!files[p] && p !== 'xl/calcChain.xml') z.file(p, enc.encode(x));
+  return z.generateAsync({type:'uint8array', compression:'DEFLATE', mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+/* ---------- RSM book: who is responsible for which Partner (default = RSM_and_PS file, replaceable by upload) ---------- */
+const DEFAULT_RSM = {source:'RSM_and_PS_20261020.xlsx', isDefault:true, list: [["40000006", "GWM Charansanitwong", "BKK&MET", "Natchanon"], ["40000007", "GWM PAG Udomsuk", "BKK&MET", "Chanrob"], ["41000022", "GWM P and Y Sukhothai", "North", "Natthaphol"], ["41000007", "GWM Anuphas Phuket", "South", "Natchanon"], ["41000008", "GWM Amorn Ratchada", "BKK&MET", "Chanrob"], ["41000009", "GWM Ek Rayong", "Easten", "Chanrob"], ["41000012", "GWM CCC Auto Ubonratchathani", "Northeast", "Kiattikhun"], ["41000013", "GWM Great One Auto Chaengwattana", "BKK&MET", "Chanrob"], ["41000014", "GWM Eaksaha Korat", "Northeast", "Chanrob"], ["41000015", "GWM V Ultimatecar Bang Bua Thong", "BKK&MET", "Kiattikhun"], ["41000016", "GWM Prestige Pathumthani", "BKK&MET", "Kiattikhun"], ["41000017", "GWM APM Ayutthaya", "Central", "Natthaphol"], ["41000018", "GWM Chookiat Krabi", "South", "Natchanon"], ["41000020", "GWM Ch.Erawan Ratchaburi", "Central", "Natthaphol"], ["41000059", "GWM Maverick Auto Ramkhamhaeng", "BKK&MET", "Natthaphol"], ["41000023", "GWM Intertrade Singburi", "Central", "Pongsakorn"], ["41000025", "GWM A S Surin", "Northeast", "Kiattikhun"], ["41000026", "GWM Chookiat Hatyai", "South", "Natchanon"], ["41000053", "GWM CCC Auto Lampang", "North", "Natthaphol"], ["41000028", "GWM Pattanachaiyon Loei", "Northeast", "Kiattikhun"], ["41000029", "GWM Angelway Chiangrai", "North", "Natthaphol"], ["41000030", "GWM Ch.Erawan Kanchanaburi", "Central", "Natthaphol"], ["41000031", "GWM PAG Saraburi", "Central", "Chanrob"], ["41000032", "GWM CCC Auto Roiet", "Northeast", "Kiattikhun"], ["41000033", "GWM Tara Huahin", "South", "Natchanon"], ["41000035", "GWM Chookiat Nakhon Si Thammarat", "South", "Natchanon"], ["41000036", "GWM Angelway Phayao", "North", "Natthaphol"], ["41000037", "GWM Pijitphet Sakonnakhon", "Northeast", "Kiattikhun"], ["41000038", "GWM Pijitphet Mukdahan", "Northeast", "Kiattikhun"], ["41000039", "GWM Ek Chanthaburi", "Easten", "Chanrob"], ["41000040", "GWM Ch.Erawan Suphanburi", "Central", "Natthaphol"], ["41000041", "GWM Thairungruang Lopburi", "Central", "Kiattikhun"], ["41000042", "GWM Eaksaha Plus Buriram", "Northeast", "Chanrob"], ["41000044", "GWM Finn EV Nong Bua Lamphu", "Northeast", "Kiattikhun"], ["41000052", "GWM M1X Phitsanulok", "North", "Natthaphol"], ["41000046", "GWM BIG AUTO Sisaket", "Northeast", "Kiattikhun"], ["41000047", "GWM Sitthiphan Phetchaburi", "Central", "Natchanon"], ["41000062", "GWM Startrek Suanluang", "BKK&MET", "Natthaphol"], ["41000050", "GWM Iconic Ramintra", "BKK&MET", "Chanrob"], ["41000051", "GWM Motor Mall Rama 2", "BKK&MET", "Natchanon"], ["41000049", "GWM M1X Maesod", "North", "Natthaphol"], ["41000005", "GWM CCC Auto Chiangmai", "North", "Natthaphol"], ["41000054", "GWM Prestige Thanyaburi", "BKK&MET", "Kiattikhun"], ["41000043", "GWM KT Suratthani", "South", "Natchanon"], ["41000055", "GWM First Class Motor Chachoengsao", "Easten", "Chanrob"], ["41000056", "GWM Origin Chumphon", "South", "Natchanon"], ["41000057", "GWM Suvarnabhumi Ladkrabang", "BKK&MET", "Natthaphol"], ["41000058", "GWM PAG Nakhonsawan", "North", "Chanrob"], ["41000063", "GWM Premier Srinakarin", "BKK&MET", "Natthaphol"], ["41000060", "GWM Nava Auto Navanakorn", "BKK&MET", "Natchanon"], ["41000061", "GWM 168 Kanchanaphisek", "BKK&MET", "Natchanon"], ["41000027", "GWM One Theparak", "BKK&MET", "Natthaphol"], ["41000088", "GWM CCC Auto Chiangmai Maerim", "North", "Natthaphol"], ["41000064", "GWM Ch.Erawan Nakhonpathom", "Central", "Natthaphol"], ["41000066", "GWM Charoen Auto House Chaiyaphum", "Northeast", "Chanrob"], ["41000068", "GWM Areemit Mahasarakham", "Northeast", "Kiattikhun"], ["41000069", "GWM CCC Auto Vacharaphol", "BKK&MET", "Chanrob"], ["41000071", "GWM Tongcharoen Samutsakhon", "Central", "Natchanon"], ["41000072", "GWM Life Nonthaburi", "BKK&MET", "Kiattikhun"], ["41000074", "GWM Eaksaha Phahonyothin KM.25", "BKK&MET", "Chanrob"], ["41000075", "GWM Anuphas Phuket Kathu", "South", "Natchanon"], ["41000076", "GWM Ek Ari", "BKK&MET", "Kiattikhun"], ["41000078", "GWM Bangkok Chan Road", "BKK&MET", "Natchanon"], ["41000079", "GWM YAS YALA", "South", "Natchanon"], ["41000082", "GWM Teeka Udonthani", "Northeast", "Kiattikhun"], ["41000084", "GWM Karman Wongsawang", "BKK&MET", "Kiattikhun"], ["41000085", "GWM Ek Rayong Pluakdaeng", "Central", "Chanrob"], ["41000086", "GWM Chookiat Songkhla", "South", "Natchanon"], ["41000045", "GWM MM Lamphun", "North", "Natthaphol"], ["41000090", "GWM Sahachai EV Plus Khonkaen", "Northeast", "Kiattikhun"], ["41000091", "GWM Ek Chonburi", "Easten", "Chanrob"], ["41000092", "GWM Ek Pattaya", "Easten", "Chanrob"], ["41000093", "GWM A.N.N. Pattani", "South", "Natchanon"], ["41000094", "GWM Mundee Kalasin", "Northeast", "Kiattikhun"], ["41000095", "GWM AAG Rangsit", "BKK&MET", "Natthaphol"], ["41000104", "GWM E.V.S Plus Nonthaburi", "BKK&MET", "Kiattikhun"]]};
+const nkey = s => String(s ?? '').toLowerCase().replace(/^\s*gwm\s+/,'').replace(/[\s_\-.,&'()\/]+/g,'');
+let rsmBook = DEFAULT_RSM;
+try { const saved = JSON.parse(localStorage.getItem('rsmBook') || 'null'); if (saved && Array.isArray(saved.list) && saved.list.length) rsmBook = saved; } catch(e){}
+let rsmIdx = null, isSample = false;
+function rsmIndex(){ if (!rsmIdx){ rsmIdx = new Map(); for (const [code, store, region, rsm] of rsmBook.list) rsmIdx.set(nkey(store), {code, store, region, rsm}); } return rsmIdx; }
+function similar(a, b){ a = nkey(a); b = nkey(b); if (!a || !b) return 0; const grams = s => { const m = new Map(); for (let i = 0; i < s.length-1; i++){ const g = s.slice(i,i+2); m.set(g,(m.get(g)||0)+1); } return m; };
+  const A = grams(a), B = grams(b); let hit = 0; for (const [g,n] of A) hit += Math.min(n, B.get(g)||0); return 2*hit / Math.max(1, a.length-1 + b.length-1); }
+function closest(name){ let best = null, sc = 0; for (const [code, store] of rsmBook.list){ const s = similar(name, store); if (s > sc){ sc = s; best = store; } } return sc >= 0.55 ? best : null; }
+function parseRsmFile(buf){
+  const book = XLSX.read(buf, {type:'array'});
+  for (const n of book.SheetNames){
+    const rows = XLSX.utils.sheet_to_json(book.Sheets[n], {header:1, defval:null, raw:false});
+    for (let r = 0; r < Math.min(rows.length, 30); r++){
+      const h = (rows[r]||[]).map(x => norm(x));
+      const rc = h.findIndex(x => x === 'rsm'), sc = h.findIndex(x => /^(partnerstore|storename|store|partner|partnername|dealer|dealername)$/.test(x));
+      if (rc < 0 || sc < 0) continue;
+      const cc = h.findIndex(x => /pscode|partnercode|code/.test(x));
+      let gc = h.findIndex(x => /region|zone|ภาค/.test(x)); if (gc < 0 && rc > 0 && !h[rc-1]) gc = rc - 1;
+      const list = [];
+      for (const row of rows.slice(r+1)){ const st = row[sc] && String(row[sc]).trim(), rs = row[rc] && String(row[rc]).trim();
+        if (st && rs && norm(rs) !== 'rsm') list.push([cc >= 0 ? String(row[cc] ?? '') : '', st, gc >= 0 ? String(row[gc] ?? '').trim() : '', rs]); }
+      if (list.length) return list;
+    }
+  }
+  return null;
+}
+function renderRsmPanel(){
+  const idx = rsmIndex();
+  $('rsmSrc').textContent = `ใช้ไฟล์ ${rsmBook.source}${rsmBook.isDefault ? ' (ค่าเริ่มต้น)' : ''} · ${rsmBook.list.length} Partner`;
+  $('rsmReset').hidden = !!rsmBook.isDefault;
+  const by = new Map();
+  for (const [code, store, region, rsm] of rsmBook.list){ if (!by.has(rsm)) by.set(rsm, []); by.get(rsm).push({code, store, region}); }
+  const pend = new Map(); if (state) for (const g of state.list) pend.set(nkey(g.name), g.rows.length);
+  $('rsmGrid').innerHTML = [...by].sort((a,b) => b[1].length - a[1].length).map(([rsm, ps]) => {
+    const regions = [...new Set(ps.map(p => p.region).filter(Boolean))].join(' · ');
+    const ro = ps.reduce((s,p) => s + (pend.get(nkey(p.store)) || 0), 0), withRo = ps.filter(p => pend.get(nkey(p.store))).length;
+    return `<details class="rsmcard"><summary><span class="rn">${esc(rsm)}</span><span class="sub">${esc(regions || '–')}</span>
+      <span class="rstat"><b>${ps.length}</b> Partner${state ? ` · <b>${ro.toLocaleString()}</b> RO ค้าง (${withRo} ร้าน)` : ''}</span></summary>
+      <ul>${ps.sort((a,b) => (pend.get(nkey(b.store))||0) - (pend.get(nkey(a.store))||0) || a.store.localeCompare(b.store)).map(p => `<li><span class="mono sub">${esc(p.code)}</span><span class="pn">${esc(p.store)}</span><span class="sub">${esc(p.region)}</span><span class="num">${state ? (pend.get(nkey(p.store)) || 0) : ''}</span></li>`).join('')}</ul></details>`;
+  }).join('');
+  // Partners in the Pending file that are not in the RSM file
+  const w = $('rsmWarn');
+  if (!state || isSample){ w.hidden = true; return; }
+  const miss = state.list.filter(g => !idx.has(nkey(g.name)));
+  if (!miss.length){ w.className = 'banner ok'; w.hidden = false; w.innerHTML = `ชื่อ Partner ในไฟล์ Pending ตรงกับไฟล์ RSM ครบทั้ง ${state.list.length} ร้าน`; return; }
+  w.className = 'banner'; w.hidden = false;
+  w.innerHTML = `<b>พบ ${miss.length} ชื่อ Partner ที่ไม่ตรงกับไฟล์ RSM</b><ul class="miss">${miss.map(g => {
+    const sug = closest(g.name), used = [...g.rsm][0];
+    return `<li><span class="pn">${esc(g.name)}</span> <span class="sub">${g.rows.length} RO</span> → ${used ? `ใช้ RSM <b>${esc(used)}</b> <span class="sub">(${g.src === 'extra' ? 'กำหนดไว้ในระบบ' : g.src === 'tab' ? 'จากแท็บในไฟล์ Pending' : 'จากคอลัมน์ RSM ในไฟล์'})</span>` : '<b class="late">ไม่ระบุ RSM</b>'}${sug ? ` · ชื่อใกล้เคียงในไฟล์ RSM: “${esc(sug)}”` : ''}</li>`; }).join('')}</ul>
+    <span class="sub">แก้ชื่อในไฟล์ RSM ให้ตรง แล้วอัปโหลดใหม่ได้เลย</span>`;
+}
+async function handleRsmFile(f){
+  if (!f) return;
+  try{
+    const list = parseRsmFile(new Uint8Array(await f.arrayBuffer()));
+    if (!list){ toast('ไม่พบคอลัมน์ Partner Store และ RSM ในไฟล์นี้'); return; }
+    rsmBook = {source: f.name, isDefault:false, list}; rsmIdx = null;
+    try { localStorage.setItem('rsmBook', JSON.stringify(rsmBook)); } catch(e){}
+    toast(`ใช้ไฟล์ RSM ${f.name} (${list.length} Partner)`);
+    if (state) analyse(state.sheetName); else renderRsmPanel();
+  } catch(e){ toast('อ่านไฟล์ RSM ไม่ได้'); }
+}
+
+/* ---------- standard output file: always the full 18-column layout with every dropdown,
+   whatever columns the uploaded file has ---------- */
+const STD_TEMPLATE_B64 = 'UEsDBBQAAAAIAGlUVF3lQ/Q5aAEAAKcGAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Vz27CMAzG73uKKlfUBtg0TROFw/4cN6SxB8gal0akSRQHBm8/N2VomhgVAmlcarW2v99Xq3FHk3WtkxV4VNbkbJD1WQKmsFKZec7eZ8/pHUswCCOFtgZytgFkk/HVaLZxgAk1G8xZFYK75xyLCmqBmXVgKFNaX4tAt37OnSgWYg582O/f8sKaACakodFg49EjlGKpQ/K0psetEQ8aWfLQFjasnAnntCpEoDxfGfmLkm4JGXXGGqyUwx4VML6X0GT+Bmz7XmkyXklIpsKHF1FTFV9r/mn94sPaRXZYZI9LW5aqAGmLZU0tGToPQmIFEGqdxZjVQpleNz8WI49hcGYjO/0jfQwvxMf1hfi4+Scfgc4htNfTP40o0wHEsNGA5z4OUbSLXAkP8i14WlhnN/BTu2vk4oPMtuHcxzGKHuJT39Rbh7RZPRwP/16dTXfqSAh8UIcnvyOS9MlvC81WliD3sHn8z4y/AFBLAwQUAAAACAAAACEAJ1GmL4gBAABiAwAAEAAAAGRvY1Byb3BzL2FwcC54bWydk09P4zAQxe8r8R0i36nTUqFV5RihworDrqjUAmfjTBoLx7Y8Q9Tup8dJ1ZDy58JtPO/p6TceW1ztGpu1ENF4V7DpJGcZOO1L47YFe9j8Of/NMiTlSmW9g4LtAdmVPPslVtEHiGQAsxThsGA1UVhwjrqGRuEkyS4plY+NonSMW+6rymi48fq1AUd8lueXHHYEroTyPAyB7JC4aOmnoaXXHR8+bvYh5UlxHYI1WlGaUv4zOnr0FWW3Ow1W8LEoUtAa9Gs0tJe54OOjWGtlYZmCZaUsguDvDXEHqru0lTIRpWhp0YImHzM0/9O1zVj2rBA6nIK1KhrliB1sh0Nf24AU5ZOPL1gDEAo+NPty7B3XZi7nvSEVp0Y+gKT6FHFjyALeVysV6Qvi+Zi4Z2AjxnXHNx3znUrz76WL76XZp4GP6B9gl74JyqWN8KH6a9wLPoSNv1EEx/2cNsW6VhHKtNJhf0ND3KVBo+38y1q5LZRHz2ehe02Phy8jp5eT/CLP+0d07An+/jnkG1BLAwQUAAAACAAAACEAYsHQn1IBAAB0AgAAEQAAAGRvY1Byb3BzL2NvcmUueG1sfZLRasIwFIbvB3uHkvs2aXWdhraCDmEwx2AdG7sL6dFmtklIslXffrVqVSa7TM53vvznkGSyqSvvB4wVSqYoDAjyQHJVCLlK0Vs+90fIs47JglVKQoq2YNEku71JuKZcGXgxSoNxAqzXmqSlXKeodE5TjC0voWY2aAnZFpfK1My1R7PCmvE1WwGOCIlxDY4VzDG8E/q6N6KDsuC9Un+bqhMUHEMFNUhncRiE+MQ6MLW92tBVzshauK2Gq+ix2NMbK3qwaZqgGXRomz/EH4un125UX8jdrjigLCk45QaYUyZ7UQ0Yb/qY4LPL3QIrZt2i3fVSQDHdZs/M8ZJJJb1Zyao27Fp8aSYsMzLBf/HkMOteCYXXZqT7iY6V98HsIZ+jLCJh7JN7n8Q5GdEoosPx5y7NRf9JWB8e+dcYxX5I/HCckzG9G1ISnhmPgqzLfflPsl9QSwMEFAAAAAgAAAAhALVVMCPrAAAATAIAAAsAAABfcmVscy8ucmVsc62SzWrDMAyA74O9g9G9UdrBGKNOL2PQ2xjZA2i28kMSy9hul779vMPYAl3pYUfL0qdPQtvdPI3qyCH24jSsixIUOyO2d62Gt/p59QAqJnKWRnGs4cQRdtXtzfaVR0q5KHa9jypTXNTQpeQfEaPpeKJYiGeXfxoJE6X8DC16MgO1jJuyvMfwmwHVgqn2VkPY2ztQ9cnzNWxpmt7wk5jDxC6daYE8J3aW7cqHXB9Sn6dRNYWWkwYr5iWHI5L3RUYDnjfaXG/097Q4cSJLidBI4Ms+XxmXhNb/uaJlxo/NPOKHhOFdZPh2wcUNVJ9QSwMEFAAAAAgAaVRUXV+DhIQyAgAAVQUAABQAAAB4bC9zaGFyZWRTdHJpbmdzLnhtbI1UzW7TQBC+8xQrn8KBOoCEoHJctS6ggppEdQBxiqb2NF7F3nV3xxG5cUCqeACKEBckbnBBPW3fZh+FdYKC5E0pN3u+mW/n55uJ9t5VJVug0lyKQXB/px8wFJnMuZgNgleTZ/ceB0wTiBxKKXAQLFEHe/GdSGtiLlToQVAQ1bthqLMCK9A7skbhkDOpKiD3q2ahrhVCrgtEqsrwQb//KKyAi4BlshE0CB4+CVgj+HmDycYQR5rHEcVjFG0yLIdlFFIcha15DZ1gDVxNRypH1cVeHw2nicyxaz8AzbPpsUPKG+hSAmq0D1ag5l1r4uoiZFJ0gZSkwukQKi+Bk/S4a7LmqzXfrfllr99b882az9ZcWHNlzRff9Yc1l2usDWjDLrc6Xa3IflrzyRqz4bPmg73+uPq+uJX7P2IOV+WfsUMsuVPRkiWyqkskzLueE8wK1nuR3u0Cb0ApELRkvbc+OAZFrDcehQcjD3s62fenNOPeMFqd7uoaMidfJ0SNaoFBOwfWDX+eeu+n7EgsUBOfAfnUbX5zp06vLbe2IylAKHnqyXPsl3TecIWs7Z/gGZQsbepaKuo6DiWxG9JJGk2yckvOGu0J8iUHIj4vmm3FkWayXS9WK5mh9tZiJNh6bba8OgTKXJV+01zQeE3XSudf8VRAXUhvUzeS2a9dXgvY4sCpPRrZn8IZuJZxQRUKr28bX1mWmBHLSuCVOzcEO9saIhybY0Il3ChcGaclVn/9QncX499QSwMEFAAAAAgAAAAhABTNjQ/+AwAAuRMAAA0AAAB4bC9zdHlsZXMueG1s1VhLj9s2EL4X6H8QeNfqYclrG5aDtXcFBE2DAusCOeRCS5RNlA+Dordyiv73DvWwJCeudx0nm+hgkqOZb76ZoUia0zcFZ9YTUTmVIkLejYssIhKZUrGO0J/L2B4hK9dYpJhJQSK0Jzl6M/v1l2mu94w8bgjRFkCIPEIbrbcTx8mTDeE4v5FbIuBNJhXHGoZq7eRbRXCaGyPOHN91hw7HVKAKYcKT54BwrP7abe1E8i3WdEUZ1fsSC1k8mbxdC6nwigHVwgtwYhXeUPlWoRonpfQzP5wmSuYy0zeA68gsown5nO7YGTs4aZEA+TIkL3Rcvxd7oS5EChxFnqgpH5pNxY7HXOdWIndCQzkPIqtq3qYgHAbIqhK6kCnkKU0/2pzzj/Z+j5zZ1KlBZtNMihbrFlWC2TT/ZD1hBkCeUU8kk8rSQJkYhyARmJNKY4EZXSlqhBnmlO0rsW8EZZS1HqdQtNJ35aHvZ3RN0JXTCcD9tsjfLjXX8/Xs5PyGBdUna3ROu2zMlKKMHaZUiCrBbApfsiZKxDCw6v5yv4VIBCw6FUypd0Z7rfDe88PnG+SS0dSwWC/K/Kn1KkIxPAvXLSNa1S+oSElB4OuBj8egdxC/2pd5ur7qF275XNvb7eL2bvFyb2UD9VtJlcJm0VRwgBrRbMpIpsFc0fXGtFpujRepNSxes2lK8VoKzIyDxqJraZX7SYT0hpqFrJrOeKdlPZsdo1Sjn9UttUoKZ1VBp2F5VrdSuzCW4xl0Lp5j/TMxHat34jqR/boDRU0IY48G80PW2zqKrLNtuGbTEIcuTIe6W8FUA4PfRauwu7DBRbhWkR0c9Ky9F1lbeLtl+/c7viIqLnfAurR9zGqDvDJqJ06/xfS7mN4xZiyrUtQjsGlH89KsHd8xuhacNLXDzdDaSEU/AZBZlhMQEDgKwYFP08RIYJ4g62+Ft0tSNLydIjtNfvAzkw9+OvK9yfhs+seT8QcLqlOR8MT3daYiF9E1S26XbEP/Qr6D7zuDrsF++L2z/QJCr5HOS/Pl/2j5OkPoFfIVvGI5nfrU0Tna9A42B6ll/rFE6L1ZKFmH42pHmabiC4cawEyL9jzjo3J8yd/s0uyEbd/SbfXNL1DQ5oajHxewTkmGd0wvDy8j1PZ/Jyndcf+g9Qd9krrWavvvzCnTGxqHsKS8y3XZWjtFI/TPw/x2fP8Q+/bInY/sYEBCexzO7+0wWMzv7+Ox67uLfzv3LF9xy1JejcA884JJzkBL1cHW5B9bWYQ6g4p+mS6g3eU+9ofuXei5djxwPTsY4pE9Gg5COw49/34YzB/COOxwDy+8jXEdz2vJhxNNOWFUkD79ZVcKRYLh/wThNJVw2ju32X9QSwMEFAAAAAgAAAAhAA8rlihMAwAANAkAAA8AAAB4bC93b3JrYm9vay54bWytVW1vmzwU/f5I+w+I7xSbl7ygphME0Cq1U5Vm7SZVqlxwilXAeYxpUk3977smISFLPrBuKDFc++T43HuPyfnndZFrr1RUjJcTHZ8hXaNlwlNWPk/0b/PYGOlaJUmZkpyXdKK/0Ur/fPHpv/MVFy9PnL9oQFBWEz2TcumZZpVktCDVGV/SElYWXBREQiiezWopKEmrjFJZ5KaF0MAsCCv1DYMn+nDwxYIlNORJXdBSbkgEzYkE+VXGllXLViR96AoiXuqlkfBiCRRPLGfyrSHVtSLxLp9LLshTDmmvsautBXwG8MUIBqvdCZaOtipYInjFF/IMqLeij/LHyMT4oATr4xr0Y3KgCK9M9XBPNfgg12DHNdiTYfTXbBjt6awPsrk7Nku/OF+wnN5trKuR5fIrKVSncl3LSSWjlEmaTvQhhHxFDyZEvQxqlkNgI8dGunmxs/ONgAB67+eSipJIOuWlBKv9I1s13NOMQ3bajP5fM0Grxl2wAiNJPPJU3RCZabXIJ/rUe/hWQYYPGCPwi4UeQr4qcw5Feej4jxyr+gMHkkQVwNwJ2zz/XgDQJ7y2+jdSaPB8GV5BpW/JK9Qduptuj+UlFBbbj2UiPPz4M/ajIY7CqRH6VmA4oe8a/tB2jUE4xsidBtiN7HddHS0v4aSW2balinqiO8MTS9dk3a5g5NUs3cv4ibaXcWJor3eVsOr2HaOrat98FWrre1amfDXRDaws+3YYrpronqUygyTHjrWb+0LZcwaKMbKRsrqwlLLfFIUbMTFczXCgyOxIaprU3rWysfatesbwPlb3pshgZU/tIS5TrBiO0E4H7XTQ1km03UHbHbR9Em110FYH7TS5tAkkJE9uhKZujWRoujVWCLqWV5Vs7mB2BoXCDvKHaOwYKAJ/OKOxZYwc2zKmTmhF7jAKo8B9/5ev3ebMefujryUZEXIuSPIC/38zughIRVWZVUKgsys2cEcBskGiE+PYcPAYGUEwcAw3jG13iMNp5MZ7sSr9xQf1jszm15TIGt4WSnQTe2qMt7O7yS1s26eDDbxZqBLpAbyF7HPaExzf9QROv17Pr3tir6L5433cF+xfB6HfH+/PZv6PefS93cI8WdBNw83WpmZrk4tfUEsDBBQAAAAIAGlUVF1gu/m5PgIAAAgFAAAYAAAAeGwvd29ya3NoZWV0cy9zaGVldDIueG1snZTbjpswEIbv+xSW7wMYCIEoZLU5qSu1UlX1cO0YE6xgTG3nsKr67juGhN0qqhqtRIjtmf/zjGfM7OEsa3Tk2gjV5Jh4AUa8YaoQzS7H379tRilGxtKmoLVqeI6fucEP8w+zk9J7U3FuEQAak+PK2nbq+4ZVXFLjqZY3YCmVltTCVO9802pOi04kaz8MgsSXVDS4J0z1PQxVloLxlWIHyRvbQzSvqYXwTSVac6VJdg9OUr0/tCOmZAuIraiFfe6gGEk2fdo1StNtDWmfSUwZOmt4QvhF12269ZudpGBaGVVaD8iXmG/Tz/zMp2wg3eZ/F4bEcABH4er3igrfyRoPrPAVFr0Tlgwwd1x6ehBFjn+n0TiKomwyCsL1ehQvoniURatotFqnwSTOyIYsxn/wfFYIqLATI83LHD+S6ZJgfz7rNvgh+Mm8GSOr2k+8tEte1+CbQP1cg26V2jvzE2wcANPwmjPXKsj8GqiTscP6A+vt+LrHpuuZLxoVvKSH2n5Vp49c7CoLVyb2OgBTteneSAp3k6CD6Ln7P4nCVjkOYy+JwpSEY4zYwVglf/YGcpH3wvAiDAchSbwsSP4jiy6y6FU29lKSxP9S+n3AXXoraul8ptUJ6S5i01J3pckUaC7HMIHDY8746Kw5nmAEywZWj/PJzD863MVjcetB0r9dlr1L+tYlG1x8iONagz6wlu74Z6p3ojGohipDMT3g674A3Rjq340g1a2ykOp1VkFPcu1mkEuplL1O3BEMH7H5C1BLAwQUAAAACABpVFRdGGRWhuoEAADaDwAAGAAAAHhsL3dvcmtzaGVldHMvc2hlZXQxLnhtbM1XbXPiNhD+3l/hevLVYMny6wA3foGWu6RN79rrZ2NE8MS2XFmEpJ377135BRvCBO460zkmGEu7+2if1Uq7mbx7zjPlifIqZcVURSNdVWiRsHVaPEzVP35faI6qVCIu1nHGCjpVX2ilvpv9MNkz/lhtKRUKABTVVN0KUXrjcZVsaR5XI1bSAiQbxvNYwJA/jKuS03hdG+XZGOu6Nc7jtFAbBI9fg8E2mzShEUt2OS1EA8JpFgtwv9qmZdWh5ck1cHnMH3ellrC8BIhVmqXipQZVlTzxlg8F4/EqA9rPiMSJ8szhD8PX6Jap51+tlKcJZxXbiBEgtz6/pu+O3XGcHJBe878KBhEIwFMq96+Hwt+IZR6wcA9mfCOYdQCT4eLeLl1P1X/09qPBF2ndW/PoPl/U2WSdwg5LY4XTzVT1De8jUcezSb3A55Tuq8G7IuLVJ5rRRFBYA6mKTM8VY49SuIQpHRDLuKDKy6cSNnmqgkuClbd0I0KaZYBPVCVORPpE72OZ5ysmBMulvM5/AVMbzv6mRe1DvZT0rXyl3ID0oNVfjf+18+ODx8P3jsmizsx7rqzpJt5l4iPb/0zThy24i8jIlAAJy6r6qeQpnFfYpTx+rn/36VpsQdEemQS7lmObqrKilVhIthCRZFeBj3+2Wi1Wg2K0KEaP4o4sAzsIXw9CWhDSg5CvBjFbELMHsUYOsohuSZQ3LK3W0jpYWu4I2W0g3jC0W0O7XxKN3Ga9K712WgjnAGF8LYTbQri9F3hkY8u8xBvprSUiw5j1OfCWbRdu1Mcbk7dNujijPtBYf9ukizCyr16liyhyBvE4ZzJuDkR9fKJYxLMJZ3uF17lcweGEwoQ8iSIPEbbgFkik1JfHf6pWMH6a6ZPxk0RqZcFQho5l4VCGj2XRUGYcy+ZDGTmWLYYy81j201BmHct+HsrsY9lS0m8uuU7DOdZ432iQgYZ7rPHhtQY6CdVto2IOVU4idndG5SRwvzQq1lDlJH6/nvHlJIz3Z1ROovnbGZWToH48o9LHdgzJ1V3cTbaVW+iKRJrApb1hhVg21Ue8lFAVChayom2tZK6W8QO9i/lDWlRKBrUCqtIIjgRvbvj6HUpS/SYvjrqmdKMtlFbK5Qgc3DAmugHgCtmi3MdcVErCdkV91wxmFe7JwsuX6+bE9OqzCX0Wt5Wof5UdT6E8h+Hc8k3T1lw7CDWyclzNjwJLi9zQNULfD4xo8WXQ/fyH3qdu/mYTAPHWEMzPcZaum0au42EeFsqvW4c+J3TYWp5Db3cnSytZrbOM7YMsLh7rjau2bL8syp24o1UF23WYnHPO+HDy0M9YlhvaxMKaE6G5RkwUaQ7GumaFhu3bka3rkfGldUS2nrssRjDKvc3sk4wH/vFmfoM9eEC21tPwc6pbNxGzJfGWUBLsWq+ZanSPCf4PpBdEx9iIfA0vEGSJ6fiaT3xXs42Fb5KFZZg4ukDal6T9G+MS6ffEe/99kMZz1/XnQQSk7UgjKCKaYzmBZviOj9wwICZGF0iHknR4mfQH4n34Pkijub7QSQRbi0NdI1Fkao4RGJq5CILAwCiEDu8C6UCSDm7cS6RviXf7fZA2Q12fW3CmDcfHGpkvXM01EdLcue37oY4Cc25dIB1J0tENuUT6jnh3V5E+MwkXONx4onnW9/j48G/57F9QSwMEFAAAAAgAaVRUXUZ9y+GyAgAA7AcAABgAAAB4bC93b3Jrc2hlZXRzL3NoZWV0NC54bWydlVmPmzAUhd/7Kyy/J+wEoiSjrNN5qFRVXZ4dMMEawNR2llHV/95rsmGGqUYjZbE5OZ/v4dpk8nAqC3SgQjJeTbEztDGiVcJTVu2m+Mf3zSDCSCpSpaTgFZ3iFyrxw+zT5MjFs8wpVQgAlZziXKl6bFkyyWlJ5JDXtAIl46IkCqZiZ8laUJI2prKwXNsOrZKwCp8JY/EeBs8yltAVT/YlrdQZImhBFJQvc1bLK61M3oMriXje14OElzUgtqxg6qWBYlQm46ddxQXZFhD75PgkQScBLxfe3nWZ5vqrlUqWCC55poZAvtT8On5sxRZJbqTX+d+FcXy4AQem+3dHuR9kBTeWe4d5H4SFN5i+XWK8Z+kU/1kHS8+xF9FgafvRwJ/Hi0EU2/5gHq7WC3vjBMF68xfPJimDDmszEjSb4rk7foyxNZs0C/xk9ChbY6S345bzZz15gmVsIEha0ERvDETg60CXtCimeO1ANPm7geoxIK0bpz2+8jfNfvkqUEozsi/UN378TNkuV3Bc/GGgAQkvZPOJSganCBYoyan5PrJU5TAKhpET+nboBhhtqVQbpu0YJXupePnr/CvnwjpTvAvFu1H0cr4bh9Eo+K/Tvzj9uzMahp4bOW6v0TrX36RdEUVmE8GPSDQBZE306XbGI7ijib44h6tQvIT5YebaE+ugCRdxYYiOKS4N0TXFlSF6prg2RN8UH99wWpDiFsXrjeK1nUEniiGGnSiGOOpEMcSoE8UQ406UN5xGFL8vysJvOb1OV1aG2OnK2hA7XXl8w2kUFPQWFLSd3X4aot+PDXuxYdsZ9DtHvc5R2xn2O6NeZ9R2jvqdca8zbju7/bRaJ64mO/qFiB2rJCpoBiZ7CAWL84OmGSteNyP9COEKzvB1lsNzlwo9g+2Tca6uE322b3/Us39QSwMEFAAAAAgAaVRUXd/NnK+bAQAAfgMAABgAAAB4bC93b3Jrc2hlZXRzL3NoZWV0My54bWydk01P4zAQhu/8Csv3xEnrhlI1RaVQwQEJod29u84ksRp7ItulRYj/jpPSsFIvFVIizZvMPPNlz28PuiFvYJ1Ck9M0TigBI7FQpsrp3z/raEqJ88IUokEDOX0HR28XV/M92q2rATwJAONyWnvfzhhzsgYtXIwtmPCnRKuFD9JWzLUWRNEH6YaNkiRjWihDj4SZvYSBZakk3KPcaTD+CLHQCB/Kd7Vq3Ymm5SU4Lex210YSdRsQG9Uo/95DKdFy9lQZtGLThLYPKReSHGx4RuEdn9L0388yaSUtOix9HMjfNZ+3f8NumJAD6bz/izApDwN4U93+flCjX7ImA2v0Axv/EpYNsG5cdrZTRU4/xtkyW62yLJqO+TLiDymPpku+ipJknU7XnN+lq/STLuaFChvugomFMqfLlLLFvKf/U7B3/9mkO4sbxG0nnkKOpHNlZ77rfvEvlhRQil3jX3H/CKqqfTj3PJ4M/HvhRbBbUcGzsJUyjjRQBq8kvqbEHiN622PbWxNKNug96pOqwyTAdiq0XiL6k+gKG67O4gtQSwMEFAAAAAgAAAAhAKic9QCzAAAAJQEAACMAAAB4bC93b3Jrc2hlZXRzL19yZWxzL3NoZWV0MS54bWwucmVsc43PsQrCMBAG4F3wHcLtJq2DiDTtIkJXqQ9wptc22CYhiWLf3oAOFhwc737+77iiek4je5AP2hoJOc+AkVG21aaXcGlOmz2wENG0OFpDEmYKUJXrVXGmEWMqhUG7wJJigoQhRncQIqiBJgzcOjIp6ayfMKbR98KhumFPYptlO+G/DSgXJqtbCb5uc2DN7Ogf23adVnS06j6RiT9OiIjXkRKIvqcogfP35hPkPIEgykIsnitfUEsDBBQAAAAIAGlUVF0q5bgPWgMAAMYIAAAUAAAAeGwvdGFibGVzL3RhYmxlMS54bWydlcuO2zYUhvd9CkGr6YIj6krJGE+giwVMkckE42mDrAaMRI+JSqJB0omNokAXBYI+QFMU3RTILt0UWSlvo0cpJY89viiAUAE2yKPD7+ch+YsXz1Zlob0lXFBWjXXzHOoaqTKW0+phrH9/lwJf14TEVY4LVpGxviZCf3b5zYXEbwqiqcGVGOtzKRcjwxDZnJRYnLMFqdSbGeMllqrLHwyx4ATnYk6ILAvDgtAzSkwrfUMYldkQSIn5j8sFyFi5wJK+oQWV646la2U2unqoGG9nNdZXXFtxewtf8RN4STPOBJvJcwUz2GxGM3IyR9MxOHlL25V5Qtn/k+XtWGpeNFdLrZh8tGybP8HHB6hfDLpWqp7ub/vuZ12rcKmKu2trVKNzKhYFXr84CHIyG+uhPbp19MsLvJQspYUkfD/eLxtsZKG56cK2sZE1LjebHbNiWVZCy9iykmr+vn7w4qko+xRvQrAVOsY/VvWSVO2Z03K8VqVhiZPV7KojGqcy1mAZ60jmliww5fc3PCe8j2wPJttH5B+uXtzHLCd9VGcw1TmiRljQ7P5acYs+sDsY7PYvxFRiuRR9aG8w2jtBt0btY6LBTHTEjJWdJNFaJ+4dDtgn4g8W8Y9EppJxct8aqo8bHHBRMomRj4ATJSZwzNgCoZ1OQBT4gQU9E6ah87Qg02vlFWMP2OMcuI+PJkhx0gSk0IuBEyQhCII0BG4MkRNF5sQOrR2+qf9q6o9N/W/z5Zem/rup/2jq9039uan/7KvDPDCpEyfINC0HeI4TAMeFIQiR0kRpGKeW5Zu2v6/0qak/bNCtXqv6oVfjwKET5NphkCBgu7FaLJiaIIpUFyE3CHzfT1EUHmp87kr5p6l/b+p6V01T/9p8+a1rv+9VPXCvn6DYs8wEQD9J2y1KQRglCVCbEwZmHKmdc75e2VDJA2tHruNFXhwAL7Kh2rZYbVsaToAXm0ngJV6ozLKTTLoDPdMSUlB1Aa+1WN1rBZEk7xVyd99/ks21s++m3/amedu0V5hzXMm1dvb6K6lo9+3FXGpnL2+M6KY/099mTu7CNmH/KIvH/KlcF+SqmrH9a6oLXpOcLkt1IsScvUspF3IzsvVvF3uOT0K37N1UcrogortU2tAmYxeFTxO5/A9QSwMEFAAAAAgAAAAhAK7qOWWTBgAAxiAAABMAAAB4bC90aGVtZS90aGVtZTEueG1s7VnNb9s2FL8P2P8g6O5KtiV/BHUKW7b7lTRB43bokZZpizElGiSVxCgKDO1plwEDumGXAbvtMAwrsAIrdtkfE6DF1v0Re5K/RJtqkzYtOiwOYJPU7z3++N7j44t49dpJSI0jzAVhUcMsXrFNA0c+G5Bo1DDv9bqFmmkIiaIBoizCDXOKhXlt+/PPrqItGeAQGyAfiS3UMAMpJ1uWJXwYRuIKm+AIng0ZD5GELh9ZA46OQW9IrZJtV6wQkcg0IhSC2r3hkPjY6CUqze2F8g6Fr0iKZMCn/MBPZ8xKpNjBuJj8iKnwKDeOEG2YMM+AHffwiTQNioSEBw3TTj+mtX3VWgpRmSObkeumn7ncXGAwLqVyfNRfCjqO61SaS/2lmf5NXKfaqXQqS30pAPk+rLS4gXVb9VbbnWMzoFlTo7tdbZeLCj6jv7yBb7rJn4Ivr/DOBr7b9VY2zIBmTVdjk2rJcxS8u8JXNvBVu9l2qgo+BQWUROMNtO1Wyt5itUvIkNEbWnjddbrV0hy+QlmZ6JrJRzIv1kJ0yHgXAKlzkSSRIacTPEQ+4DxESZ8TY4eMAgi8CYqYgGG7ZHftMnwnf07aSi2CtjDKSM+GfLExlPAxhM/JRDbMW6DVzEBevnhx+vj56ePfT588OX3863zuTbkbKBpl5V7/9M0/P3xp/P3bj6+ffqvHiyz+1S9fvfrjzzeplwqt7569ev7s5fdf//XzUw28yVE/C++REAvjDj427rIQFqiZAPf5+SR6ASKKBAoAqQF2ZKAA70wR1eFaWDXhfQ6ZQge8Hh8qXA8CHkuiAd4OQgW4yxhtMa5dzu1kruxy4mikn5zHWdxdhI50c3trDu7EEwh5olPpBVihuU/B22iEIyyN5BkbY6wRe0CIYtdd4nMm2FAaD4jRQkRrkh7pS73QDRKCX6Y6guBqxTa7940Wozr1bXykImFbIKpTialixusolijUMkYhzSJ3kAx0JA+m3FcMLiR4eoQpMzoDLIROZo9PFbq3IcPo3b5Lp6GK5JKMdcgdxFgW2WZjL0DhRMuZREEWe1OMIUSRsc+klgRTd0jSBz+gKNfd9wmW59vW9yAD6QMkeRJz3ZbATN2PUzpEWKe8yUMluzY50UZHKx4pob2DMUXHaICxce+mDs8mTE/6VgBZ5QbW2eYWUmM16UdYQJmU1DUaxxKhhOwBHrEcPrvTtcQzRVGIeJ7mO2M1ZDpwymlT6R71x0oqJTzZtHoSeyJEZ9K6HyAlrJK+0MfrlEfn3WMgc/gOMvjcMpDYz2ybHqJYHzA9BAWGLt2CSKwXSbZTKhZr5Ybqpl25wVqrd0ISvbX4WSt73I9T9nywgufiS528lLJe4OTh/oNlTRvF0T6Gk+Syqrmsav6PVU3eXr6sZS5rmcta5qPVMqvyxcq+5Um1hLmvfIaE0gM5pXhHpIWPgL0/6MJg2kmFlm+YJgE059MpuBFHadvgTH5BZHAQoAlMU0xnGIm56pEwJkxA6WTm6k5LrzjcZYPZaLG4eKkJAkiuxqH0WoxDoSZno5Xq6u3dUn3aG4ksATdVenYSmclUEmUNiWr5bCSK9kWxqGtY1IpvYmFlvAKHk4GS9+GuM2ME4QYhPUj8NJNfePfCPZ1nTHXZJc3y6s6FeVohkQk3lUQmDAM4PNaHL9jX9bre1SUtjWrtQ/ja2swNNFJ7xjHsubILanw0aZhD+KcJmuEE9IkkUyE6ihqmL+eGfpfMMuFCtpEIZrD00Wz9IZGYG5SEEOtZN9Boxa1YqtqfLrm6/elZzlp3Mh4OsS9zRlZdeDZTon36nuCkw2IgfRAMjo0+jfldBIZyq8XEgAMi5NKaA8Izwb2y4lq6mm9F5bJltUURnQRofqJkk/kMnraXdDLrSJmur8rSmbA/6l7Eqft2obWkmXOAVHOz2Ic75DOsynpWrjbX1Wv2m0+J9z8QMtRqemplPbW8s+MCC4LMdJUcu5Vyvfmep8F61FqZujLtbdxqs/4hRH4bqtWYSjF7OXYC5be3uI+cZYJ0dJFdTqQRc9IwH9pu0/FKrlewa26n4JQdu1Bzm+VC03XLxY5btNut0iMwigzCojubuwv/7NPp/NI+Hd+4uA8XpfYVn4UWS+tgKxVOL+6LpfyLe4OAZR5WSt16ud6qFOrlZrfgtFu1Qt2rtArtildtd9ueW6t3H5nGUQp2mmXPqXRqhUrR8wpOxU7o1+qFqlMqNZ1qs9Zxmo/mtoaVL34X5k15bf8LUEsDBBQAAAAIAGlUVF3NCvog/gAAAGAEAAAaAAAAeGwvX3JlbHMvd29ya2Jvb2sueG1sLnJlbHO9lMFqwzAMhu97CqP74iTtujHq9FIGvW7dA5hEiUMTO1jqtrz9TMbWBkrYIeRkfgn9/4cE3u6+2kZ8oKfaWQVJFINAm7uitpWC9+PL/RMIYm0L3TiLCnok2GV321dsNIcZMnVHIphYUmCYu2cpKTfYaopchzZ0SudbzUH6SnY6P+kKZRrHG+mvPSAbeYpDocAfihWIY9/hf7xdWdY57l1+btHyjQj56fyJDCIHU+0rZAV/JZLDs4qCK8jbMI9zwpDRHos39mHVdAEaladg0oU3k07BJAvDJFMwm1nPxH2D1/cZ9FT8w5zxHGbxkj7In+LkCtYL32P9CyNHH0P2DVBLAQIUAxQAAAAIAGlUVF3lQ/Q5aAEAAKcGAAATAAAAAAAAAAAAAACkgQAAAABbQ29udGVudF9UeXBlc10ueG1sUEsBAhQDFAAAAAgAAAAhACdRpi+IAQAAYgMAABAAAAAAAAAAAAAAAKSBmQEAAGRvY1Byb3BzL2FwcC54bWxQSwECFAMUAAAACAAAACEAYsHQn1IBAAB0AgAAEQAAAAAAAAAAAAAApIFPAwAAZG9jUHJvcHMvY29yZS54bWxQSwECFAMUAAAACAAAACEAtVUwI+sAAABMAgAACwAAAAAAAAAAAAAApIHQBAAAX3JlbHMvLnJlbHNQSwECFAMUAAAACABpVFRdX4OEhDICAABVBQAAFAAAAAAAAAAAAAAApIHkBQAAeGwvc2hhcmVkU3RyaW5ncy54bWxQSwECFAMUAAAACAAAACEAFM2ND/4DAAC5EwAADQAAAAAAAAAAAAAApIFICAAAeGwvc3R5bGVzLnhtbFBLAQIUAxQAAAAIAAAAIQAPK5YoTAMAADQJAAAPAAAAAAAAAAAAAACkgXEMAAB4bC93b3JrYm9vay54bWxQSwECFAMUAAAACABpVFRdYLv5uT4CAAAIBQAAGAAAAAAAAAAAAAAApIHqDwAAeGwvd29ya3NoZWV0cy9zaGVldDIueG1sUEsBAhQDFAAAAAgAaVRUXRhkVobqBAAA2g8AABgAAAAAAAAAAAAAAKSBXhIAAHhsL3dvcmtzaGVldHMvc2hlZXQxLnhtbFBLAQIUAxQAAAAIAGlUVF1GfcvhsgIAAOwHAAAYAAAAAAAAAAAAAACkgX4XAAB4bC93b3Jrc2hlZXRzL3NoZWV0NC54bWxQSwECFAMUAAAACABpVFRd382cr5sBAAB+AwAAGAAAAAAAAAAAAAAApIFmGgAAeGwvd29ya3NoZWV0cy9zaGVldDMueG1sUEsBAhQDFAAAAAgAAAAhAKic9QCzAAAAJQEAACMAAAAAAAAAAAAAAKSBNxwAAHhsL3dvcmtzaGVldHMvX3JlbHMvc2hlZXQxLnhtbC5yZWxzUEsBAhQDFAAAAAgAaVRUXSrluA9aAwAAxggAABQAAAAAAAAAAAAAAKSBKx0AAHhsL3RhYmxlcy90YWJsZTEueG1sUEsBAhQDFAAAAAgAAAAhAK7qOWWTBgAAxiAAABMAAAAAAAAAAAAAAKSBtyAAAHhsL3RoZW1lL3RoZW1lMS54bWxQSwECFAMUAAAACABpVFRdzQr6IP4AAABgBAAAGgAAAAAAAAAAAAAApIF7JwAAeGwvX3JlbHMvd29ya2Jvb2sueG1sLnJlbHNQSwUGAAAAAA8ADwDlAwAAsSgAAAAA';
+const STD_COLS = [['Pending day','num',1],['Repair_Order'],['VIN_Code'],['Basic_Model'],['Repair_Status'],['Remark'],['Create on','date',2],['Store_Name'],
+  ['RSM',null,0,'rsm'],['ประเภทงาน'],['สถานะรถ',null,0,'park'],['สาเหตุงานค้าง'],['สถานะงานค้าง'],['Date of Delivery Completed','date',2],
+  ['Tech (JS)',null,0,'tech'],['Warranty (YS)',null,0,'war'],['Part (PO/BO)',null,0,'part'],['ETA',null,0,'eta']];
+let stdTpl = null;
+async function loadStd(){ if (!stdTpl) stdTpl = await prepareTemplate(Uint8Array.from(atob(STD_TEMPLATE_B64), c => c.charCodeAt(0))); return stdTpl; }
+const isDateFmt = z => !!z && /[dmy]/i.test(z) && !/general/i.test(z);
+function srcCell(ref, c, def){
+  if (!c || c.v === undefined || c.v === null || c.v === '') return '';
+  if (c.t === 'n') return `<c r="${ref}"${(def[1] === 'date' || isDateFmt(c.z)) ? ' s="2"' : def[2] ? ` s="${def[2]}"` : ''}><v>${c.v}</v></c>`;
+  if (c.t === 'b') return `<c r="${ref}" t="b"><v>${c.v ? 1 : 0}</v></c>`;
+  if (c.t === 'e') return '';
+  return inlineCell(ref, null, String(c.v).replace(/\r\n?/g, '\n'));
+}
+function splitSheet(xml){ const i = xml.indexOf('<sheetData'), k = xml.indexOf('>', i) + 1, e = xml.indexOf('</sheetData>');
+  return {prefix: xml.slice(0, k), rows: (xml.slice(k, e).match(/<row\b[^>]*?\/>|<row\b[^>]*>[\s\S]*?<\/row>/g) || []), suffix: xml.slice(e)}; }
+function setColumn(xml, colIdx, values, firstRow, lastColIdx){
+  // writes values[i] into column colIdx at row firstRow+i, creating rows when needed
+  const sp = splitSheet(xml), byR = new Map(sp.rows.map(r => [+attr(r.slice(0, r.indexOf('>')+1), 'r'), r]));
+  values.forEach((v, i) => { const rn = firstRow + i; byR.set(rn, withCells(byR.get(rn) || `<row r="${rn}"></row>`, rn, [{col: colIdx, text: v}], lastColIdx)); });
+  return sp.prefix + [...byR].sort((a,b) => a[0]-b[0]).map(x => x[1]).join('') + sp.suffix;
+}
+async function buildStandard(groups){
+  const T = await loadStd(), path = T.sheets['Sheet1'];
+  const sp = splitSheet(T.get(path)), HR = 3;
+  const src = STD_COLS.map(d => state.hdr.findIndex(h => norm(h) === norm(d[0])));
+  const extras = state.hdr.map((h,i) => i).filter(i => !src.includes(i) && !/^Column \d+$/.test(state.hdr[i]));
+  const lastCol = STD_COLS.length - 1 + extras.length, L = colLetter(lastCol);
+  const keyed = {tech:'tech', war:'war', part:'part', eta:'eta', park:'park'};
+  let header = sp.rows.find(r => +attr(r.slice(0, r.indexOf('>')+1), 'r') === HR);
+  const used = new Set(STD_COLS.map(d => d[0].toLowerCase()));
+  const extraNames = extras.map(i => { let n = state.hdr[i], k = 2; while (used.has(n.toLowerCase())) n = state.hdr[i] + ' (' + (k++) + ')'; used.add(n.toLowerCase()); return n; });
+  if (extras.length) header = withCells(header, HR, extraNames.map((n, j) => ({col: STD_COLS.length + j, text: n, style: '4'})), lastCol);
+  const out = [header]; let n = 0;
+  for (const g of groups) for (const r of g.rows){
+    const rn = HR + (++n), ex = r.extra || {};
+    let cells = '';
+    STD_COLS.forEach((d, k) => {
+      const ref = colLetter(k) + rn, c = src[k] >= 0 ? r[src[k]] : null, fill = d[3];
+      if (fill === 'rsm'){ const v = state.rsmMap.get(g.name) || (c && c.t !== 'e' ? txt(c) : ''); if (v) cells += inlineCell(ref, null, v); }
+      else if (fill){ const v = (c && c.t !== 'e' && txt(c)) || ex[keyed[fill]] || ''; if (v) cells += inlineCell(ref, null, v); }
+      else cells += srcCell(ref, c, d);
+    });
+    extras.forEach((i, j) => { cells += srcCell(colLetter(STD_COLS.length + j) + rn, r[i], []); });
+    out.push(`<row r="${rn}" spans="1:${lastCol+1}">${cells}</row>`);
+  }
+  const lastRow = HR + Math.max(n, 1);
+  let prefix = sp.prefix.replace(/<dimension ref="[^"]*"/, `<dimension ref="A${HR}:${L}${lastRow}"`);
+  if (extras.length) prefix = prefix.replace('</cols>', extras.map((i,j) => `<col min="${STD_COLS.length+j+1}" max="${STD_COLS.length+j+1}" width="18" customWidth="1"/>`).join('') + '</cols>');
+  const rsmNames = [...new Set(rsmBook.list.map(x => x[3]))].sort();
+  const suffix = sp.suffix.replace(/(<xm:sqref>)([^<]*)/g, (m, p, v) => p + clampRefs(v, HR, lastRow))
+                          .replace(/(sqref=")([^"]*)"/g, (m, p, v) => p + clampRefs(v, HR, lastRow) + '"')
+                          .replace(/Sheet2!\$E\$2:\$E\$\d+/, `Sheet2!$E$2:$E$${1 + Math.max(rsmNames.length, 1)}`);
+  const xmlOut = {};
+  xmlOut[path] = prefix + out.join('') + suffix;
+  const tpath = 'xl/tables/table1.xml';
+  xmlOut[tpath] = T.get(tpath).replace(/(<(?:table|autoFilter)\b[^>]*\sref=")([^"]*)"/g, (m, p) => `${p}A${HR}:${L}${lastRow}"`)
+    .replace(/<tableColumns count="(\d+)">([\s\S]*?)<\/tableColumns>/, (m, c, inner) => !extras.length ? m :
+      `<tableColumns count="${+c + extras.length}">${inner}${extraNames.map((nm, j) => `<tableColumn id="${+c + j + 1}" name="${xmlEsc(nm)}"/>`).join('')}</tableColumns>`);
+  // dropdown list of RSM names (Sheet2 column E) and the Store → Region → RSM reference (Sheet4)
+  const s2 = T.sheets['Sheet2'], s4 = T.sheets['Sheet4'];
+  if (s2){ let x = T.get(s2); x = setColumn(x, 4, rsmNames.concat(Array(Math.max(0, 4 - rsmNames.length)).fill('')), 2, 6); xmlOut[s2] = x; }
+  if (s4){ let x = T.get(s4); const L4 = rsmBook.list;
+    x = setColumn(x, 0, L4.map(e => e[1]), 2, 2); x = setColumn(x, 1, L4.map(e => e[2]), 2, 2); x = setColumn(x, 2, L4.map(e => e[3]), 2, 2);
+    xmlOut[s4] = x.replace(/<dimension ref="[^"]*"/, `<dimension ref="A1:C${L4.length + 1}"`); }
+  const z = new JSZip();
+  for (const [p, data] of Object.entries(T.files)) z.file(p, xmlOut[p] !== undefined ? enc.encode(xmlOut[p]) : data);
+  return z.generateAsync({type:'uint8array', compression:'DEFLATE', mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+
+async function fileBytes(groups){
+  try { return await buildStandard(groups); } catch(e){ console.error(e); }
+  return XLSX.write(workbookFor(groups), {bookType:'xlsx', type:'array'});
+}
+const xlsxBlob = bytes => new Blob([bytes], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+
+const safeFile = s => s.replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim();
+function sheetNameFor(name, used){
+  let base = name.replace(/[\[\]:*?\/\\]/g,' ').replace(/^GWM\s+/i,'').trim().slice(0,31) || 'Sheet';
+  let n = base, i = 2; while (used.has(n.toLowerCase())) { const suf = ' ('+(i++)+')'; n = base.slice(0,31-suf.length)+suf; }
+  used.add(n.toLowerCase()); return n;
+}
+function workbookFor(groups){
+  const out = XLSX.utils.book_new(), used = new Set();
+  for (const g of groups) XLSX.utils.book_append_sheet(out, buildSheet(state.hdr, g.rows, state.rsmMap.get(g.name)), sheetNameFor(g.name, used));
+  return out;
+}
+const toBlob = book => new Blob([XLSX.write(book, {bookType:'xlsx', type:'array'})], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+function storeFileName(g){ return safeFile(fileBase + '_' + g.name) + '.xlsx'; }
+
+async function downloadOne(name){
+  const g = state.list.find(x => x.name === name); if (!g) return;
+  await saveFile(storeFileName(g), xlsxBlob(await fileBytes([g])));
+}
+function chosen(){ return visible().filter(g => selected.has(g.name)); }
+async function downloadZip(){
+  const gs = chosen(); if (!gs.length) return toast('ยังไม่ได้เลือก Store');
+  $('zipBtn').disabled = true; $('zipBtn').textContent = 'กำลังสร้าง ZIP…';
+  try{
+    const zip = new JSZip();
+    // one folder per RSM; stores with no RSM go to "ไม่ระบุ RSM"
+    for (const g of gs){
+      const folder = safeFile([...g.rsm][0] || 'ไม่ระบุ RSM') || 'ไม่ระบุ RSM';
+      zip.file(folder + '/' + storeFileName(g), await fileBytes([g]));
+    }
+    const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE'});
+    await saveFile(safeFile(fileBase + '_by_Store' + (rsmFilter!=='ALL' ? '_' + rsmFilter : '')) + '.zip', blob);
+  } finally { $('zipBtn').disabled = false; updateCount(); }
+}
+async function downloadBook(){
+  const gs = chosen(); if (!gs.length) return toast('ยังไม่ได้เลือก Store');
+  await saveFile(safeFile(fileBase + (tpl ? '_Selected_Stores' : '_Split_Sheets') + (rsmFilter!=='ALL' ? '_' + rsmFilter : '')) + '.xlsx', xlsxBlob(await fileBytes(gs)));
+}
+
+/* ---------- UI ---------- */
+function visible(){
+  const q = $('q').value.trim().toLowerCase();
+  return state.list.filter(g => (rsmFilter === 'ALL' || g.rsm.has(rsmFilter)) && (!q || g.name.toLowerCase().includes(q)));
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function render(){
+  $('summary').hidden = false; $('tabs').hidden = false; renderRsmPanel();
+  state.recs = buildRecords();
+  const curTab = (document.querySelector('#tabs [aria-selected="true"]')||{}).dataset?.tab || 'dash';
+  $('sFile').textContent = fileBase;
+  $('sheetSel').innerHTML = wb.SheetNames.map(n => `<option ${n===state.sheetName?'selected':''}>${esc(n)}</option>`).join('');
+  $('colSel').innerHTML = state.hdr.map((h,i) => `<option value="${i}" ${i===state.col?'selected':''}>${esc(h)}</option>`).join('');
+  const rsms = new Set(); state.list.forEach(g => g.rsm.forEach(r => rsms.add(r)));
+  $('chips').innerHTML = rsms.size ? ['ALL', ...[...rsms].sort()].map(r =>
+    `<button class="chip" data-rsm="${esc(r)}" aria-pressed="${r===rsmFilter}">${r==='ALL'?'ทุก RSM':esc(r)}</button>`).join('') : '';
+  $('rsmHead').hidden = state.rsmCol === -1; $('ageHead').hidden = state.ageCol < 0; $('tagHead').hidden = !state.addCols.length;
+  renderRows();
+  setTab(curTab);
+}
+function renderRows(){
+  const v = visible();
+  $('sRows').textContent = v.reduce((s,g) => s + g.rows.length, 0).toLocaleString();
+  $('sStores').textContent = v.length.toLocaleString();
+  $('tbody').innerHTML = v.length ? v.map(g => {
+    const age = g.maxAge, cls = age == null ? '' : age > 90 ? 'crit' : age > 30 ? 'warn' : '';
+    return `<tr>
+      <td><input type="checkbox" data-sel="${esc(g.name)}" ${selected.has(g.name)?'checked':''} aria-label="เลือก ${esc(g.name)}"></td>
+      <td class="store">${esc(g.name)}</td>
+      ${state.rsmCol!==-1?`<td class="rsm hide-sm">${esc(g.rsmText||'–')}</td>`:''}
+      <td class="num">${g.rows.length.toLocaleString()}</td>
+      ${state.ageCol>=0?`<td class="num hide-sm">${age==null?'–':`<span class="pill ${cls}">${Math.round(age)} วัน</span>`}</td>`:''}
+      ${state.addCols.length?`<td class="num hide-sm"><span class="tag">${g.tech}</span> · <span class="tag">${g.war}</span> · <span class="tag">${g.part}</span>${g.noEta?` <span class="pill warn" title="Part ที่ยังไม่มี ETA">${g.noEta} ไม่มี ETA</span>`:''}</td>`:''}
+      <td style="text-align:right"><button data-dl="${esc(g.name)}">.xlsx</button></td></tr>`;
+  }).join('') : `<tr><td colspan="7" class="empty">ไม่พบ Store ที่ตรงกับตัวกรอง</td></tr>`;
+  $('all').checked = v.length > 0 && v.every(g => selected.has(g.name));
+  $('foot').textContent = `อ่านหัวตารางจากแถวที่ ${state.headerRow+1} ของ Sheet “${state.sheetName}” · ไฟล์ที่ได้มีหัวตารางเดิม ตัวกรอง และรูปแบบวันที่ตามต้นฉบับ (สูตรถูกแปลงเป็นค่า)`.replace('ไฟล์ที่ได้มีหัวตารางเดิม ตัวกรอง และรูปแบบวันที่ตามต้นฉบับ (สูตรถูกแปลงเป็นค่า)', tpl ? 'ไฟล์ที่ได้มีครบ 18 คอลัมน์มาตรฐาน พร้อม Dropdown ทุกช่องเสมอ ไม่ว่าไฟล์ต้นทางจะมีกี่คอลัมน์' : 'ไฟล์ที่ได้มีหัวตารางเดิม ตัวกรอง และรูปแบบวันที่ตามต้นฉบับ (สูตรถูกแปลงเป็นค่า)') + (state.addCols.length ? ' · เพิ่มคอลัมน์ ' + state.addCols.join(' / ') + ' และเติมสถานะรถ (จอด/ไม่จอด) จาก Remark' : '') + ` · RSM ยึดตามไฟล์ ${rsmBook.source}` + ` · RO ในไฟล์ ${state.data.length.toLocaleString()} = แยกได้ครบ ${state.list.reduce((s,g)=>s+g.rows.length,0).toLocaleString()} RO`;
+  updateCount();
+}
+function updateCount(){
+  if (!state) return;
+  const n = chosen().length;
+  $('zipBtn').textContent = `ZIP แยกโฟลเดอร์ตาม RSM · ${n} Store`;
+  $('zipBtn').disabled = $('bookBtn').disabled = n === 0;
+}
+
+$('chips').addEventListener('click', e => { const b = e.target.closest('[data-rsm]'); if (!b) return; rsmFilter = b.dataset.rsm; render(); });
+$('q').addEventListener('input', renderRows);
+$('tbody').addEventListener('click', e => { const b = e.target.closest('[data-dl]'); if (b) downloadOne(b.dataset.dl); });
+$('tbody').addEventListener('change', e => { const c = e.target.closest('[data-sel]'); if (!c) return; c.checked ? selected.add(c.dataset.sel) : selected.delete(c.dataset.sel); $('all').checked = visible().every(g => selected.has(g.name)); updateCount(); });
+$('all').addEventListener('change', e => { visible().forEach(g => e.target.checked ? selected.add(g.name) : selected.delete(g.name)); renderRows(); });
+$('zipBtn').addEventListener('click', downloadZip);
+$('bookBtn').addEventListener('click', downloadBook);
+// the whole file in its original row order, RSM filled for every row
+async function downloadFull(){
+  if (!state) return;
+  const b = $('fullBtn'); b.disabled = true; const old = b.textContent; b.textContent = 'กำลังสร้างไฟล์…';
+  try{
+    const rows = state.data.map(r => ({name: txt(r[state.col]) || '(ไม่ระบุ Store)', rows:[r]}));
+    const bytes = await fileBytes(rows);
+    const blank = rows.filter(x => !state.rsmMap.get(x.name)).length;
+    await saveFile(safeFile(fileBase + '_RSM') + '.xlsx', xlsxBlob(bytes));
+    if (blank) toast(`มี ${blank} RO ที่ยังไม่มี RSM ดูชื่อร้านในแถบ RSM ที่รับผิดชอบ`);
+  } finally { b.disabled = false; b.textContent = old; }
+}
+$('fullBtn').addEventListener('click', downloadFull);
+$('sheetSel').addEventListener('change', e => analyse(e.target.value));
+$('colSel').addEventListener('change', e => analyse(state.sheetName, +e.target.value));
+
+async function loadBuffer(buf, name){
+  tpl = await prepareTemplate(buf);
+  try{
+    wb = XLSX.read(buf, {type:'array', cellNF:true, cellText:true});
+  } catch(err){ toast('อ่านไฟล์ไม่ได้ ตรวจสอบว่าเป็นไฟล์ Excel ที่ถูกต้อง'); return; }
+  fileBase = name.replace(/\.[^.]+$/,'');
+  // pick the sheet that has a Store column; fall back to the first sheet
+  let pick = wb.SheetNames[0];
+  for (const n of wb.SheetNames){ const rows = sheetCells(wb.Sheets[n]); const h = findHeader(rows); if (h.c >= 0 && rows.length > h.r + 1){ pick = n; break; } }
+  $('sampleBanner').hidden = true; isSample = false;
+  analyse(pick);
+  toast(`โหลด ${name} แล้ว`);
+}
+function handleFile(f){ if (!f) return; const r = new FileReader(); r.onload = () => loadBuffer(new Uint8Array(r.result), f.name); r.readAsArrayBuffer(f); }
+$('file').addEventListener('change', e => { handleFile(e.target.files[0]); e.target.value = ''; });
+const drop = $('drop');
+['dragenter','dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+
+/* ---------- dashboard ---------- */
+const CAUSES = [
+  {k:'part',  label:'Part (รออะไหล่)'},
+  {k:'war',   label:'Warranty / เคลม'},
+  {k:'tech',  label:'Tech'},
+  {k:'cust',  label:'ลูกค้า / นัดหมาย'},
+  {k:'other', label:'อื่นๆ'},
+  {k:'none',  label:'ไม่มีข้อมูล'}
+];
+const CAUSE_FROM_DROPDOWN = {'parts order process':'part','warranty approval':'war','waiting collect claim data.':'war','waiting collect claim data':'war',
+  'require technical support':'tech','ps investigation':'tech','waiting customer appointment':'cust','on process of repairing':'other','partner internal problem':'other'};
+const AGE_BUCKETS = [[0,7,'0–7'],[8,15,'8–15'],[16,30,'16–30'],[31,60,'31–60'],[61,90,'61–90'],[91,Infinity,'90+']];
+let dash = {view:'overview', rsm:'', store:'', showAll:false, q:''};
+
+function colByName(re){ return state.hdr.findIndex(h => re.test(norm(h))); }
+function detailOf(rem){
+  const m = rem.match(/สาเหตุ\s*(?:ที่)?\s*(?:งาน)?\s*ค้าง\s*[:：]\s*([^\n]+)/) || rem.match(/รายละเอียดงานค้าง\s*[:：]\s*([^\n]+)/) || rem.match(/สถานะงานค้าง\s*[:：]\s*([^\n]+)/);
+  let t = m ? m[1] : (rem.split('\n').map(x => x.trim()).find(x => x && !/^"?ไม่?\s*จอด\s*$/.test(x)) || '');
+  t = t.replace(/[()“”"\/]{2,}/g,' ').replace(/^[\s"“(\/]+|[\s"”)\/]+$/g,'').trim();
+  return t.length > 110 ? t.slice(0,108) + '…' : t;
+}
+function causeOf(rem, ex, dd){
+  const fromDd = dd && CAUSE_FROM_DROPDOWN[dd.trim().toLowerCase()];
+  if (fromDd) return fromDd;
+  if (!rem.trim()) return 'none';
+  if (ex.part || /รอ\s*อะไหล่|อะไหล่ติด|back\s*order|b\/o|สั่งอะไหล่|รอตัดอะไหล่/i.test(rem)) return 'part';
+  if (ex.war || /เคลม|warrant|waranty|รับประกัน|รออนุมัติ/i.test(rem)) return 'war';
+  if (ex.tech || /เทคนิค|technical/i.test(rem)) return 'tech';
+  if (/ลูกค้า|นัดหมาย|นัด\s/.test(rem)) return 'cust';
+  return 'other';
+}
+function parseDMY(s){ const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s || ''); return m ? new Date(+m[3], +m[2]-1, +m[1]) : null; }
+function buildRecords(){
+  const c = {sp: colByName(/^repair_?order$|^repairorder$/), model: colByName(/basicmodel|^model$/), status: colByName(/repairstatus/),
+             dd: colByName(/^สาเหตุงานค้าง$/)};
+  const today = new Date(); today.setHours(0,0,0,0);
+  const recs = [];
+  for (const g of state.list) for (const r of g.rows){
+    const rem = state.remarkCol >= 0 && r[state.remarkCol] ? String(r[state.remarkCol].v) : '';
+    const ex = r.extra || {};
+    const parkCell = state.parkCol >= 0 ? txt(r[state.parkCol]) : '';
+    const park = /not/i.test(parkCell) ? 'Not Parking' : /park/i.test(parkCell) ? 'Parking' : (ex.park || '');
+    const age = state.ageCol >= 0 && r[state.ageCol] && typeof r[state.ageCol].v === 'number' ? r[state.ageCol].v : null;
+    const etaD = parseDMY(ex.eta);
+    recs.push({store:g.name, rsm:[...g.rsm][0] || 'ไม่ระบุ RSM', age, sp: c.sp>=0 ? txt(r[c.sp]) : '', model: c.model>=0 ? txt(r[c.model]) : '',
+      status: c.status>=0 ? txt(r[c.status]) : '', park, cause: causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : ''), detail: detailOf(rem),
+      tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', etaLate: !!(etaD && etaD < today), remark: rem});
+  }
+  return recs;
+}
+function scopeRecs(){
+  const all = state.recs;
+  if (dash.view === 'rsm' && dash.rsm) return all.filter(r => r.rsm === dash.rsm);
+  if (dash.view === 'store' && dash.store) return all.filter(r => r.store === dash.store);
+  return all;
+}
+
+/* charts — hand-drawn SVG; vertical bars only */
+const tip = () => $('dtip');
+function showTip(e, html){ const t = tip(); t.innerHTML = html; t.hidden = false; const x = Math.min(e.clientX + 14, window.innerWidth - t.offsetWidth - 8); t.style.left = x + 'px'; t.style.top = (e.clientY + 14) + 'px'; }
+function hideTip(){ tip().hidden = true; }
+function niceStep(v){ if (v <= 1) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1,2,5,10]) if (m*p >= v) return m*p; return 10*p; }
+function vbar(el, items, opt = {}){
+  const W = Math.max(el.clientWidth, 260);
+  const rot = opt.rotate || (W - 44) / Math.max(items.length, 1) < 64;
+  const longest = Math.min(22, Math.max(0, ...items.map(i => i.label.length))), padB = rot ? 24 + longest * 4.3 : 30;
+  const H = (opt.height || 240) - (rot ? 110 - padB : 0), padL = rot ? 64 : 40, padT = 18;
+  const vmax = Math.max(1, ...items.map(i => i.value)), tstep = niceStep(vmax / 4), max = Math.ceil(vmax / tstep) * tstep, nt = Math.round(max / tstep);
+  const ih = H - padB - padT, iw = W - padL - 8;
+  const step = iw / Math.max(items.length, 1), bw = Math.max(4, Math.min(48, step * 0.62)), showVals = opt.values !== false && step >= 24;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="${esc(opt.title||'')}">`;
+  for (let k = 0; k <= nt; k++){ const v = tstep * k, y = padT + ih - ih * k / nt;
+    s += `<line x1="${padL}" x2="${W-8}" y1="${y}" y2="${y}" class="grid"/><text x="${padL-6}" y="${y+4}" class="axis" text-anchor="end">${Math.round(v).toLocaleString()}</text>`; }
+  items.forEach((it, i) => {
+    const h = ih * it.value / max, x = padL + step * i + (step - bw) / 2, y = padT + ih - h, cx = x + bw/2;
+    const r = Math.min(4, bw/2, h);
+    const path = h > 0 ? `M${x},${padT+ih} V${y+r} Q${x},${y} ${x+r},${y} H${x+bw-r} Q${x+bw},${y} ${x+bw},${y+r} V${padT+ih} Z` : '';
+    s += `<g class="bar${opt.onClick ? ' click' : ''}" data-i="${i}"><rect x="${padL + step*i}" y="${padT}" width="${step}" height="${ih}" fill="transparent"/>`
+       + (path ? `<path d="${path}" fill="${it.color || 'var(--c1)'}"/>` : '')
+       + (showVals && it.value ? `<text x="${cx}" y="${y-5}" class="val" text-anchor="middle">${it.value.toLocaleString()}</text>` : '') + '</g>';
+    const lab = esc(it.label.length > 22 ? it.label.slice(0,21) + '…' : it.label);
+    s += rot ? `<text transform="translate(${cx+4},${padT+ih+10}) rotate(-50)" class="axis" text-anchor="end">${lab}</text>`
+             : `<text x="${cx}" y="${padT+ih+18}" class="axis" text-anchor="middle">${lab}</text>`;
+  });
+  s += `<line x1="${padL}" x2="${W-8}" y1="${padT+ih}" y2="${padT+ih}" class="base"/></svg>`;
+  el.innerHTML = s;
+  el.querySelectorAll('.bar').forEach(b => {
+    const it = items[+b.dataset.i];
+    b.addEventListener('mousemove', e => showTip(e, `<b>${esc(it.label)}</b><br>${it.value.toLocaleString()} RO${it.note ? '<br>' + it.note : ''}`));
+    b.addEventListener('mouseleave', hideTip);
+    if (opt.onClick) b.addEventListener('click', () => { hideTip(); opt.onClick(it); });
+  });
+}
+function pie(el, items, title){
+  const total = items.reduce((s,i) => s + i.value, 0), R = 84, C = 92;
+  let a0 = -Math.PI/2, s = `<svg viewBox="0 0 184 184" width="184" height="184" role="img" aria-label="${esc(title)}">`;
+  const shown = items.filter(i => i.value > 0);
+  shown.forEach((it, idx) => {
+    const a1 = a0 + 2 * Math.PI * it.value / total, large = a1 - a0 > Math.PI ? 1 : 0;
+    const d = shown.length === 1 ? `M${C},${C-R} A${R},${R} 0 1 1 ${C-0.01},${C-R} Z`
+      : `M${C},${C} L${C + R*Math.cos(a0)},${C + R*Math.sin(a0)} A${R},${R} 0 ${large} 1 ${C + R*Math.cos(a1)},${C + R*Math.sin(a1)} Z`;
+    s += `<path d="${d}" fill="${it.color}" class="slice" data-i="${items.indexOf(it)}"/>`;
+    a0 = a1;
+  });
+  s += '</svg>';
+  const legend = items.map((it,i) => `<li data-i="${i}"><span class="sw" style="background:${it.color}"></span><span class="lt">${esc(it.label)}</span><span class="lv">${it.value.toLocaleString()} <small>${total ? Math.round(it.value/total*100) : 0}%</small></span></li>`).join('');
+  el.innerHTML = `<div class="pie">${s}<ul class="legend">${legend}</ul></div>`;
+  el.querySelectorAll('.slice').forEach(p => { const it = items[+p.dataset.i];
+    p.addEventListener('mousemove', e => showTip(e, `<b>${esc(it.label)}</b><br>${it.value.toLocaleString()} RO · ${Math.round(it.value/total*100)}%`));
+    p.addEventListener('mouseleave', hideTip); });
+}
+const causeColor = k => `var(--k-${k})`;
+function countBy(recs, f){ const m = new Map(); for (const r of recs){ const k = f(r); m.set(k, (m.get(k)||0) + 1); } return m; }
+
+function renderDash(){
+  if (!state || !state.recs) return;
+  const rsms = [...new Set(state.recs.map(r => r.rsm))].sort();
+  $('dRsm').innerHTML = rsms.map(r => `<option ${r===dash.rsm?'selected':''}>${esc(r)}</option>`).join('');
+  const stores = (dash.rsm && dash.view !== 'overview' ? state.list.filter(g => ([...g.rsm][0] || 'ไม่ระบุ RSM') === dash.rsm) : state.list).map(g => g.name).sort();
+  $('dStore').innerHTML = stores.map(s => `<option ${s===dash.store?'selected':''}>${esc(s)}</option>`).join('');
+  if (dash.view === 'rsm' && !dash.rsm) { dash.rsm = rsms[0] || ''; $('dRsm').value = dash.rsm; }
+  if (dash.view === 'store' && (!dash.store || !stores.includes(dash.store))) { dash.store = stores[0] || ''; $('dStore').value = dash.store; }
+  document.querySelectorAll('#dView button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === dash.view));
+  $('dRsmWrap').hidden = dash.view === 'overview'; $('dStoreWrap').hidden = dash.view !== 'store';
+  const recs = scopeRecs();
+  const scopeName = dash.view === 'overview' ? 'ทุก Partner' : dash.view === 'rsm' ? 'RSM ' + dash.rsm : dash.store;
+  $('dScope').textContent = scopeName;
+
+  // KPIs
+  const ages = recs.map(r => r.age).filter(v => v != null);
+  const avg = ages.length ? ages.reduce((a,b) => a+b, 0) / ages.length : 0;
+  const parts = recs.filter(r => r.cause === 'part');
+  const k = [
+    ['RO ค้างทั้งหมด', recs.length.toLocaleString(), ''],
+    ['ค้างเฉลี่ย', Math.round(avg) + ' วัน', ''],
+    ['ค้างเกิน 30 วัน', recs.filter(r => r.age > 30).length.toLocaleString(), 'warn'],
+    ['ค้างเกิน 90 วัน', recs.filter(r => r.age > 90).length.toLocaleString(), 'crit'],
+    ['รถจอดอยู่ที่ศูนย์', recs.filter(r => r.park === 'Parking').length.toLocaleString(), ''],
+    ['Part ไม่มี ETA / เลย ETA', parts.filter(r => !r.eta).length + ' / ' + parts.filter(r => r.etaLate).length, 'warn']
+  ];
+  $('dKpi').innerHTML = k.map(([l,v,c]) => `<div class="kpi ${c}"><span class="k">${l}</span><span class="v">${v}</span></div>`).join('');
+
+  // bar 1: who carries the load
+  let barItems, barTitle, barClick;
+  if (dash.view === 'overview'){
+    const m = countBy(recs, r => r.rsm);
+    barItems = [...m].sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label, value, key:label}));
+    barTitle = 'RO ค้างแยกตาม RSM'; barClick = it => { dash.view = 'rsm'; dash.rsm = it.key; renderDash(); };
+  } else if (dash.view === 'rsm'){
+    const m = countBy(recs, r => r.store);
+    barItems = [...m].sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label: label.replace(/^GWM\s+/,''), value, key:label}));
+    barTitle = 'RO ค้างแยกตาม Partner · คลิกเพื่อเจาะลึก'; barClick = it => { dash.view = 'store'; dash.store = it.key; renderDash(); };
+  } else {
+    const m = countBy(recs, r => r.status || 'ไม่ระบุ');
+    barItems = [...m].sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label, value}));
+    barTitle = 'RO ค้างแยกตาม Repair Status';
+  }
+  $('dBar1T').textContent = barTitle;
+  vbar($('dBar1'), barItems, {rotate: dash.view !== 'overview' && barItems.length > 4, onClick: barClick, height: dash.view === 'rsm' ? 300 : 260, title: barTitle});
+
+  // overview also gets top partners
+  $('dTopWrap').hidden = dash.view !== 'overview';
+  if (dash.view === 'overview'){
+    const m = countBy(recs, r => r.store);
+    const top = [...m].sort((a,b) => b[1]-a[1]).slice(0, 20).map(([label,value]) => ({label: label.replace(/^GWM\s+/,''), value, key:label}));
+    vbar($('dTop'), top, {rotate:true, height:300, onClick: it => { dash.view = 'store'; dash.store = it.key; dash.rsm = (state.recs.find(r => r.store === it.key)||{}).rsm || ''; renderDash(); }, title:'Top 20 Partner'});
+  }
+
+  // aging (ordinal blue ramp)
+  const ageItems = AGE_BUCKETS.map(([a,b,l], i) => ({label: l + ' วัน', value: recs.filter(r => r.age != null && r.age >= a && r.age <= b).length, color: `var(--age${i})`}));
+  vbar($('dAge'), ageItems, {title:'อายุงานค้าง'});
+
+  // cause stacked by bucket? keep pie + vertical bar per cause
+  pie($('dCause'), CAUSES.map(c => ({label:c.label, value: recs.filter(r => r.cause === c.k).length, color: causeColor(c.k)})), 'ติดที่อะไร');
+  pie($('dPark'), [
+    {label:'จอด (Parking)', value: recs.filter(r => r.park === 'Parking').length, color:'var(--c1)'},
+    {label:'ไม่จอด (Not Parking)', value: recs.filter(r => r.park === 'Not Parking').length, color:'var(--c2)'},
+    {label:'ไม่ระบุ', value: recs.filter(r => !r.park).length, color:'var(--k-none)'}], 'จอด / ไม่จอด');
+  // aging by cause: vertical bars, one per cause, showing average days
+  const causeAvg = CAUSES.map(c => { const a = recs.filter(r => r.cause === c.k && r.age != null).map(r => r.age); return {label:c.label, value: a.length ? Math.round(a.reduce((x,y)=>x+y,0)/a.length) : 0, color: causeColor(c.k), note: a.length + ' RO'}; });
+  vbar($('dCauseAge'), causeAvg, {title:'ค้างเฉลี่ย (วัน) ตามสาเหตุ', rotate:true, height:250});
+
+  renderRank();
+}
+function renderRank(){
+  const q = dash.q.trim().toLowerCase();
+  const causeF = $('dCauseF').value;
+  let recs = scopeRecs().filter(r => (!causeF || r.cause === causeF) && (!q || (r.sp + ' ' + r.store + ' ' + r.detail + ' ' + r.part + ' ' + r.war + ' ' + r.tech).toLowerCase().includes(q)));
+  recs = recs.slice().sort((a,b) => (b.age ?? -1) - (a.age ?? -1));
+  const lim = dash.showAll ? recs.length : 50;
+  const lab = Object.fromEntries(CAUSES.map(c => [c.k, c.label]));
+  $('dRankBody').innerHTML = recs.slice(0, lim).map((r,i) => {
+    const sev = r.age > 90 ? 'crit' : r.age > 30 ? 'warn' : '';
+    const refs = [r.tech && `<span class="ref">${esc(r.tech)}</span>`, r.war && `<span class="ref">${esc(r.war)}</span>`, r.part && `<span class="ref">${esc(r.part)}</span>`].filter(Boolean).join(' ');
+    return `<tr>
+      <td class="num">${i+1}</td>
+      <td class="num"><span class="pill ${sev}">${r.age ?? '–'}</span></td>
+      <td><span class="mono">${esc(r.sp)}</span><div class="sub">${esc(r.model)} · ${esc(r.status)}</div></td>
+      <td>${esc(r.store.replace(/^GWM\s+/,''))}<div class="sub">${esc(r.rsm)}</div></td>
+      <td>${r.park === 'Parking' ? '<span class="pill">จอด</span>' : r.park === 'Not Parking' ? '<span class="pill muted">ไม่จอด</span>' : '<span class="sub">–</span>'}</td>
+      <td><span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span>
+          <div class="detail">${esc(r.detail) || '<span class="sub">ไม่มีรายละเอียดใน Remark</span>'}</div>${refs ? `<div class="refs">${refs}</div>` : ''}</td>
+      <td class="num">${r.eta ? `<span class="${r.etaLate ? 'late' : ''}">${esc(r.eta)}</span>${r.etaLate ? '<div class="sub late">เลย ETA</div>' : ''}` : (r.cause === 'part' ? '<span class="pill warn">ไม่มี ETA</span>' : '–')}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>`;
+  $('dMore').hidden = recs.length <= 50;
+  $('dMore').textContent = dash.showAll ? 'แสดง 50 อันดับแรก' : `แสดงทั้งหมด ${recs.length.toLocaleString()} รายการ`;
+  $('dRankCount').textContent = `${recs.length.toLocaleString()} RO · เรียงจากค้างนานสุด`;
+}
+function initDash(){
+  $('dView').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; dash.view = b.dataset.v; dash.showAll = false; renderDash(); });
+  $('dRsm').addEventListener('change', e => { dash.rsm = e.target.value; dash.store = ''; renderDash(); });
+  $('dStore').addEventListener('change', e => { dash.store = e.target.value; renderDash(); });
+  $('dQ').addEventListener('input', e => { dash.q = e.target.value; renderRank(); });
+  $('dCauseF').addEventListener('change', renderRank);
+  $('dMore').addEventListener('click', () => { dash.showAll = !dash.showAll; renderRank(); });
+  $('dCauseF').innerHTML = '<option value="">ทุกสาเหตุ</option>' + CAUSES.map(c => `<option value="${c.k}">${c.label}</option>`).join('');
+  $('tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; setTab(b.dataset.tab); });
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (!$('dash').hidden) renderDash(); }, 150); });
+}
+function setTab(t){
+  document.querySelectorAll('#tabs [data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
+  $('dash').hidden = t !== 'dash'; $('work').hidden = t !== 'split';
+  if (t === 'dash') renderDash();
+}
+initDash();
+$('rsmFile').addEventListener('change', e => { handleRsmFile(e.target.files[0]); e.target.value = ''; });
+$('rsmReset').addEventListener('click', () => { rsmBook = DEFAULT_RSM; rsmIdx = null; try { localStorage.removeItem('rsmBook'); } catch(e){} if (state) analyse(state.sheetName); else renderRsmPanel(); toast('กลับมาใช้ไฟล์ RSM ค่าเริ่มต้นแล้ว'); });
+
+/* ---------- sample data (fictional stores) so the tool shows what it does before a file is uploaded ---------- */
+(function sample(){
+  if (typeof XLSX === 'undefined'){ toast('โหลดไลบรารี Excel ไม่สำเร็จ ลองรีเฟรชหน้า'); return; }
+  const hdr = ['Pending day','Repair_Order','VIN_Code','Basic_Model','Repair_Status','Remark','Create on','Store_Name','RSM'];
+  const stores = [['ตัวอย่าง Store Bangna','Natchanon',[120,45,12,8]],['ตัวอย่าง Store Phuket','Natchanon',[34,9]],['ตัวอย่าง Store Rangsit','Kiattikhun',[7,5,3]]];
+  const aoa = [[], [], hdr]; let n = 1;
+  for (const [s, rsm, ages] of stores) for (const a of ages)
+    aoa.push([a, 'SP-DEMO' + String(n).padStart(5,'0'), 'DEMO' + String(n++).padStart(13,'0'), 'B01', a > 30 ? 'in maintenance' : 'Dispatched', '', new Date(2026, 9, 19 - a), s, rsm]);
+  const ws = XLSX.utils.aoa_to_sheet(aoa, {cellDates:false, dateNF:'dd/mm/yyyy'});
+  wb = {SheetNames:['Sheet1'], Sheets:{Sheet1: XLSX.read(XLSX.write({SheetNames:['Sheet1'],Sheets:{Sheet1:ws}},{bookType:'xlsx',type:'array'}),{type:'array',cellNF:true,cellText:true}).Sheets.Sheet1}};
+  fileBase = 'Pending_RO_ตัวอย่าง'; isSample = true;
+  $('sampleBanner').hidden = false;
+  analyse('Sheet1');
+})();
+</script>
+
+</body>
+</html>
