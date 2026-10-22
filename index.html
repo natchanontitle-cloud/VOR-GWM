@@ -122,6 +122,43 @@ tr.hl td{background:var(--accent-soft)}
   header h1{font-size:1.3rem}
 }
 /* dashboard */
+.pptopt{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;cursor:pointer;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px}
+.vinrep{font-size:.68rem;padding:0 6px;margin-left:4px;font-family:var(--font-body)}
+.pptpanel{flex-basis:100%;gap:10px}
+.pptrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.pdfroot .pptpanel{display:none!important}
+div.kpi.click{cursor:pointer}
+div.kpi.click:hover{border-color:var(--accent)}
+div.kpi.click.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.splink{border:none;background:none;padding:0;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-size:.86rem}
+.spback{position:fixed;inset:0;background:rgba(10,20,16,.5);z-index:44}
+.spdlg{position:fixed;z-index:45;top:max(4vh, env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(760px,94vw);max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.3);gap:10px}
+.spdlg > *{flex-shrink:0}
+.sphead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.sphead h3{margin:2px 0 0;font-size:1.25rem}
+.spchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.spgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px 16px;background:var(--bg);border-radius:10px;padding:12px}
+.spgrid > div{display:flex;flex-direction:column;gap:2px;min-width:0;word-break:break-word}
+.spdlg h4{margin:4px 0 0;font-size:.92rem}
+.spdlg .spremark{background:var(--bg);border-radius:10px;padding:12px;max-width:none}
+#spAll th{text-align:left;width:38%;font-weight:500;color:var(--muted);font-size:.8rem;position:static}
+#spAll td{word-break:break-word}
+@media (max-width:640px){.spdlg{top:0;left:0;transform:none;width:100%;max-height:100%;height:100%;border-radius:0;padding-top:max(14px, env(safe-area-inset-top,0px))}}
+.langsw{display:inline-flex;margin-left:10px;border:1px solid var(--line);border-radius:7px;overflow:hidden;vertical-align:middle}
+.langsw button{border:none;border-radius:0;padding:2px 8px;font-size:.72rem;font-family:var(--font-mono);background:var(--surface)}
+.langsw button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.lockcard .langsw{float:right}
+html[lang="en"] .rsmcard summary::after{content:"Show partners ▾"}
+html[lang="en"] .rsmcard[open] summary::after{content:"Hide list ▴"}
+.pdfroot .langsw{display:none!important}
+.ver{color:var(--muted);letter-spacing:.02em;text-transform:none}
+button.kpi{font:inherit;text-align:left;cursor:pointer;color:var(--fg);align-items:flex-start;white-space:normal}
+button.kpi:hover{border-color:var(--accent)}
+button.kpi.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.chart .bar.click path{cursor:pointer}
+.own{display:inline-block;font-size:.72rem;border-radius:999px;padding:0 7px;margin-left:4px;border:1px solid var(--line);color:var(--muted)}
+.own.GWM{border-color:var(--c1);color:var(--c1)}
+.own.PS{border-color:var(--c2);color:var(--c2)}
 .csort{display:flex;gap:4px;justify-content:flex-end;margin-bottom:2px}
 .csort button{font-size:.75rem;padding:3px 9px;border-radius:999px}
 .csort button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
@@ -169,6 +206,8 @@ tr.click:hover td{background:var(--bg)}
 .pdfroot .grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .pdfroot .kpis{grid-template-columns:repeat(4,1fr)}
 .pdfroot .linkbtn{display:none!important}
+.pdfroot .pdfcont > *:not(.keep){display:none!important}
+.pdfroot .pdfcont{padding-top:6px}
 .pdfroot table.cards thead{display:table-header-group}
 .pdfroot table.cards{display:table;width:100%}
 .pdfroot table.cards tbody{display:table-row-group}
@@ -240,11 +279,11 @@ table.rank td{vertical-align:top}
 
 <div class="lock" id="lock">
   <form class="lockcard" id="lockForm" autocomplete="on">
-    <div class="eyebrow">Aftersales · Pending RO</div>
+    <div class="eyebrow">Aftersales · Pending RO · V.9 <span class="langsw" role="group" aria-label="Language"><button type="button" data-lang="th" aria-pressed="true">TH</button><button type="button" data-lang="en" aria-pressed="false">EN</button></span></div>
     <h2>เข้าสู่ระบบ</h2>
     <p class="sub">ใส่รหัสผ่านเพื่อเปิด Dashboard และข้อมูล Pending RO</p>
     <input type="text" name="username" value="rsm" autocomplete="username" hidden>
-    <label class="field" for="lockPw">รหัสผ่าน<input type="password" id="lockPw" autocomplete="current-password" inputmode="text" required></label>
+    <label class="field" for="lockPw">รหัสผ่าน<input type="password" id="lockPw" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required></label>
     <label class="rem"><input type="checkbox" id="lockRemember"> จำรหัสในเครื่องนี้</label>
     <div class="lockerr" id="lockErr" hidden role="alert">รหัสผ่านไม่ถูกต้อง ลองอีกครั้ง</div>
     <button class="primary" id="lockBtn" type="submit">เข้าสู่ระบบ</button>
@@ -252,7 +291,7 @@ table.rank td{vertical-align:top}
 </div>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Aftersales · Pending RO <button id="lockOut" class="linkbtn" type="button">ออกจากระบบ</button></div>
+    <div class="eyebrow">Aftersales · Pending RO · <span class="ver">V.9 by Natchanon C.</span> <button id="lockOut" class="linkbtn" type="button">ออกจากระบบ</button> <span class="langsw" role="group" aria-label="Language"><button type="button" data-lang="th" aria-pressed="true">TH</button><button type="button" data-lang="en" aria-pressed="false">EN</button></span></div>
     <h1>Pending RO · Dashboard และแยกไฟล์ตาม Store</h1>
     <p>อัปโหลดไฟล์ Pending RO แล้วดู Dashboard แบบ Overview, ราย RSM หรือราย Partner พร้อมอันดับวันค้างซ่อมและสาเหตุ จากนั้นแยกไฟล์ส่ง Dealer ได้ในแท็บถัดไป ไฟล์ถูกประมวลผลในเบราว์เซอร์ของคุณเท่านั้น</p>
   </header>
@@ -300,6 +339,17 @@ table.rank td{vertical-align:top}
         <label><input type="checkbox" data-t="BP"> BP · Body &amp; Paint <span class="sub" id="nBP"></span></label></div>
       <div class="scope">กำลังดู: <b id="dScope">ทุก Partner</b></div>
       <button id="pdfBtn" class="primary">ดาวน์โหลด PDF</button>
+      <button id="pptBtn" class="primary">Export PPTX (EN)</button>
+      <div class="pptpanel card" id="pptPanel" hidden>
+        <div class="rankhead"><h3>Weekly report · PowerPoint (English)</h3><span class="sub" id="pptScope"></span><div class="rankf"><button id="pptClose" class="linkbtn">✕ ปิด</button></div></div>
+        <p class="sub" style="margin:0">Report ใช้ขอบเขตที่เลือกอยู่ (Overview / RSM / Partner และ GR/BP) · ไม่ได้ใช้ตัวกรองจาก Pie</p>
+        <div class="pptrow" role="radiogroup" aria-label="รูปแบบ Report">
+          <label class="pptopt"><input type="radio" name="pptMode" value="current" checked> <b>สถานะ ณ ปัจจุบัน</b> <span class="sub">ไม่ต้องแนบไฟล์</span></label>
+          <label class="pptopt"><input type="radio" name="pptMode" value="compare"> <b>เทียบกับอาทิตย์ที่แล้ว</b> <span class="sub">แนบไฟล์อาทิตย์ที่แล้ว แสดง ▲▼ และ % ที่เปลี่ยน</span></label></div>
+        <div class="pptrow" id="pptPrevRow" hidden><label class="btn" for="pptPrev">แนบไฟล์อาทิตย์ที่แล้ว</label><input type="file" id="pptPrev" class="vh" accept=".xlsx,.xls,.csv">
+          <span class="sub" id="pptPrevName">ยังไม่ได้แนบไฟล์</span><button id="pptPrevClear" class="linkbtn" hidden>ล้าง</button></div>
+        <button id="pptGo" class="primary" style="align-self:flex-start">สร้าง PowerPoint</button>
+      </div>
       <div class="batch" id="batchWrap" hidden><span class="sub">PDF ราย PS ทีละหลายร้าน:</span>
         <button id="batchAll">ทุก RSM (ZIP แยก Folder ตาม RSM)</button>
         <button id="batchRsm">เฉพาะ RSM นี้ (ZIP ราย PS)</button></div>
@@ -309,7 +359,9 @@ table.rank td{vertical-align:top}
       <div class="card wide"><h3 id="dBar1T">RO ค้างแยกตาม RSM</h3><div id="dBar1" class="chart"></div></div>
       <div class="card"><h3>ติดที่อะไร</h3><div id="dCause"></div></div>
       <div class="card"><h3>จอด / ไม่จอด</h3><div id="dPark"></div></div>
-      <div class="card"><h3>อายุงานค้าง (วัน)</h3><div id="dAge" class="chart"></div></div>
+      <div class="card"><h3>ค้างที่ GWM / PS</h3><div id="dOwnGrp"></div></div>
+      <div class="card"><h3>ค้างที่แผนกไหน · <span class="sub">สีน้ำเงิน = GWM · สีส้ม = PS · คลิกเพื่อดูรายการ</span></h3><div id="dOwn" class="chart"></div></div>
+      <div class="card"><h3>อายุงานค้าง (วัน) · <span class="sub">คลิกแท่งเพื่อดูรายการ</span></h3><div id="dAge" class="chart"></div></div>
       <div class="card"><h3>ค้างเฉลี่ย (วัน) ตามสาเหตุ</h3><div id="dCauseAge" class="chart"></div></div>
       <div class="card wide" id="dTopWrap"><h3>Top 20 Partner ที่มี RO ค้างมากสุด · คลิกเพื่อเจาะลึก</h3><div id="dTop" class="chart"></div></div>
     </div>
@@ -319,11 +371,11 @@ table.rank td{vertical-align:top}
         <div class="fact"><button id="fPdf">ดาวน์โหลด PDF</button><button id="fClose" class="primary" aria-label="ปิดและล้างตัวกรอง">✕ ปิด</button></div></div>
       <h4 id="fSumTitle">สรุปราย PS</h4>
       <div class="tablebox flat"><table class="rank cards">
-        <thead><tr><th class="num">#</th><th>PS</th><th>RSM</th><th class="num">SP ในกลุ่มนี้</th><th class="num">RO ค้างทั้งร้าน</th><th class="num">%</th><th class="num">ค้างนานสุด</th></tr></thead>
+        <thead><tr><th class="num">#</th><th>PS</th><th>RSM</th><th class="num">SP ในกลุ่มนี้</th><th class="num">VIN</th><th class="num">RO ค้างทั้งร้าน</th><th class="num">%</th><th class="num">ค้างนานสุด</th></tr></thead>
         <tbody id="fSumBody"></tbody></table></div>
       <h4 id="fSpTitle">รายการ SP</h4>
       <div class="tablebox flat"><table class="rank cards">
-        <thead><tr><th class="num">#</th><th class="num">วันค้าง</th><th>SP</th><th>PS</th><th>รถ</th><th>ติดที่ / Remark</th><th class="num">ETA</th></tr></thead>
+        <thead><tr><th class="num">#</th><th class="num">วันค้าง</th><th>SP / VIN</th><th>PS</th><th>รถ</th><th>ติดที่ / Remark</th><th class="num">ETA</th></tr></thead>
         <tbody id="fSpBody"></tbody></table></div>
     </section>
     <div class="card" id="remCard">
@@ -337,9 +389,9 @@ table.rank td{vertical-align:top}
     </div>
     <div class="card" id="rankCard">
       <div class="rankhead"><h3>อันดับวันค้างซ่อม</h3><span class="sub" id="dRankCount"></span>
-        <div class="rankf"><input type="search" id="dQ" placeholder="ค้นหา SP / Partner / เลข PO…" aria-label="ค้นหาในอันดับ"><select id="dCauseF" aria-label="กรองตามสาเหตุ"></select><select id="dParkF" aria-label="กรองตามสถานะรถ"></select></div></div>
+        <div class="rankf"><input type="search" id="dQ" placeholder="ค้นหา SP / VIN / Partner / เลข PO…" aria-label="ค้นหาในอันดับ"><select id="dCauseF" aria-label="กรองตามสาเหตุ"></select><select id="dParkF" aria-label="กรองตามสถานะรถ"></select></div></div>
       <div class="tablebox flat"><table class="rank cards">
-        <thead><tr><th class="num">#</th><th class="num">วันค้าง</th><th>SP</th><th>Partner</th><th>รถ</th><th>ติดที่อะไร</th><th class="num">ETA</th></tr></thead>
+        <thead><tr><th class="num">#</th><th class="num">วันค้าง</th><th>SP / VIN</th><th>Partner</th><th>รถ</th><th>ติดที่อะไร</th><th class="num">ETA</th></tr></thead>
         <tbody id="dRankBody"></tbody></table></div>
       <button id="dMore" hidden style="align-self:center"></button>
     </div>
@@ -369,6 +421,17 @@ table.rank td{vertical-align:top}
 </div>
 <div class="toast" id="toast" hidden></div>
 <div class="dtip" id="dtip" hidden></div>
+<div class="spback" id="spBack" hidden></div>
+<section class="spdlg card" id="spDlg" hidden role="dialog" aria-modal="true" aria-labelledby="spTitle">
+  <div class="sphead"><div><div class="sub">รายละเอียด SP</div><h3 id="spTitle" class="mono"></h3><div class="sub mono" id="spVin"></div></div>
+    <button id="spClose" class="primary" aria-label="ปิดรายละเอียด">✕ ปิด</button></div>
+  <div class="spchips" id="spChips"></div>
+  <div class="spgrid" id="spGrid"></div>
+  <h4>Remark</h4>
+  <div class="fullrem spremark" id="spRemark"></div>
+  <h4>ข้อมูลทุกคอลัมน์จากไฟล์</h4>
+  <div class="tablebox flat"><table class="rank"><tbody id="spAll"></tbody></table></div>
+</section>
 <div class="batchbar" id="batchBar" hidden role="status"><span id="batchTxt"></span><div class="track"><div class="fill" id="batchFill"></div></div><button id="batchStop">ยกเลิก</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -376,6 +439,7 @@ table.rank td{vertical-align:top}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const norm = s => String(s ?? '').toLowerCase().replace(/[\s_\-.]/g,'');
@@ -408,7 +472,9 @@ async function saveFile(name, blob){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
-let tt; function toast(msg){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true,3200); }
+let tt; const TOAST_MSG = {PPTX_LIB_FAIL:['โหลดเครื่องมือสร้าง PowerPoint ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่','Could not load the PowerPoint tool. Check the connection and try again.'],
+  PPTX_NEED_PREV:['โหมดเทียบกับอาทิตย์ที่แล้ว ต้องแนบไฟล์อาทิตย์ที่แล้วก่อน','Compare mode needs last week\'s file attached first.']};
+function toast(msg){ if (TOAST_MSG[msg]){ let en = false; try { en = lang === 'en'; } catch(e){} msg = TOAST_MSG[msg][en ? 1 : 0]; } const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true,3200); }
 
 /* ---------- reading ---------- */
 function sheetCells(ws){
@@ -427,10 +493,11 @@ function sheetCells(ws){
   return out;
 }
 const txt = cell => cell ? String(cell.w ?? cell.v).trim() : '';
+const cleanHead = v => String(v ?? '').replace(/^[^\[]*\[(.*)\]\s*$/, '$1').trim();
 function findHeader(rows){
   const lim = Math.min(rows.length, 30);
   for (let r = 0; r < lim; r++){
-    const c = rows[r].findIndex(x => /^(store(name)?|dealer(name)?|storename)$/.test(norm(txt(x))) || norm(txt(x)) === 'storename');
+    const c = rows[r].findIndex(x => /^(store(name)?|dealer(name)?|storename)$/.test(norm(cleanHead(txt(x)))));
     if (c >= 0) return {r, c};
   }
   let best = 0, bestN = -1;
@@ -440,7 +507,7 @@ function findHeader(rows){
 function analyse(sheetName, forceCol){
   const rows = sheetCells(wb.Sheets[sheetName]);
   const h = findHeader(rows);
-  const header = (rows[h.r] || []).map((x,i) => txt(x) || ('Column ' + (i+1)));
+  const header = (rows[h.r] || []).map((x,i) => cleanHead(txt(x)) || ('Column ' + (i+1)));
   let col = forceCol ?? h.c; if (col < 0) col = 0;
   // trim trailing empty columns
   let last = header.length - 1;
@@ -473,7 +540,7 @@ function analyse(sheetName, forceCol){
     const rv = (g.book && g.book.rsm) || EXTRA_RSM[key] || rsmMap.get(key) || own || '';
     if (!g.src && rv) g.src = 'row';
     if (rv && !g.rsm.size) g.rsm.add(rv);
-    if (ageCol >= 0 && r[ageCol] && typeof r[ageCol].v === 'number') g.maxAge = Math.max(g.maxAge ?? -Infinity, r[ageCol].v);
+    if (ageCol >= 0 && r[ageCol] && Number.isFinite(Number(r[ageCol].v))) g.maxAge = Math.max(g.maxAge ?? -Infinity, Number(r[ageCol].v));
   }
   const list = [...groups.values()].sort((a,b) => b.rows.length - a.rows.length || a.name.localeCompare(b.name));
   list.forEach(g => g.rsmText = [...g.rsm].join(', '));
@@ -774,6 +841,9 @@ function srcCell(ref, c, def){
   if (c.t === 'n') return `<c r="${ref}"${(def[1] === 'date' || isDateFmt(c.z)) ? ' s="2"' : def[2] ? ` s="${def[2]}"` : ''}><v>${c.v}</v></c>`;
   if (c.t === 'b') return `<c r="${ref}" t="b"><v>${c.v ? 1 : 0}</v></c>`;
   if (c.t === 'e') return '';
+  if (def[1] === 'date'){ const m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ]\d{2}:\d{2}(?::\d{2})?)?/.exec(String(c.v).trim());
+    if (m){ const serial = (Date.UTC(+m[1], +m[2]-1, +m[3]) - Date.UTC(1899, 11, 30)) / 86400000; return `<c r="${ref}" s="2"><v>${serial}</v></c>`; } }
+  if (def[1] === 'num' && /^\d+(\.\d+)?$/.test(String(c.v).trim())) return `<c r="${ref}"${def[2] ? ` s="${def[2]}"` : ''}><v>${String(c.v).trim()}</v></c>`;
   return inlineCell(ref, null, String(c.v).replace(/\r\n?/g, '\n'));
 }
 function splitSheet(xml){ const i = xml.indexOf('<sheetData'), k = xml.indexOf('>', i) + 1, e = xml.indexOf('</sheetData>');
@@ -886,6 +956,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt
 function render(){
   $('summary').hidden = false; $('tabs').hidden = false; renderRsmPanel();
   state.recs = buildRecords();
+  state.vinN = new Map(); for (const r of state.recs) if (r.vin) state.vinN.set(r.vin, (state.vinN.get(r.vin) || 0) + 1);
   const curTab = (document.querySelector('#tabs [aria-selected="true"]')||{}).dataset?.tab || 'dash';
   $('sFile').textContent = fileBase;
   $('sheetSel').innerHTML = wb.SheetNames.map(n => `<option ${n===state.sheetName?'selected':''}>${esc(n)}</option>`).join('');
@@ -984,7 +1055,7 @@ const CAUSE_FROM_DROPDOWN = {'parts order process':'part0','warranty approval':'
   'require technical support':'tech0','ps investigation':'tech0','waiting customer appointment':'cust','on process of repairing':'repair','partner internal problem':'other'};
 const AGE_BUCKETS = [[0,7,'0–7'],[8,15,'8–15'],[16,30,'16–30'],[31,60,'31–60'],[61,90,'61–90'],[91,Infinity,'90+']];
 const PARK_LABEL = {'Parking':'จอด (Parking)', 'Not Parking':'ไม่จอด (Not Parking)', 'none':'ไม่ระบุ'};
-let dash = {view:'overview', rsm:'', store:'', showAll:false, q:'', fCause:'', fPark:'', types:{GR:true, BP:false}};
+let dash = {view:'overview', rsm:'', store:'', showAll:false, q:'', fCause:'', fPark:'', fAge:'', fOwner:'', fStatus:'', fEta:'', types:{GR:true, BP:false}};
 
 function colByName(re){ return state.hdr.findIndex(h => re.test(norm(h))); }
 function detailOf(rem){
@@ -1011,10 +1082,28 @@ function causeOf(rem, ex, dd, etaLate){
   if (/ซ่อม|พ่นสี|เคาะ|รื้อ|ขัดสี|ประกอบ|ดำเนินการ|ตรวจเช็ค|ตรวจสอบ/.test(rem)) return 'repair';
   return 'other';
 }
+// Who holds the job now: GWM when a JS / YS / PO / BO number exists, otherwise the PS department
+// (from the Remark first, then the Repair_Status flow: Reserved/unconfirmed → SA, To be dispatched → Foreman, … Out/Delivery → Cashier).
+const STATUS_OWNER = {'reserved':'SA','unconfirmed':'SA','to be dispatched':'Foreman','dispatched':'Tech','in maintenance':'Tech','interrupt':'Foreman',
+  'quality inspection':'Tech','car wash':'Tech','to be settled':'SA','settled':'SA','out':'Cashier','delivery completed':'Cashier'};
+const OWNER_DEPTS = {GWM:['Tech','Warranty','Spare part','Customer'], PS:['SVM','CR','SA','Tech','Foreman','Warranty','Spare part','Cashier','Customer','ไม่ระบุ']};
+const OWNER_TH = {'Tech':'Tech', 'Warranty':'Warranty', 'Spare part':'Spare part', 'Customer':'Customer', 'SVM':'SVM', 'CR':'CR', 'SA':'SA', 'Foreman':'Foreman', 'Cashier':'Cashier', 'ไม่ระบุ':'ไม่ระบุ'};
+function ownerOf(rem, ex, status, cause){
+  if (ex.part || ex.war || ex.tech){
+    const d = cause === 'cust' ? 'Customer' : ex.part ? 'Spare part' : ex.war ? 'Warranty' : 'Tech';
+    return ['GWM', d];
+  }
+  if (/\bSVM\b|service\s*manager|ผู้จัดการ\s*(?:ศูนย์|บริการ|ฝ่ายบริการ)|good\s*will/i.test(rem)) return ['PS','SVM'];
+  if (/\bCR\b|ร้องเรียน|complain/i.test(rem)) return ['PS','CR'];
+  if (/รอ\s*อะไหล่|อะไหล่ติด|back\s*order|b\/o|สั่งอะไหล่|รอตัดอะไหล่/i.test(rem) && !/อะไหล่\s*(?:เข้า|มา|ถึง|ครบ|พร้อม)/.test(rem)) return ['PS','Spare part'];
+  if (/เคลม|warrant|waranty|รับประกัน|รออนุมัติ|ขออนุมัติ/i.test(rem)) return ['PS','Warranty'];
+  if (/ลูกค้า|นัดหมาย|นัด\s/.test(rem)) return ['PS','Customer'];
+  return ['PS', STATUS_OWNER[String(status || '').trim().toLowerCase()] || 'ไม่ระบุ'];
+}
 function parseDMY(s){ const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s || ''); return m ? new Date(+m[3], +m[2]-1, +m[1]) : null; }
 function buildRecords(){
   const c = {sp: colByName(/^repair_?order$|^repairorder$/), model: colByName(/basicmodel|^model$/), status: colByName(/repairstatus/),
-             dd: colByName(/^สาเหตุงานค้าง$/)};
+             dd: colByName(/^สาเหตุงานค้าง$/), vin: colByName(/^vin(code|no|number)?$|^vin_?code$|^vin$/)};
   const today = new Date(); today.setHours(0,0,0,0);
   const recs = [];
   for (const g of state.list) for (const r of g.rows){
@@ -1022,18 +1111,24 @@ function buildRecords(){
     const ex = r.extra || {};
     const parkCell = state.parkCol >= 0 ? txt(r[state.parkCol]) : '';
     const park = /not/i.test(parkCell) ? 'Not Parking' : /park/i.test(parkCell) ? 'Parking' : (ex.park || '');
-    const age = state.ageCol >= 0 && r[state.ageCol] && typeof r[state.ageCol].v === 'number' ? r[state.ageCol].v : null;
+    const av = state.ageCol >= 0 && r[state.ageCol] ? Number(r[state.ageCol].v) : NaN, age = Number.isFinite(av) ? av : null;
     const etaD = parseDMY(ex.eta);
     const sp = c.sp>=0 ? txt(r[c.sp]) : '', etaLate = !!(etaD && etaD < today);
     recs.push({store:g.name, rsm:[...g.rsm][0] || 'ไม่ระบุ RSM', age, sp, jt: /^BP/i.test(sp) ? 'BP' : 'GR', model: c.model>=0 ? txt(r[c.model]) : '',
-      status: c.status>=0 ? txt(r[c.status]) : '', park, cause: causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate), detail: detailOf(rem),
-      tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', etaLate: !!(etaD && etaD < today), remark: rem});
+      status: c.status>=0 ? txt(r[c.status]) : '', park, cause: causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate), detail: detailOf(rem), ...(() => { const st = c.status>=0 ? txt(r[c.status]) : ''; const [g2, d2] = ownerOf(rem, ex, st, causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate)); return {ownGrp:g2, ownDept:d2, ownKey:g2 + ':' + d2}; })(),
+      tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', etaLate: !!(etaD && etaD < today), remark: rem, vin: c.vin>=0 ? txt(r[c.vin]) : '', row: r, idx: recs.length});
   }
   return recs;
 }
 function baseRecs(){ return state.recs.filter(r => dash.types[r.jt]); }
 const parkKey = r => r.park || 'none';
-function filtered(recs){ return recs.filter(r => (!dash.fCause || r.cause === dash.fCause) && (!dash.fPark || parkKey(r) === dash.fPark)); }
+const vinCount = recs => new Set(recs.map(r => r.vin).filter(Boolean)).size;
+const vinTag = r => { const n = r.vin && state.vinN ? state.vinN.get(r.vin) : 0; return n > 1 ? ` <span class="pill warn vinrep" title="รถคันนี้มี ${n} RO ค้าง">${n} RO</span>` : ''; };
+const anyFilter = () => !!(dash.fCause || dash.fPark || dash.fAge || dash.fOwner || dash.fStatus || dash.fEta);
+const ageIn = (r, f) => { if (!f) return true; const [a,b] = f.split('-').map(x => x === '' ? Infinity : +x); return r.age != null && r.age >= a && r.age <= b; };
+const etaIn = (r, f) => !f || (f === 'parked' ? r.park === 'Parking' : PART_KEYS.includes(r.cause) && (f === 'noeta' ? !r.eta : f === 'late' ? r.etaLate : true));
+const ownerIn = (r, f) => !f || (f.includes(':') ? r.ownKey === f : r.ownGrp === f);
+function filtered(recs){ return recs.filter(r => (!dash.fCause || r.cause === dash.fCause) && (!dash.fPark || parkKey(r) === dash.fPark) && ageIn(r, dash.fAge) && ownerIn(r, dash.fOwner) && (!dash.fStatus || (r.status || 'ไม่ระบุ') === dash.fStatus) && etaIn(r, dash.fEta)); }
 function scopeRecs(){
   const all = baseRecs();
   if (dash.view === 'rsm' && dash.rsm) return all.filter(r => r.rsm === dash.rsm);
@@ -1133,16 +1228,19 @@ function renderDash(){
   const parts = recs.filter(r => PART_KEYS.includes(r.cause));
   const band = (a,b) => recs.filter(r => r.age != null && r.age >= a && r.age <= b).length;
   const k = [
-    ['RO ค้างทั้งหมด', recs.length.toLocaleString(), 'total'],
-    ['0–7 วัน', band(0,7).toLocaleString(), ''],
-    ['8–30 วัน', band(8,30).toLocaleString(), ''],
-    ['31–90 วัน', band(31,90).toLocaleString(), 'warn'],
-    ['เกิน 90 วัน', band(91,Infinity).toLocaleString(), 'crit'],
+    ['RO ค้างทั้งหมด', recs.length.toLocaleString(), 'total', '0-'],
+    ['0–7 วัน', band(0,7).toLocaleString(), '', '0-7'],
+    ['8–30 วัน', band(8,30).toLocaleString(), '', '8-30'],
+    ['31–90 วัน', band(31,90).toLocaleString(), 'warn', '31-90'],
+    ['เกิน 90 วัน', band(91,Infinity).toLocaleString(), 'crit', '91-'],
     ['ค้างเฉลี่ย', Math.round(avg) + ' วัน', ''],
-    ['รถจอดอยู่ที่ศูนย์', recs.filter(r => r.park === 'Parking').length.toLocaleString(), ''],
-    ['รออะไหล่ ไม่มี ETA / เลย ETA', parts.filter(r => !r.eta).length + ' / ' + parts.filter(r => r.etaLate).length, 'warn']
+    ['จำนวนรถ (VIN ไม่ซ้ำ)', vinCount(recs).toLocaleString(), ''],
+    ['รถจอดอยู่ที่ศูนย์', recs.filter(r => r.park === 'Parking').length.toLocaleString(), '', null, 'parked'],
+    ['รออะไหล่ ไม่มี ETA / เลย ETA', `<span data-eta="noeta">${parts.filter(r => !r.eta).length}</span> / <span data-eta="late">${parts.filter(r => r.etaLate).length}</span>`, 'warn', null, 'noeta']
   ];
-  $('dKpi').innerHTML = k.map(([l,v,c]) => `<div class="kpi ${c}"><span class="k">${l}</span><span class="v">${v}</span></div>`).join('')
+  $('dKpi').innerHTML = k.map(([l,v,c,f,e]) => f ? `<button class="kpi click ${c}${dash.fAge === f ? ' on' : ''}" data-age="${f}"><span class="k">${l} ▸</span><span class="v">${v}</span></button>`
+    : e ? `<div class="kpi click ${c}${dash.fEta === e ? ' on' : ''}" role="button" tabindex="0" data-eta="${e}"><span class="k">${l} ▸</span><span class="v">${v}</span></div>`
+    : `<div class="kpi ${c}"><span class="k">${l}</span><span class="v">${v}</span></div>`).join('')
     + `<div class="kpinote sub">0–7 + 8–30 + 31–90 + เกิน 90 = ${recs.length.toLocaleString()} RO (ไม่นับซ้ำ)</div>`;
   const all = state.recs.filter(r => dash.view === 'overview' || (dash.view === 'rsm' ? r.rsm === dash.rsm : r.store === dash.store));
   $('nGR').textContent = all.filter(r => r.jt === 'GR').length.toLocaleString(); $('nBP').textContent = all.filter(r => r.jt === 'BP').length.toLocaleString();
@@ -1160,8 +1258,8 @@ function renderDash(){
     barTitle = 'RO ค้างแยกตาม Partner · คลิกเพื่อเจาะลึก'; barClick = it => { dash.view = 'store'; dash.store = it.key; renderDash(); };
   } else {
     const m = countBy(recs, r => r.status || 'ไม่ระบุ');
-    barItems = [...m].sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label, value}));
-    barTitle = 'RO ค้างแยกตาม Repair Status';
+    barItems = [...m].sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label, value, key:label}));
+    barTitle = 'RO ค้างแยกตาม Repair Status · คลิกเพื่อดูรายการ'; barClick = it => { dash.fStatus = dash.fStatus === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); };
   }
   $('dBar1T').textContent = barTitle;
   vbar($('dBar1'), barItems, {sortId:'bar1', rotate: dash.view !== 'overview' && barItems.length > 4, onClick: barClick, height: dash.view === 'rsm' ? 300 : 260, title: barTitle});
@@ -1176,7 +1274,16 @@ function renderDash(){
 
   // aging (ordinal blue ramp)
   const ageItems = AGE_BUCKETS.map(([a,b,l], i) => ({label: l + ' วัน', value: recs.filter(r => r.age != null && r.age >= a && r.age <= b).length, color: `var(--age${i})`}));
-  vbar($('dAge'), ageItems, {sortId:'age', defaultSort:'natural', title:'อายุงานค้าง'});
+  ageItems.forEach((it, i) => { const [a,b] = AGE_BUCKETS[i]; it.key = a + '-' + (b === Infinity ? '' : b); });
+  vbar($('dAge'), ageItems, {sortId:'age', defaultSort:'natural', title:'อายุงานค้าง', onClick: it => { dash.fAge = dash.fAge === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); }});
+  // who holds the job: GWM vs PS (pie) and by department (vertical bars)
+  pie($('dOwnGrp'), [
+    {key:'GWM', label:'GWM (มีเลข JS / YS / PO / BO)', value: recs.filter(r => r.ownGrp === 'GWM').length, color:'var(--c1)'},
+    {key:'PS',  label:'PS (ยังไม่มีเลข)', value: recs.filter(r => r.ownGrp === 'PS').length, color:'var(--c2)'}], 'ค้างที่ GWM / PS',
+    key => { dash.fOwner = dash.fOwner === key ? '' : key; dash.showAll = false; renderDash(); revealFilter(); }, dash.fOwner.includes(':') ? '' : dash.fOwner);
+  const ownItems = [];
+  for (const g of ['GWM','PS']) for (const d of OWNER_DEPTS[g]){ const n = recs.filter(r => r.ownKey === g + ':' + d).length; if (n) ownItems.push({key: g + ':' + d, label: g + ' · ' + OWNER_TH[d], value: n, color: g === 'GWM' ? 'var(--c1)' : 'var(--c2)'}); }
+  vbar($('dOwn'), ownItems, {sortId:'own', defaultSort:'natural', rotate:true, height:270, title:'ค้างที่แผนกไหน', onClick: it => { dash.fOwner = dash.fOwner === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); }});
 
   // cause stacked by bucket? keep pie + vertical bar per cause
   pie($('dCause'), CAUSES.map(c => ({key:c.k, label:c.label, value: recs.filter(r => r.cause === c.k).length, color: causeColor(c.k)})), 'ติดที่อะไร',
@@ -1187,8 +1294,8 @@ function renderDash(){
     {key:'none', label:PARK_LABEL['none'], value: recs.filter(r => !r.park).length, color:'var(--k-none)'}], 'จอด / ไม่จอด',
     key => { dash.fPark = dash.fPark === key ? '' : key; dash.showAll = false; renderDash(); revealFilter(); }, dash.fPark);
   // aging by cause: vertical bars, one per cause, showing average days
-  const causeAvg = CAUSES.map(c => { const a = recs.filter(r => r.cause === c.k && r.age != null).map(r => r.age); return {label:c.label, value: a.length ? Math.round(a.reduce((x,y)=>x+y,0)/a.length) : 0, color: causeColor(c.k), note: a.length + ' RO'}; });
-  vbar($('dCauseAge'), causeAvg, {sortId:'causeAge', defaultSort:'natural', title:'ค้างเฉลี่ย (วัน) ตามสาเหตุ', rotate:true, height:250});
+  const causeAvg = CAUSES.map(c => { const a = recs.filter(r => r.cause === c.k && r.age != null).map(r => r.age); return {key:c.k, label:c.label, value: a.length ? Math.round(a.reduce((x,y)=>x+y,0)/a.length) : 0, color: causeColor(c.k), note: a.length + ' RO'}; });
+  vbar($('dCauseAge'), causeAvg, {sortId:'causeAge', defaultSort:'natural', title:'ค้างเฉลี่ย (วัน) ตามสาเหตุ', rotate:true, height:250, onClick: it => { dash.fCause = dash.fCause === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); }});
 
   renderFilter();
   renderRemark();
@@ -1196,43 +1303,47 @@ function renderDash(){
 }
 const isDesk = () => window.innerWidth >= 761;
 function revealFilter(){
-  if (!(dash.fCause || dash.fPark)) return;
+  if (!anyFilter()) return;
   if (isDesk()) { $('fPanel').scrollTop = 0; $('fClose').focus({preventScroll:true}); }
   else $('fPanel').scrollIntoView({behavior:'smooth', block:'start'});
 }
-function closeFilter(){ dash.fCause = ''; dash.fPark = ''; renderDash(); }
+function closeFilter(){ dash.fCause = ''; dash.fPark = ''; dash.fAge = ''; dash.fOwner = ''; dash.fStatus = ''; dash.fEta = ''; renderDash(); }
 function parkPill(r){ return r.park === 'Parking' ? '<span class="pill">จอด</span>' : r.park === 'Not Parking' ? '<span class="pill muted">ไม่จอด</span>' : '<span class="pill warn">ไม่ระบุ</span>'; }
 function renderFilter(){
-  const on = !!(dash.fCause || dash.fPark);
+  const on = anyFilter();
   $('fPanel').hidden = !on;
   const modal = on && isDesk() && !document.querySelector('.pdfroot');
   $('fBackdrop').hidden = !modal; $('fPanel').classList.toggle('modal', modal);
   document.documentElement.classList.toggle('noscroll', modal);
   const lab = Object.fromEntries(CAUSES.map(c => [c.k, c.label]));
   $('fChips').innerHTML = (dash.fCause ? `<button class="fchip" data-f="cause"><span class="sw" style="background:${causeColor(dash.fCause)}"></span>ติดที่: ${esc(lab[dash.fCause])} ✕</button>` : '')
-    + (dash.fPark ? `<button class="fchip" data-f="park">รถ: ${esc(PARK_LABEL[dash.fPark])} ✕</button>` : '');
+    + (dash.fPark ? `<button class="fchip" data-f="park">รถ: ${esc(PARK_LABEL[dash.fPark])} ✕</button>` : '')
+    + (dash.fAge ? `<button class="fchip" data-f="age">${dash.fAge === '0-' ? 'RO ค้างทั้งหมด' : 'วันค้าง: ' + esc(dash.fAge.endsWith('-') ? 'เกิน ' + (+dash.fAge.slice(0,-1) - 1) : dash.fAge.replace('-', '–')) + ' วัน'} ✕</button>` : '')
+    + (dash.fStatus ? `<button class="fchip" data-f="status">Repair Status: ${esc(dash.fStatus)} ✕</button>` : '')
+    + (dash.fEta ? `<button class="fchip" data-f="eta">${({noeta:'รออะไหล่ · ไม่มี ETA', late:'รออะไหล่ · เลย ETA', parts:'รออะไหล่ทั้งหมด', parked:'รถจอดอยู่ที่ศูนย์'})[dash.fEta]} ✕</button>` : '')
+    + (dash.fOwner ? `<button class="fchip" data-f="owner">ค้างที่: ${esc(dash.fOwner.includes(':') ? dash.fOwner.replace(':', ' · ') : dash.fOwner)} ✕</button>` : '');
   $('dCauseF').value = dash.fCause; $('dParkF').value = dash.fPark;
   if (!on) return;
   const scope = scopeRecs(), hit = filtered(scope);
-  $('fCount').textContent = `${hit.length.toLocaleString()} จาก ${scope.length.toLocaleString()} RO · ${$('dScope').textContent}`;
+  $('fCount').textContent = `${hit.length.toLocaleString()} จาก ${scope.length.toLocaleString()} RO · ${vinCount(hit).toLocaleString()} คัน (VIN) · ${$('dScope').textContent}`;
   const m = new Map();
-  for (const r of scope){ if (!m.has(r.store)) m.set(r.store, {store:r.store, rsm:r.rsm, n:0, hit:0, oldest:null}); m.get(r.store).n++; }
-  for (const r of hit){ const g = m.get(r.store); g.hit++; if (r.age != null) g.oldest = Math.max(g.oldest ?? 0, r.age); }
+  for (const r of scope){ if (!m.has(r.store)) m.set(r.store, {store:r.store, rsm:r.rsm, n:0, hit:0, oldest:null, vins:new Set()}); m.get(r.store).n++; }
+  for (const r of hit){ const g = m.get(r.store); g.hit++; if (r.vin) g.vins.add(r.vin); if (r.age != null) g.oldest = Math.max(g.oldest ?? 0, r.age); }
   const rows = [...m.values()].filter(g => g.hit).sort((a,b) => b.hit - a.hit || b.hit/b.n - a.hit/a.n);
   $('fSumTitle').textContent = `สรุปราย PS · ${rows.length} ร้าน`;
   $('fSumBody').innerHTML = rows.map((g,i) => `<tr><td class="num" data-l="อันดับ">${i+1}</td><td data-l="PS"><b>${esc(g.store.replace(/^GWM\s+/,''))}</b></td><td data-l="RSM">${esc(g.rsm)}</td>
-    <td class="num" data-l="SP ในกลุ่มนี้"><b>${g.hit}</b></td><td class="num" data-l="RO ค้างทั้งร้าน">${g.n}</td><td class="num" data-l="%">${Math.round(g.hit/g.n*100)}%</td><td class="num" data-l="ค้างนานสุด">${g.oldest != null ? g.oldest + ' วัน' : '–'}</td></tr>`).join('')
-    || `<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>`;
+    <td class="num" data-l="SP ในกลุ่มนี้"><b>${g.hit}</b></td><td class="num" data-l="VIN">${g.vins.size}</td><td class="num" data-l="RO ค้างทั้งร้าน">${g.n}</td><td class="num" data-l="%">${Math.round(g.hit/g.n*100)}%</td><td class="num" data-l="ค้างนานสุด">${g.oldest != null ? g.oldest + ' วัน' : '–'}</td></tr>`).join('')
+    || `<tr><td colspan="8" class="empty">ไม่พบรายการ</td></tr>`;
   const list = hit.slice().sort((a,b) => (b.age ?? -1) - (a.age ?? -1));
   $('fSpTitle').textContent = `รายการ SP · ${list.length.toLocaleString()} รายการ เรียงจากค้างนานสุด`;
   $('fSpBody').innerHTML = list.map((r,i) => {
     const sev = r.age > 90 ? 'crit' : r.age > 30 ? 'warn' : '';
     const refs = [r.tech, r.war, r.part].filter(Boolean).map(x => `<span class="ref">${esc(x)}</span>`).join(' ');
     return `<tr><td class="num" data-l="อันดับ">${i+1}</td><td class="num" data-l="วันค้าง"><span class="pill ${sev}">${r.age ?? '–'}</span></td>
-      <td data-l="SP"><span class="mono">${esc(r.sp)}</span><div class="sub">${esc(r.model)} · ${esc(r.status)}</div></td>
+      <td data-l="SP"><button class="splink mono" data-rec="${r.idx}">${esc(r.sp)}</button><div class="sub mono">VIN ${esc(r.vin || '–')}${vinTag(r)}</div><div class="sub">${esc(r.model)} · ${esc(r.status)}</div></td>
       <td data-l="PS">${esc(r.store.replace(/^GWM\s+/,''))}<div class="sub">${esc(r.rsm)}</div></td>
       <td data-l="รถ">${parkPill(r)}</td>
-      <td data-l="ติดที่ / Remark" class="wide"><span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span>
+      <td data-l="ติดที่ / Remark" class="wide"><span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span> <span class="own ${r.ownGrp}">ค้างที่ ${r.ownGrp} · ${esc(OWNER_TH[r.ownDept])}</span>
         ${r.remark.trim() ? `<div class="fullrem">${esc(r.remark.trim())}</div>` : '<div class="sub">ไม่มี Remark</div>'}${refs ? `<div class="refs">${refs}</div>` : ''}</td>
       <td class="num" data-l="ETA">${r.eta ? `<span class="${r.etaLate ? 'late' : ''}">${esc(r.eta)}</span>${r.etaLate ? '<div class="sub late">เลย ETA</div>' : ''}` : (PART_KEYS.includes(r.cause) ? '<span class="pill warn">ไม่มี ETA</span>' : '–')}</td></tr>`;
   }).join('') || `<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>`;
@@ -1255,21 +1366,21 @@ function renderRemark(){
   vbar($('remChart'), top.map(g => ({label: g.store.replace(/^GWM\s+/,''), value: remSort === 'pct' ? Math.round(g.pct) : g.empty, key:g.store,
       color: g.store === dash.store ? 'var(--c2)' : g.pct >= 80 ? 'var(--crit)' : g.pct >= 50 ? 'var(--warn)' : 'var(--c1)',
       note: `ไม่กรอก ${g.empty}/${g.n} RO (${Math.round(g.pct)}%)`})),
-    {sortId:'rem', after: () => $('remChart').insertAdjacentHTML('afterbegin', remNote), rotate:true, height:280, title:'Partner ที่ไม่กรอก Remark', onClick: it => { dash.view = 'store'; dash.store = it.key; dash.rsm = (state.recs.find(r => r.store === it.key)||{}).rsm || ''; renderDash(); }});
+    {sortId:'rem', after: () => $('remChart').insertAdjacentHTML('afterbegin', remNote), rotate:true, height:280, title:'Partner ที่ไม่กรอก Remark', onClick: it => { if (dash.view === 'store' && it.key === dash.store){ dash.fCause = 'none'; dash.showAll = false; renderDash(); revealFilter(); return; } dash.view = 'store'; dash.store = it.key; dash.rsm = (state.recs.find(r => r.store === it.key)||{}).rsm || ''; renderDash(); }});
   $('remChart').insertAdjacentHTML('afterbegin', remNote);
   const shown = remAll ? rows : rows.slice(0, 15);
   $('remMore').hidden = rows.length <= 15; $('remMore').textContent = remAll ? 'แสดง 15 อันดับแรก' : `แสดงทั้งหมด ${rows.length} Partner`;
   $('remBody').innerHTML = shown.map((g,i) => {
     const sev = g.pct >= 80 ? 'crit' : g.pct >= 50 ? 'warn' : '';
-    return `<tr class="${g.store === dash.store ? 'hl' : ''}"><td class="num" data-l="อันดับ">${i+1}</td><td data-l="Partner"><b>${esc(g.store.replace(/^GWM\s+/,''))}</b></td><td data-l="RSM">${esc(g.rsm)}</td>
+    return `<tr class="click ${g.store === dash.store ? 'hl' : ''}" data-remstore="${esc(g.store)}"><td class="num" data-l="อันดับ">${i+1}</td><td data-l="Partner"><button class="splink">${esc(g.store.replace(/^GWM\s+/,''))}</button></td><td data-l="RSM">${esc(g.rsm)}</td>
       <td class="num" data-l="RO ค้าง">${g.n}</td><td class="num" data-l="ไม่กรอก">${g.empty}</td><td class="num" data-l="%"><span class="pill ${sev}">${Math.round(g.pct)}%</span></td>
       <td class="num" data-l="ค้างนานสุด">${g.oldest != null ? g.oldest + ' วัน' : '–'}</td></tr>`; }).join('');
 }
 function renderRank(){
   const q = dash.q.trim().toLowerCase();
-  let recs = filtered(scopeRecs()).filter(r => (!q || (r.sp + ' ' + r.store + ' ' + r.detail + ' ' + r.part + ' ' + r.war + ' ' + r.tech).toLowerCase().includes(q)));
+  let recs = filtered(scopeRecs()).filter(r => (!q || (r.sp + ' ' + r.vin + ' ' + r.store + ' ' + r.detail + ' ' + r.part + ' ' + r.war + ' ' + r.tech).toLowerCase().includes(q)));
   recs = recs.slice().sort((a,b) => (b.age ?? -1) - (a.age ?? -1));
-  const lim = dash.showAll ? recs.length : 50;
+  const lim = (dash.showAll || dash.view === 'store') ? recs.length : 50;
   const lab = Object.fromEntries(CAUSES.map(c => [c.k, c.label]));
   $('dRankBody').innerHTML = recs.slice(0, lim).map((r,i) => {
     const sev = r.age > 90 ? 'crit' : r.age > 30 ? 'warn' : '';
@@ -1277,17 +1388,17 @@ function renderRank(){
     return `<tr>
       <td class="num" data-l="อันดับ">${i+1}</td>
       <td class="num" data-l="วันค้าง"><span class="pill ${sev}">${r.age ?? '–'}</span></td>
-      <td data-l="SP"><span class="mono">${esc(r.sp)}</span><div class="sub">${esc(r.model)} · ${esc(r.status)}</div></td>
+      <td data-l="SP"><button class="splink mono" data-rec="${r.idx}">${esc(r.sp)}</button><div class="sub mono">VIN ${esc(r.vin || '–')}${vinTag(r)}</div><div class="sub">${esc(r.model)} · ${esc(r.status)}</div></td>
       <td data-l="Partner">${esc(r.store.replace(/^GWM\s+/,''))}<div class="sub">${esc(r.rsm)}</div></td>
       <td data-l="รถ">${r.park === 'Parking' ? '<span class="pill">จอด</span>' : r.park === 'Not Parking' ? '<span class="pill muted">ไม่จอด</span>' : '<span class="sub">–</span>'}</td>
-      <td data-l="ติดที่" class="wide"><span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span>
+      <td data-l="ติดที่" class="wide"><span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span> <span class="own ${r.ownGrp}">ค้างที่ ${r.ownGrp} · ${esc(OWNER_TH[r.ownDept])}</span>
           <div class="detail">${esc(r.detail) || '<span class="sub">ไม่มีรายละเอียดใน Remark</span>'}</div>${refs ? `<div class="refs">${refs}</div>` : ''}</td>
       <td class="num" data-l="ETA">${r.eta ? `<span class="${r.etaLate ? 'late' : ''}">${esc(r.eta)}</span>${r.etaLate ? '<div class="sub late">เลย ETA</div>' : ''}` : (PART_KEYS.includes(r.cause) ? '<span class="pill warn">ไม่มี ETA</span>' : '–')}</td>
     </tr>`;
   }).join('') || `<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>`;
-  $('dMore').hidden = recs.length <= 50;
+  $('dMore').hidden = recs.length <= 50 || dash.view === 'store';
   $('dMore').textContent = dash.showAll ? 'แสดง 50 อันดับแรก' : `แสดงทั้งหมด ${recs.length.toLocaleString()} รายการ`;
-  $('dRankCount').textContent = `${recs.length.toLocaleString()} RO · เรียงจากค้างนานสุด` + ((dash.fCause || dash.fPark) ? ' · ตามตัวกรอง' : '');
+  $('dRankCount').textContent = `${recs.length.toLocaleString()} RO · ${vinCount(recs).toLocaleString()} คัน (VIN) · เรียงจากค้างนานสุด` + (anyFilter() ? ' · ตามตัวกรอง' : '');
 }
 function initDash(){
   $('dView').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; dash.view = b.dataset.v; dash.showAll = false; renderDash(); });
@@ -1296,7 +1407,9 @@ function initDash(){
   $('dQ').addEventListener('input', e => { dash.q = e.target.value; renderRank(); });
   $('dCauseF').addEventListener('change', e => { dash.fCause = e.target.value; dash.showAll = false; renderDash(); });
   $('dParkF').addEventListener('change', e => { dash.fPark = e.target.value; dash.showAll = false; renderDash(); });
-  $('fChips').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; if (b.dataset.f === 'cause') dash.fCause = ''; else dash.fPark = ''; renderDash(); });
+  $('dKpi').addEventListener('click', e => { const t = e.target.closest('[data-eta]'); if (t){ dash.fEta = dash.fEta === t.dataset.eta ? '' : t.dataset.eta; dash.showAll = false; renderDash(); revealFilter(); return; }
+    const b = e.target.closest('[data-age]'); if (!b) return; dash.fAge = dash.fAge === b.dataset.age ? '' : b.dataset.age; dash.showAll = false; renderDash(); revealFilter(); });
+  $('fChips').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; ({cause:() => dash.fCause = '', park:() => dash.fPark = '', age:() => dash.fAge = '', owner:() => dash.fOwner = '', status:() => dash.fStatus = '', eta:() => dash.fEta = ''})[b.dataset.f](); renderDash(); });
   $('fClose').addEventListener('click', closeFilter);
   $('fBackdrop').addEventListener('click', closeFilter);
   $('fPdf').addEventListener('click', () => exportPdf());
@@ -1304,6 +1417,8 @@ function initDash(){
   $('dTypes').addEventListener('change', e => { const i = e.target.closest('[data-t]'); if (!i) return;
     const next = {...dash.types, [i.dataset.t]: i.checked}; if (!next.GR && !next.BP){ i.checked = true; toast('ต้องเลือกอย่างน้อย 1 ประเภทงาน'); return; }
     dash.types = next; dash.showAll = false; renderDash(); });
+  $('remBody').addEventListener('click', e => { const tr = e.target.closest('[data-remstore]'); if (!tr) return; const st = tr.dataset.remstore;
+    dash.view = 'store'; dash.store = st; dash.rsm = (state.recs.find(r => r.store === st)||{}).rsm || ''; dash.fCause = 'none'; dash.showAll = false; renderDash(); revealFilter(); });
   $('remMore').addEventListener('click', () => { remAll = !remAll; renderRemark(); });
   $('remSort').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (!b) return; remSort = b.dataset.s; renderRemark(); });
   $('dMore').addEventListener('click', () => { dash.showAll = !dash.showAll; renderRank(); });
@@ -1328,7 +1443,8 @@ async function renderPdfBlob(opt = {}){
   const wasHidden = dashEl.hidden;
   try{
     root.appendChild(dashEl); dashEl.hidden = false;
-    renderDash();
+    const keepAll = [dash.showAll, remAll]; dash.showAll = true; remAll = true;
+    try { renderDash(); } finally { [dash.showAll, remAll] = keepAll; }
     const now = new Date(), scope = $('dScope').textContent;
     const stamp = now.toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'}) + ' ' + now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
     root.insertAdjacentHTML('afterbegin', `<div class="pdfhead"><div class="eyebrow">Aftersales · Pending RO</div><h1>Pending RO Report — ${esc(scope)}</h1>
@@ -1339,11 +1455,11 @@ async function renderPdfBlob(opt = {}){
     const M = 10, PW = 210 - 2*M; let y = M;
     const bg = getComputedStyle(root).backgroundColor;
     const blocks = [root.querySelector('.pdfhead'), dashEl.querySelector('.kpis'), dashEl.querySelector('.grid2'), $('fPanel'), $('remCard'), $('rankCard')];
-    for (const el of blocks){
-      if (!el || el.offsetHeight === 0) continue;
-      const canvas = await html2canvas(el, {scale, backgroundColor: bg, useCORS:true, logging:false});
+    const place = async (el, light) => {
+      const sc = light ? Math.min(scale, 1.15) : scale, q = light ? Math.min(quality, 0.62) : quality;
+      const canvas = await html2canvas(el, {scale: sc, backgroundColor: bg, useCORS:true, logging:false});
       const pxPerMm = canvas.width / PW, top0 = el.getBoundingClientRect().top;
-      const cuts = [...el.querySelectorAll('tbody tr, .card, .kpi, .chart')].map(n => (n.getBoundingClientRect().bottom - top0) * scale).filter(v => v > 0 && v < canvas.height).sort((a,b) => a-b);
+      const cuts = [...el.querySelectorAll('tbody tr, .card, .kpi, .chart')].filter(n => n.offsetParent !== null).map(n => (n.getBoundingClientRect().bottom - top0) * sc).filter(v => v > 0 && v < canvas.height).sort((a,b) => a-b);
       let start = 0;
       while (start < canvas.height - 1){
         const room = (297 - M - y) * pxPerMm;
@@ -1356,10 +1472,25 @@ async function renderPdfBlob(opt = {}){
         }
         const h = end - start, slice = document.createElement('canvas'); slice.width = canvas.width; slice.height = Math.ceil(h);
         slice.getContext('2d').drawImage(canvas, 0, start, canvas.width, h, 0, 0, canvas.width, h);
-        pdf.addImage(slice.toDataURL('image/jpeg', quality), 'JPEG', M, y, PW, h / pxPerMm);
+        pdf.addImage(slice.toDataURL('image/jpeg', q), 'JPEG', M, y, PW, h / pxPerMm);
         y += h / pxPerMm + 4; start = end;
         if (start < canvas.height - 1){ pdf.addPage(); y = M; }
       }
+    };
+    // long tables are captured in chunks of rows (a single canvas has a height limit), so every row reaches the PDF
+    const CH = 90;
+    for (const el of blocks){
+      if (!el || el.offsetHeight === 0) continue;
+      const bodies = [...el.querySelectorAll('tbody')].sort((a,b) => b.children.length - a.children.length);
+      const big = bodies[0], rows = big ? [...big.children] : [];
+      if (rows.length <= CH){ await place(el); continue; }
+      const box = big.closest('.tablebox');
+      for (let k = 0; k < rows.length; k += CH){
+        rows.forEach((r, i) => r.style.display = (i >= k && i < k + CH) ? '' : 'none');
+        if (k > 0){ el.classList.add('pdfcont'); box.classList.add('keep'); }
+        await place(el, true);
+      }
+      rows.forEach(r => r.style.display = ''); el.classList.remove('pdfcont'); box.classList.remove('keep');
     }
     const n = pdf.getNumberOfPages();
     for (let i = 1; i <= n; i++){ pdf.setPage(i); pdf.setFontSize(8); pdf.setTextColor(120); pdf.text(`${i} / ${n}`, 200, 292, {align:'right'}); }
@@ -1390,7 +1521,7 @@ async function batchPdf(mode){
   document.querySelectorAll('#batchWrap button, #pdfBtn').forEach(b => b.disabled = true);
   const zip = new JSZip(); let done = 0;
   try{
-    dash.fCause = ''; dash.fPark = ''; dash.view = 'store'; dash.showAll = false;
+    dash.fCause = ''; dash.fPark = ''; dash.fAge = ''; dash.fOwner = ''; dash.fStatus = ''; dash.fEta = ''; dash.view = 'store'; dash.showAll = false;
     for (const s of stores){
       if (batchCancel) break;
       $('batchTxt').textContent = `กำลังสร้าง PDF ${done + 1} / ${stores.length} · ${s.name.replace(/^GWM\s+/,'')}`;
@@ -1411,6 +1542,310 @@ async function batchPdf(mode){
     document.querySelectorAll('#batchWrap button, #pdfBtn').forEach(b => b.disabled = false);
   }
 }
+
+
+/* ---------- SP detail dialog ---------- */
+function openSp(i){
+  const r = state.recs[+i]; if (!r) return;
+  const lab = Object.fromEntries(CAUSES.map(c => [c.k, c.label]));
+  $('spTitle').textContent = r.sp || '–';
+  $('spVin').textContent = 'VIN ' + (r.vin || '–') + ((state.vinN && state.vinN.get(r.vin) > 1) ? ` · รถคันนี้มี ${state.vinN.get(r.vin)} RO ค้างในไฟล์` : '');
+  const sev = r.age > 90 ? 'crit' : r.age > 30 ? 'warn' : '';
+  $('spChips').innerHTML = `<span class="pill ${sev}">ค้าง ${r.age ?? '–'} วัน</span> ${parkPill(r)}
+    <span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span>
+    <span class="own ${r.ownGrp}">ค้างที่ ${r.ownGrp} · ${esc(OWNER_TH[r.ownDept])}</span> <span class="pill muted">${r.jt}</span>`;
+  const f = (k, v) => `<div><span class="sub">${k}</span><b>${v || '–'}</b></div>`;
+  $('spGrid').innerHTML = [
+    f('Partner (PS)', esc(r.store)), f('RSM', esc(r.rsm)), f('รุ่นรถ', esc(r.model)), f('Repair Status', esc(r.status)),
+    f('Tech (JS)', esc(r.tech)), f('Warranty (YS)', esc(r.war)), f('Part (PO/BO)', esc(r.part)),
+    f('ETA', r.eta ? esc(r.eta) + (r.etaLate ? ' <span class="late">(เลย ETA)</span>' : '') : (PART_KEYS.includes(r.cause) ? '<span class="late">ไม่มี ETA</span>' : ''))
+  ].join('');
+  $('spRemark').textContent = r.remark.trim() || '';
+  if (!r.remark.trim()) $('spRemark').innerHTML = '<span class="sub">ไม่มี Remark</span>';
+  $('spAll').innerHTML = state.hdr.map((h, k) => { const c = r.row[k]; const v = c ? (c.w ?? String(c.v)) : '';
+    return `<tr><th>${esc(h)}</th><td data-nt${/remark/i.test(h) ? ' class="fullrem"' : ''}>${esc(v) || '<span class="sub">–</span>'}</td></tr>`; }).join('');
+  $('spBack').hidden = false; $('spDlg').hidden = false; $('spDlg').scrollTop = 0;
+  document.documentElement.classList.add('noscroll');
+  $('spClose').focus({preventScroll:true});
+}
+function closeSp(){
+  $('spBack').hidden = true; $('spDlg').hidden = true;
+  if ($('fPanel').hidden || !$('fPanel').classList.contains('modal')) document.documentElement.classList.remove('noscroll');
+}
+document.addEventListener('click', e => { const b = e.target.closest('.splink[data-rec]'); if (b){ e.preventDefault(); openSp(b.dataset.rec); } });
+$('spClose').addEventListener('click', closeSp);
+$('spBack').addEventListener('click', closeSp);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('spDlg').hidden){ e.stopImmediatePropagation(); closeSp(); } }, true);
+
+/* ---------- Weekly executive report (PowerPoint, English) ---------- */
+const CAUSE_EN = {tech:'Tech (JS)', tech0:'Waiting tech (no JS)', war:'Warranty (YS)', war0:'Waiting approval (no YS)', part:'Spare part (PO/BO)', part0:'Waiting parts (no PO/BO)', cust:'Customer / CR', repair:'In repair', other:'Other (has remark)', none:'No remark'};
+const enOwn = d => d === 'ไม่ระบุ' ? 'Unspecified' : d;
+const enRsm = r => r === 'ไม่ระบุ RSM' ? 'No RSM' : r;
+const fmtN = n => Number(n || 0).toLocaleString('en-US');
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+function isoWeek(d){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return [t.getUTCFullYear(), Math.ceil(((t - y0) / 86400000 + 1) / 7)]; }
+function metricsOf(recs){
+  const m = {total: recs.length, b0:0, b1:0, b2:0, b3:0, sum:0, n:0, gwm:0, noRem:0, parts:0, noEta:0, late:0, byRsm:{}, byStore:{}, byCause:{}, sps: new Set()};
+  for (const r of recs){
+    if (r.age != null){ m.sum += r.age; m.n++; if (r.age <= 7) m.b0++; else if (r.age <= 30) m.b1++; else if (r.age <= 90) m.b2++; else m.b3++; }
+    if (r.ownGrp === 'GWM') m.gwm++;
+    if (!r.remark.trim()) m.noRem++;
+    if (PART_KEYS.includes(r.cause)){ m.parts++; if (!r.eta) m.noEta++; if (r.etaLate) m.late++; }
+    m.byRsm[r.rsm] = (m.byRsm[r.rsm] || 0) + 1; m.byStore[r.store] = (m.byStore[r.store] || 0) + 1; m.byCause[r.cause] = (m.byCause[r.cause] || 0) + 1;
+    if (r.sp) m.sps.add(r.sp);
+  }
+  m.avg = m.n ? m.sum / m.n : 0;
+  return m;
+}
+// last week's file → light records with the same rules (RSM book, pipeline, owner) as this week
+function recsFromBook(book){
+  for (const name of book.SheetNames){
+    const rows = sheetCells(book.Sheets[name]); const h = findHeader(rows); if (h.c < 0) continue;
+    const hdr = (rows[h.r] || []).map(x => norm(cleanHead ? cleanHead(txt(x)) : txt(x)));
+    const col = k => hdr.findIndex(x => x === k);
+    const cAge = hdr.findIndex(x => /pendingday/.test(x)), cSp = col('repairorder'), cRem = col('remark'), cSt = col('repairstatus');
+    const out = [];
+    for (const r of rows.slice(h.r + 1)){
+      if (!r.some(Boolean)) continue;
+      const store = txt(r[h.c]) || '(ไม่ระบุ Store)', rem = cRem >= 0 && r[cRem] ? String(r[cRem].v) : '', ex = extrasOf(rem);
+      const sp = cSp >= 0 ? txt(r[cSp]) : '', st = cSt >= 0 ? txt(r[cSt]) : '';
+      const av = cAge >= 0 && r[cAge] ? Number(r[cAge].v) : NaN;
+      const b = rsmIndex().get(nkey(store));
+      const etaD = parseDMY(ex.eta), today0 = new Date(); today0.setHours(0,0,0,0); const late = !!(etaD && etaD < today0);
+      const cause = causeOf(rem, ex, '', late), own = ownerOf(rem, ex, st, cause);
+      out.push({store, sp, rsm: (b && b.rsm) || EXTRA_RSM[store] || 'ไม่ระบุ RSM', age: Number.isFinite(av) ? av : null, jt: /^BP/i.test(sp) ? 'BP' : 'GR',
+        remark: rem, cause, ownGrp: own[0], eta: ex.eta, etaLate: late});
+    }
+    return out;
+  }
+  return null;
+}
+let pptPrev = null;   // {name, recs}
+function scopeFilter(recs){
+  return recs.filter(r => dash.types[r.jt]).filter(r => dash.view === 'rsm' ? r.rsm === dash.rsm : dash.view === 'store' ? r.store === dash.store : true);
+}
+function scopeKey(){ return [dash.view, dash.view === 'rsm' ? dash.rsm : dash.view === 'store' ? dash.store : '', ['GR','BP'].filter(t => dash.types[t]).join('+')].join('|'); }
+function loadSnaps(){ try { return JSON.parse(localStorage.getItem('roSnaps') || '{}'); } catch(e){ return {}; } }
+function saveSnap(key, snap){ try { const all = loadSnaps(); (all[key] = all[key] || {})[snap.week] = snap; localStorage.setItem('roSnaps', JSON.stringify(all)); } catch(e){} }
+
+function loadScript(src){ return new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); }); }
+async function ensurePptx(){
+  if (window.PptxGenJS) return true;
+  for (const src of ['https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.min.js', 'https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.min.js']){
+    try { await loadScript(src); if (window.PptxGenJS) return true; } catch(e){}
+  }
+  return !!window.PptxGenJS;
+}
+let pptMode = 'current';
+async function exportPptx(){
+  if (!state) return;
+  if (!(await ensurePptx())){ toast('PPTX_LIB_FAIL'); return; }
+  if (pptMode === 'compare' && !pptPrev){ toast('PPTX_NEED_PREV'); return; }
+  const btn = $('pptGo'); btn.disabled = true; const label = btn.textContent; btn.textContent = 'กำลังสร้าง PowerPoint…';
+  try{
+    const recs = scopeRecs(), M = metricsOf(recs), now = new Date(), [wy, wk] = isoWeek(now);
+    // comparison: last week's file if attached, else the last saved snapshot of an earlier week
+    let P = null, prevLabel = '', closed = null, added = null;
+    if (pptMode === 'compare' && pptPrev){ const pr = scopeFilter(pptPrev.recs); P = metricsOf(pr); prevLabel = 'last week (' + pptPrev.name + ')';
+      closed = [...P.sps].filter(s => !M.sps.has(s)).length; added = [...M.sps].filter(s => !P.sps.has(s)).length; }
+
+    const snapNow = {week:`${wy}-W${String(wk).padStart(2,'0')}`, date: now.toISOString().slice(0,10), total:M.total, b0:M.b0, b1:M.b1, b2:M.b2, b3:M.b3, avg:M.avg, gwm:M.gwm, noRem:M.noRem, parts:M.parts, noEta:M.noEta, late:M.late, byRsm:M.byRsm, byStore:M.byStore, byCause:M.byCause};
+    const shortPrev = 'LW';
+    // change vs last week: count and % (or percentage points for metrics that are already a %)
+    const delta = (cur, prev, goodDown = true, unit) => { if (prev == null || !P) return null; const d = Math.round((cur - prev) * 10) / 10;
+      if (!d) return {t:`= no change vs ${shortPrev}`, s:'= 0%', c:'6B7280'};
+      const up = d > 0, a = up ? '▲' : '▼', sign = up ? '+' : '−';
+      const pc = unit === 'pts' ? `${fmtN(Math.abs(d))} pts` : (prev ? `${sign}${Math.abs(d / prev * 100).toFixed(1)}%` : 'new');
+      const t = unit === 'pts' ? `${a} ${pc} vs ${shortPrev}` : `${a} ${fmtN(Math.abs(d))} (${pc}) vs ${shortPrev}`;
+      const sh = unit === 'pts' ? `${a} ${pc}` : `${a} ${fmtN(Math.abs(d))} (${pc})`;
+      return {t, s: sh, c: (up === goodDown) ? 'B42318' : '0F6B5C'}; };
+
+    const scopeTxt = dash.view === 'overview' ? 'All Partners' : dash.view === 'rsm' ? 'RSM ' + enRsm(dash.rsm) : dash.store + ' (RSM ' + enRsm(dash.rsm) + ')';
+    const jobTxt = ['GR','BP'].filter(t => dash.types[t]).map(t => t === 'GR' ? 'General Repair' : 'Body & Paint').join(' + ');
+    const dateTxt = now.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+
+    const NAVY='1B2A41', INK='1F2933', MUTED='6B7280', LINE='E5E7EB', SOFT='F4F6F8', TEAL='0F6B5C', RED='B42318', AMBER='B54708', BLUE='2A78D6', ORANGE='E8622C', FONT='Calibri';
+    const pres = new PptxGenJS();
+    pres.layout = 'LAYOUT_16x9'; pres.author = 'Natchanon C.'; pres.company = 'GWM Thailand Aftersales'; pres.title = 'Pending RO Weekly Status — ' + scopeTxt;
+    pres.theme = {headFontFace: FONT, bodyFontFace: FONT};
+    let pageNo = 0;
+    const footer = s => { pageNo++; s.addText(`Pending RO Weekly Status · ${scopeTxt} · W${wk} ${wy}`, {x:0.5, y:5.22, w:7.5, h:0.25, fontSize:8, color:'9CA3AF', fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(String(pageNo), {x:8.9, y:5.22, w:0.6, h:0.25, fontSize:8, color:'9CA3AF', align:'right', fontFace:FONT, margin:0, isTextBox:true}); };
+    const head = (s, kicker, title) => { s.addText(kicker.toUpperCase(), {x:0.5, y:0.28, w:9, h:0.25, fontSize:10, bold:true, color:TEAL, charSpacing:1.5, fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(title, {x:0.5, y:0.52, w:9, h:0.55, fontSize:24, bold:true, color:NAVY, fontFace:FONT, margin:0, isTextBox:true}); };
+    const content = (kicker, title) => { const s = pres.addSlide(); s.background = {color:'FFFFFF'}; head(s, kicker, title); footer(s); return s; };
+    const barOpts = (o) => Object.assign({barDir:'col', chartColors:[TEAL], showValue:true, dataLabelPosition:'outEnd', dataLabelFontSize:10, dataLabelColor:INK, dataLabelFontFace:FONT,
+      catAxisLabelFontSize:10, catAxisLabelColor:MUTED, catAxisLabelFontFace:FONT, valAxisLabelFontSize:9, valAxisLabelColor:'9CA3AF', valAxisLabelFontFace:FONT,
+      valGridLine:{color:LINE, size:0.5}, catGridLine:{style:'none'}, showLegend:false, barGapWidthPct:55, valAxisLineShow:false, dataLabelFormatCode:'#,##0'}, o);
+    const card = (s, x, y, w, h, value, label, d, color) => {
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, {x, y, w, h, fill:{color:SOFT}, line:{color:SOFT}, rectRadius:0.08});
+      s.addText(value, {x:x+0.18, y:y+0.12, w:w-0.36, h:0.62, fontSize:30, bold:true, color: color || NAVY, fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(label, {x:x+0.18, y:y+0.74, w:w-0.36, h:0.3, fontSize:11, color:MUTED, fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(d ? d.t : '', {x:x+0.18, y:y+1.02, w:w-0.36, h:0.25, fontSize:10, bold:!!d, color: d ? d.c : '9CA3AF', fontFace:FONT, margin:0, isTextBox:true});
+    };
+    const tbl = (rows, opt) => { const hdr = rows[0].map(t => ({text:t, options:{bold:true, color:'FFFFFF', fill:{color:NAVY}, fontSize:10, fontFace:FONT}}));
+      const body = rows.slice(1).map((r, i) => r.map(c => (typeof c === 'object' && c && c.text !== undefined) ? {text:String(c.text), options:Object.assign({fontSize:10, fontFace:FONT, color:INK, fill:{color: i % 2 ? 'FFFFFF' : 'F9FAFB'}}, c.options || {})} : {text:String(c ?? ''), options:{fontSize:10, fontFace:FONT, color:INK, fill:{color: i % 2 ? 'FFFFFF' : 'F9FAFB'}}}));
+      return [[...[hdr], ...body], Object.assign({border:{type:'solid', pt:0.5, color:LINE}, margin:0.05, valign:'middle'}, opt)]; };
+    const short = (t, n = 18) => (t = String(t).replace(/^GWM\s+/, '')).length > n ? t.slice(0, n - 1) + '…' : t;
+    const topCause = Object.entries(M.byCause).sort((a,b) => b[1]-a[1]);
+    const loadKey = dash.view === 'overview' ? 'byRsm' : 'byStore';
+    const loads = Object.entries(M[loadKey]).sort((a,b) => b[1]-a[1]);
+
+    // 1. Cover
+    { const s = pres.addSlide(); s.background = {color:NAVY}; pageNo++;
+      s.addText('GWM AFTERSALES · PENDING RO', {x:0.6, y:0.7, w:8.8, h:0.3, fontSize:12, bold:true, color:'7FD1C1', charSpacing:2, fontFace:FONT, margin:0, isTextBox:true});
+      s.addText('Pending RO Weekly Status', {x:0.6, y:1.35, w:8.8, h:0.9, fontSize:40, bold:true, color:'FFFFFF', fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(scopeTxt + ' · ' + jobTxt + (P ? ' · vs last week' : ''), {x:0.6, y:2.3, w:8.8, h:0.45, fontSize:18, color:'CADCFC', fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(`Week ${wk}, ${wy} · ${dateTxt}`, {x:0.6, y:2.85, w:8.8, h:0.4, fontSize:14, color:'FFFFFF', fontFace:FONT, margin:0, isTextBox:true});
+      s.addText('Prepared by Natchanon C. · Regional Aftersales', {x:0.6, y:4.35, w:8.8, h:0.3, fontSize:12, color:'CADCFC', fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(`Source: ${fileBase} · RSM mapping: ${rsmBook.source.replace('ร้านที่เพิ่ม', 'added stores')}` + (P ? ` · compared with ${prevLabel}` : ''), {x:0.6, y:4.7, w:8.8, h:0.3, fontSize:9, color:'8A9BB5', fontFace:FONT, margin:0, isTextBox:true});
+      s.addNotes(`Weekly pending RO status for ${scopeTxt} (${jobTxt}), week ${wk}.`); }
+
+    // 2. Executive summary
+    { const s = content('Executive summary', `${fmtN(M.total)} ROs pending · ${fmtN(M.b3)} over 90 days`);
+      const w = 2.05, g = 0.25;
+      card(s, 0.5, 1.3, w, 1.35, fmtN(M.total), 'Total pending ROs', P ? delta(M.total, P.total) : null);
+      card(s, 0.5 + (w+g), 1.3, w, 1.35, fmtN(M.b3), 'Pending over 90 days', P ? delta(M.b3, P.b3) : null, RED);
+      card(s, 0.5 + 2*(w+g), 1.3, w, 1.35, Math.round(M.avg) + ' days', 'Average pending age', P ? delta(Math.round(M.avg), Math.round(P.avg)) : null);
+      card(s, 0.5 + 3*(w+g), 1.3, w, 1.35, pct(M.noRem, M.total) + '%', 'ROs without remark', P ? delta(pct(M.noRem, M.total), pct(P.noRem, P.total), true, 'pts') : null, AMBER);
+      const pts = [];
+      if (P){ const dT = M.total - P.total, dO = M.b3 - P.b3; pts.push(`Backlog ${dT <= 0 ? 'down' : 'up'} ${P.total ? Math.abs(dT / P.total * 100).toFixed(1) : 0}% vs last week (${dT > 0 ? '+' : dT < 0 ? '−' : ''}${fmtN(Math.abs(dT))} ROs); over-90-day ROs ${dO <= 0 ? 'down' : 'up'} ${P.b3 ? Math.abs(dO / P.b3 * 100).toFixed(1) : 0}% (${fmtN(P.b3)} → ${fmtN(M.b3)}).`); }
+      if (closed != null) pts.push(`Since last week: ${fmtN(closed)} ROs closed and ${fmtN(added)} new ROs opened (net ${M.total - P.total >= 0 ? '+' : ''}${fmtN(M.total - P.total)}).`);
+      if (loads.length && dash.view !== 'store') pts.push(`Largest backlog: ${dash.view === 'overview' ? 'RSM ' + enRsm(loads[0][0]) : short(loads[0][0], 40)} with ${fmtN(loads[0][1])} ROs (${pct(loads[0][1], M.total)}%).`);
+      const tc = topCause.find(([k]) => k !== 'none');
+      if (tc) pts.push(`Most common blocker: ${CAUSE_EN[tc[0]]} — ${fmtN(tc[1])} ROs (${pct(tc[1], M.total)}%).`);
+      { const v = vinCount(recs); pts.unshift(`${fmtN(M.total)} pending ROs on ${fmtN(v)} vehicles (unique VIN)` + (M.total > v ? ` — ${fmtN(M.total - v)} ROs are repeat jobs on the same vehicle.` : '.')); }
+      pts.push(`${pct(M.total - M.gwm, M.total)}% of pending ROs sit with the PS; ${pct(M.gwm, M.total)}% are with GWM (JS / YS / PO / BO raised).`);
+      if (M.parts) pts.push(`${fmtN(M.parts)} ROs are waiting for parts: ${fmtN(M.noEta)} have no ETA and ${fmtN(M.late)} are past ETA.`);
+      s.addText('Key points', {x:0.5, y:2.9, w:9, h:0.3, fontSize:14, bold:true, color:NAVY, fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(pts.map((t, i) => ({text:t, options:{bullet:true, breakLine: i < pts.length - 1}})), {x:0.5, y:3.22, w:9, h:1.9, fontSize:13, color:INK, fontFace:FONT, paraSpaceAfter:4, valign:'top', margin:0, isTextBox:true});
+      s.addNotes(pts.join('\n')); }
+
+    // 3. Aging
+    { const s = content('Aging profile', `${pct(M.b2 + M.b3, M.total)}% of the backlog is older than 30 days`);
+      const labels = ['0–7 days','8–30 days','31–90 days','Over 90 days'], vals = [M.b0, M.b1, M.b2, M.b3];
+      s.addChart(pres.charts.BAR, [{name:'Pending ROs', labels, values: vals}], barOpts({x:0.4, y:1.2, w:5.6, h:3.85, chartColors:[NAVY]}));
+      const prevV = P ? [P.b0, P.b1, P.b2, P.b3] : null;
+      const rows = [['Age band','ROs','Share', P ? 'vs ' + shortPrev : 'Change']].concat(labels.map((l, i) => { const d = prevV ? delta(vals[i], prevV[i]) : null;
+        return [l, fmtN(vals[i]), pct(vals[i], M.total) + '%', d ? {text:d.s, options:{color:d.c, bold:true}} : '–']; }));
+      rows.push([{text:'Total', options:{bold:true}}, {text:fmtN(M.total), options:{bold:true}}, '100%', P ? {text:delta(M.total, P.total).s, options:{bold:true, color:delta(M.total, P.total).c}} : '–']);
+      const [t, o] = tbl(rows, {x:6.15, y:1.35, w:3.35, colW:[1.05, 0.55, 0.6, 1.15]}); s.addTable(t, o);
+      s.addText('Bands do not overlap: 0–7 + 8–30 + 31–90 + over 90 = total.', {x:6.25, y:3.85, w:3.25, h:0.5, fontSize:10, color:MUTED, italic:true, fontFace:FONT, margin:0, isTextBox:true});
+      s.addNotes(labels.map((l, i) => `${l}: ${vals[i]}`).join('; ')); }
+
+    // 4. Load: by RSM / by Partner / by Repair Status
+    { const kind = dash.view === 'overview' ? 'RSM' : dash.view === 'rsm' ? 'Partner' : 'Repair status';
+      let items;
+      if (dash.view === 'store'){ const m = {}; recs.forEach(r => m[r.status || 'Unspecified'] = (m[r.status || 'Unspecified'] || 0) + 1); items = Object.entries(m).sort((a,b) => b[1]-a[1]); }
+      else items = loads;
+      const top = items.slice(0, dash.view === 'rsm' ? 12 : 10);
+      const s = content('Where the backlog sits', `Pending ROs by ${kind}`);
+      s.addChart(pres.charts.BAR, [{name:'Pending ROs', labels: top.map(([k]) => kind === 'RSM' ? enRsm(k) : short(k, 16)), values: top.map(([,v]) => v)}],
+        barOpts({x:0.4, y:1.2, w:5.6, h:3.85, catAxisLabelRotate: top.length > 5 ? -40 : 0}));
+      const rows = [[kind, 'ROs', '>90 d', P && kind !== 'Repair status' ? 'vs ' + shortPrev : 'Avg d']];
+      top.slice(0, 8).forEach(([k, v]) => { const sub = recs.filter(r => (kind === 'RSM' ? r.rsm : kind === 'Partner' ? r.store : (r.status || 'Unspecified')) === k);
+        const a = sub.filter(r => r.age != null), av = a.length ? Math.round(a.reduce((x, r) => x + r.age, 0) / a.length) : 0;
+        const pv = P && kind !== 'Repair status' ? (P[loadKey] || {})[k] : null; const d = pv != null ? delta(v, pv) : null;
+        rows.push([kind === 'RSM' ? enRsm(k) : short(k, 20), fmtN(v), fmtN(sub.filter(r => r.age > 90).length), P && kind !== 'Repair status' ? (d ? {text:d.s, options:{color:d.c, bold:true}} : 'new') : av]); });
+      const [t, o] = tbl(rows, {x:6.1, y:1.3, w:3.4, colW:[1.3, 0.5, 0.5, 1.1]}); s.addTable(t, o);
+      s.addNotes(top.map(([k, v]) => `${k}: ${v}`).join('; ')); }
+
+    // 5. Stuck at (pipeline)
+    { const order = ['tech','tech0','war','war0','part','part0','cust','repair','other','none'];
+      const s = content('Where it is stuck', `Top blocker: ${tc0()}`);
+      function tc0(){ const t = topCause.find(([k]) => k !== 'none'); return t ? `${CAUSE_EN[t[0]]} (${fmtN(t[1])} ROs)` : 'n/a'; }
+      s.addChart(pres.charts.BAR, [{name:'ROs', labels: order.map(k => CAUSE_EN[k]), values: order.map(k => M.byCause[k] || 0)}],
+        barOpts({x:0.4, y:1.15, w:9.2, h:3.35, catAxisLabelRotate:-30, chartColors:[BLUE]}));
+      s.addText('Pipeline: Tech (JS) → Warranty (YS) → Spare part (PO/BO). Each RO counts once, at the furthest stage its remark shows. "No JS / YS / PO-BO" = the dealer wrote the reason but has not raised the request number yet.',
+        {x:0.5, y:4.55, w:9, h:0.55, fontSize:10, color:MUTED, fontFace:FONT, margin:0, isTextBox:true});
+      s.addNotes(order.map(k => `${CAUSE_EN[k]}: ${M.byCause[k] || 0}`).join('; ')); }
+
+    // 6. Ownership GWM vs PS
+    { const s = content('Ownership', `${pct(M.total - M.gwm, M.total)}% of pending ROs are held at the PS`);
+      s.addChart(pres.charts.DOUGHNUT, [{name:'Owner', labels:['GWM (JS/YS/PO/BO raised)','PS (no number yet)'], values:[M.gwm, M.total - M.gwm]}],
+        {x:0.4, y:1.2, w:3.6, h:3.8, holeSize:58, chartColors:[BLUE, ORANGE], showPercent:true, showValue:false, showLegend:true, legendPos:'b', legendFontSize:10, legendFontFace:FONT, legendColor:INK,
+         dataLabelColor:'FFFFFF', dataLabelFontSize:12, dataLabelFontFace:FONT, dataLabelFontBold:true});
+      const items = []; for (const g of ['GWM','PS']) for (const d of OWNER_DEPTS[g]){ const n = recs.filter(r => r.ownKey === g + ':' + d).length; if (n) items.push([g + ' · ' + enOwn(d), n]); }
+      s.addChart(pres.charts.BAR, [{name:'ROs', labels: items.map(i => i[0]), values: items.map(i => i[1])}], barOpts({x:4.2, y:1.2, w:5.4, h:3.85, catAxisLabelRotate:-40, chartColors:[NAVY]}));
+      s.addNotes(items.map(i => `${i[0]}: ${i[1]}`).join('; ')); }
+
+    // 7. Spare parts follow-up
+    { const s = content('Spare parts follow-up', `${fmtN(M.parts)} ROs waiting for parts · ${fmtN(M.noEta)} without ETA`);
+      card(s, 0.5, 1.2, 2.85, 1.3, fmtN(M.parts), 'Waiting for parts', P ? delta(M.parts, P.parts) : null);
+      card(s, 3.575, 1.2, 2.85, 1.3, fmtN(M.noEta), 'No ETA given', P ? delta(M.noEta, P.noEta) : null, AMBER);
+      card(s, 6.65, 1.2, 2.85, 1.3, fmtN(M.late), 'Past ETA', P ? delta(M.late, P.late) : null, RED);
+      const list = recs.filter(r => PART_KEYS.includes(r.cause) && (!r.eta || r.etaLate)).sort((a,b) => (b.age ?? 0) - (a.age ?? 0)).slice(0, 6);
+      const rows = [['SP', 'VIN', 'Partner', 'Days', 'PO / BO', 'ETA']].concat(list.map(r => [r.sp, r.vin || '–', short(r.store, 16), fmtN(r.age), short(r.part || '–', 22), r.eta ? {text:r.eta + ' (late)', options:{color:RED, bold:true}} : {text:'No ETA', options:{color:AMBER, bold:true}}]));
+      if (list.length){ const [t, o] = tbl(rows, {x:0.5, y:2.72, w:9, colW:[1.6, 1.6, 1.45, 0.5, 2.55, 1.3], rowH:0.3}); s.addTable(t, o); }
+      else s.addText('No waiting-parts RO is missing an ETA or past its ETA.', {x:0.5, y:2.8, w:9, h:0.4, fontSize:13, color:INK, fontFace:FONT, isTextBox:true});
+      s.addNotes(`Waiting parts ${M.parts}; no ETA ${M.noEta}; past ETA ${M.late}.`); }
+
+    // 8. Top partners (not on a single-partner report)
+    if (dash.view !== 'store'){
+      const top = Object.entries(M.byStore).sort((a,b) => b[1]-a[1]).slice(0, 10);
+      const s = content('Partners to watch', `Top 10 Partners hold ${pct(top.reduce((x, [,v]) => x + v, 0), M.total)}% of the backlog`);
+      s.addChart(pres.charts.BAR, [{name:'ROs', labels: top.map(([k]) => short(k, 16)), values: top.map(([,v]) => v)}], barOpts({x:0.4, y:1.2, w:5.6, h:3.85, catAxisLabelRotate:-40}));
+      const rows = [['Partner','RSM','ROs','>90 d']].concat(top.slice(0, 8).map(([k, v]) => { const sub = recs.filter(r => r.store === k); return [short(k, 20), enRsm(sub[0].rsm), fmtN(v), fmtN(sub.filter(r => r.age > 90).length)]; }));
+      const [t, o] = tbl(rows, {x:6.2, y:1.3, w:3.3, colW:[1.45, 0.85, 0.5, 0.5]}); s.addTable(t, o);
+      s.addNotes(top.map(([k, v]) => `${k}: ${v}`).join('; ')); }
+
+    // 9–10. Oldest ROs
+    { const old = recs.slice().sort((a,b) => (b.age ?? -1) - (a.age ?? -1)).slice(0, 20);
+      for (let part = 0; part < 2 && part * 10 < old.length; part++){
+        const chunk = old.slice(part * 10, part * 10 + 10);
+        const s = content('Oldest pending ROs', `Top 20 oldest ROs (${part * 10 + 1}–${part * 10 + chunk.length})`);
+        const rows = [['#','SP','VIN','Partner','Days','Stuck at','Held at']].concat(chunk.map((r, i) => [part * 10 + i + 1, r.sp, r.vin || '–', short(r.store, 18), {text:fmtN(r.age), options:{bold:true, color: r.age > 90 ? RED : INK}}, CAUSE_EN[r.cause], r.ownGrp + ' · ' + enOwn(r.ownDept)]));
+        const [t, o] = tbl(rows, {x:0.5, y:1.2, w:9, colW:[0.35, 1.55, 1.6, 1.6, 0.5, 1.85, 1.55], rowH:0.32}); s.addTable(t, o);
+        s.addNotes(chunk.map(r => `${r.sp} ${r.store} ${r.age} days — ${CAUSE_EN[r.cause]}`).join('\n')); } }
+
+    // 11. Remark compliance
+    { const m = {}; recs.forEach(r => { (m[r.store] = m[r.store] || {n:0, e:0}).n++; if (!r.remark.trim()) m[r.store].e++; });
+      const top = Object.entries(m).filter(([,v]) => v.e).sort((a,b) => b[1].e - a[1].e).slice(0, 10);
+      const s = content('Data quality', `${pct(M.noRem, M.total)}% of pending ROs have no remark`);
+      if (dash.view === 'store'){
+        const miss = recs.filter(r => !r.remark.trim()).sort((a,b) => (b.age ?? 0) - (a.age ?? 0)).slice(0, 10);
+        card(s, 0.5, 1.2, 2.6, 1.3, `${fmtN(M.noRem)} / ${fmtN(M.total)}`, 'ROs without remark', P ? delta(M.noRem, P.noRem) : null, AMBER);
+        if (miss.length){ const rows = [['SP','VIN','Days','Repair status']].concat(miss.map(r => [r.sp, r.vin || '–', fmtN(r.age), r.status || '–']));
+          const [t, o] = tbl(rows, {x:3.35, y:1.2, w:6.15, colW:[1.75, 1.9, 0.6, 1.9], rowH:0.3}); s.addTable(t, o); }
+      } else if (top.length){
+        s.addChart(pres.charts.BAR, [{name:'ROs without remark', labels: top.map(([k]) => short(k, 16)), values: top.map(([,v]) => v.e)}], barOpts({x:0.4, y:1.2, w:5.6, h:3.45, catAxisLabelRotate:-40, chartColors:[AMBER]}));
+        const rows = [['Partner','No remark','% of ROs']].concat(top.slice(0, 8).map(([k, v]) => [short(k, 22), fmtN(v.e), pct(v.e, v.n) + '%']));
+        const [t, o] = tbl(rows, {x:6.2, y:1.3, w:3.3, colW:[1.75, 0.8, 0.75]}); s.addTable(t, o);
+      } else s.addText('Every pending RO has a remark.', {x:0.5, y:1.4, w:9, h:0.4, fontSize:14, color:INK, fontFace:FONT, isTextBox:true});
+      s.addText('Without a remark the stage and owner can only be read from the Repair Status, so these ROs are the least visible in this report.', {x:0.5, y:4.75, w:9, h:0.35, fontSize:10, color:MUTED, italic:true, fontFace:FONT, margin:0, isTextBox:true});
+      s.addNotes(top.map(([k, v]) => `${k}: ${v.e}/${v.n}`).join('; ')); }
+
+    // 12. Next actions (to be filled in)
+    { const s = pres.addSlide(); s.background = {color:NAVY}; pageNo++;
+      s.addText('NEXT ACTIONS', {x:0.6, y:0.45, w:8.8, h:0.3, fontSize:12, bold:true, color:'7FD1C1', charSpacing:2, fontFace:FONT, margin:0, isTextBox:true});
+      s.addText('Actions for this week', {x:0.6, y:0.8, w:8.8, h:0.6, fontSize:28, bold:true, color:'FFFFFF', fontFace:FONT, margin:0, isTextBox:true});
+      [0,1,2].forEach(i => { const x = 0.6 + i * 3.0;
+        s.addShape(pres.shapes.ROUNDED_RECTANGLE, {x, y:1.75, w:2.75, h:3.0, fill:{color:'24364F'}, line:{color:'24364F'}, rectRadius:0.1});
+        s.addText(String(i + 1), {x:x+0.2, y:1.92, w:0.6, h:0.55, fontSize:26, bold:true, color:'7FD1C1', fontFace:FONT, margin:0, isTextBox:true});
+        s.addText([{text:'Action', options:{bold:true, color:'CADCFC', breakLine:true}}, {text:' ', options:{breakLine:true}}, {text:'Owner', options:{bold:true, color:'CADCFC', breakLine:true}}, {text:' ', options:{breakLine:true}}, {text:'Due', options:{bold:true, color:'CADCFC'}}],
+          {x:x+0.2, y:2.55, w:2.35, h:2.0, fontSize:12, color:'FFFFFF', fontFace:FONT, valign:'top', margin:0, isTextBox:true}); });
+      s.addNotes('Fill in the agreed actions, owners and due dates before sending.'); }
+
+    const blob = await pres.write({outputType:'blob'});
+    const tag = dash.view === 'overview' ? 'Overall' : dash.view === 'rsm' ? 'RSM_' + dash.rsm : 'PS_' + dash.store.replace(/^GWM\s+/, '');
+    await saveFile(safeFile(`Pending_RO_Weekly_${tag}_W${wk}_${wy}${P ? '_vs_LW' : ''}`) + '.pptx', blob);
+    $('pptPanel').hidden = true;
+  } catch(e){ console.error(e); toast('สร้าง PowerPoint ไม่สำเร็จ: ' + (e && e.message || '')); }
+  finally { btn.disabled = false; btn.textContent = label; }
+}
+$('pptBtn').addEventListener('click', () => { $('pptPanel').hidden = !$('pptPanel').hidden; $('pptScope').textContent = $('dScope').textContent + ' · ' + ['GR','BP'].filter(t => dash.types[t]).join(' + '); });
+$('pptClose').addEventListener('click', () => { $('pptPanel').hidden = true; });
+$('pptGo').addEventListener('click', exportPptx);
+document.querySelectorAll('input[name="pptMode"]').forEach(r => r.addEventListener('change', () => { pptMode = document.querySelector('input[name="pptMode"]:checked').value; $('pptPrevRow').hidden = pptMode !== 'compare'; }));
+$('pptPrev').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { const book = XLSX.read(new Uint8Array(await f.arrayBuffer()), {type:'array', cellNF:true, cellText:true});
+    const recs = recsFromBook(book); if (!recs){ toast('ไม่พบคอลัมน์ Store_Name ในไฟล์อาทิตย์ที่แล้ว'); return; }
+    pptPrev = {name: f.name.replace(/\.[^.]+$/, ''), recs};
+    $('pptPrevName').textContent = `${f.name} · ${recs.length.toLocaleString()} RO`; $('pptPrevClear').hidden = false;
+  } catch(err){ toast('อ่านไฟล์อาทิตย์ที่แล้วไม่ได้'); }
+});
+$('pptPrevClear').addEventListener('click', () => { pptPrev = null; $('pptPrevName').textContent = 'ยังไม่ได้แนบไฟล์'; $('pptPrevClear').hidden = true; });
 
 initDash();
 $('pdfBtn').addEventListener('click', exportPdf);
@@ -1448,10 +1883,13 @@ async function openVault(pw){
   return v;
 }
 async function unlock(pw, remember){
-  let v;
-  try { v = await openVault(pw); } catch(e){ if (e && e.message === 'nocrypto'){ $('lockErr').textContent = 'โหลดตัวถอดรหัสไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่'; } else $('lockErr').textContent = 'รหัสผ่านไม่ถูกต้อง ลองอีกครั้ง'; return false; }
+  let v, used = pw;
+  // phones often add a capital first letter or a trailing space: try the password as typed, trimmed, then lower-case
+  const tries = [...new Set([pw, pw.trim(), pw.trim().toLowerCase()])].filter(Boolean);
+  for (const t of tries.slice(0, -1)){ try { v = await openVault(t); used = t; break; } catch(e){} }
+  if (!v) try { used = tries[tries.length-1]; v = await openVault(used); } catch(e){ if (e && e.message === 'nocrypto'){ $('lockErr').textContent = 'โหลดตัวถอดรหัสไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่'; } else $('lockErr').textContent = 'รหัสผ่านไม่ถูกต้อง ลองอีกครั้ง'; return false; }
   DEFAULT_RSM.list = v.r; rsmIdx = null;
-  try { if (remember) localStorage.setItem('roPw', pw); else localStorage.removeItem('roPw'); sessionStorage.setItem('roPw', pw); } catch(e){}
+  try { if (remember) localStorage.setItem('roPw', used); else localStorage.removeItem('roPw'); sessionStorage.setItem('roPw', used); } catch(e){}
   $('lock').hidden = true;
   renderRsmPanel();
   if (typeof XLSX === 'undefined' || typeof JSZip === 'undefined'){ toast('โหลดไลบรารี Excel ไม่สำเร็จ ลองรีเฟรชหน้า'); return true; }
@@ -1473,6 +1911,248 @@ $('lockOut').addEventListener('click', () => { try { localStorage.removeItem('ro
   if (saved && await unlock(saved, !!(function(){ try { return localStorage.getItem('roPw'); } catch(e){ return null; } })())) return;
   $('lockPw').focus();
 })();
+/* ---------- EN / TH switch: UI text only; Remark text written by dealers is never translated ---------- */
+const I18N_PAIRS = [
+['อัปโหลดไฟล์ Pending RO แล้วดู Dashboard แบบ Overview, ราย RSM หรือราย Partner พร้อมอันดับวันค้างซ่อมและสาเหตุ จากนั้นแยกไฟล์ส่ง Dealer ได้ในแท็บถัดไป ไฟล์ถูกประมวลผลในเบราว์เซอร์ของคุณเท่านั้น','Upload a Pending RO file to see the Dashboard by Overview, RSM or Partner, with pending-day rankings and causes. Split files for dealers in the next tab. Files are processed only in your browser.'],
+['ไฟล์ที่ได้มีครบ 18 คอลัมน์มาตรฐาน พร้อม Dropdown ทุกช่องเสมอ ไม่ว่าไฟล์ต้นทางจะมีกี่คอลัมน์','Output always has the 18 standard columns with every dropdown, whatever the source file contains'],
+['ไฟล์ที่ได้มีหัวตารางเดิม ตัวกรอง และรูปแบบวันที่ตามต้นฉบับ (สูตรถูกแปลงเป็นค่า)','Output keeps the original headers, filters and date formats (formulas become values)'],
+['และเติมสถานะรถ (จอด/ไม่จอด) จาก Remark','and car status (parked / not parked) filled from Remark'],
+['แก้ชื่อในไฟล์ RSM ให้ตรง แล้วอัปโหลดใหม่ได้เลย','Fix the names in the RSM file and upload it again'],
+['ใส่รหัสผ่านเพื่อเปิด Dashboard และข้อมูล Pending RO','Enter the password to open the Dashboard and Pending RO data'],
+['ลากไฟล์ .xlsx มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์','Drop an .xlsx file here or click to choose one'],
+['รองรับ .xlsx / .xls / .csv · ระบบหาคอลัมน์ Store_Name ให้อัตโนมัติ','Supports .xlsx / .xls / .csv · finds the Store_Name column automatically'],
+['ทุก Partner ในไฟล์ Pending มี RSM ครบทั้ง','Every Partner in the Pending file has an RSM —'],
+['ไม่มีในไฟล์ RSM แต่กำหนดไว้ในระบบแล้ว','Not in the RSM file but set in the tool'],
+['ชื่อ Partner ที่ไม่ตรงกับไฟล์ RSM','Partner names that do not match the RSM file'],
+['ชื่อใกล้เคียงในไฟล์ RSM','closest name in the RSM file'],
+['จากแท็บในไฟล์ Pending','from a tab in the Pending file'],
+['จากคอลัมน์ RSM ในไฟล์','from the RSM column in the file'],
+['Pending RO · Dashboard และแยกไฟล์ตาม Store','Pending RO · Dashboard & split by Store'],
+['ดาวน์โหลด Excel ทั้งไฟล์ (กรอก RSM แล้ว)','Download full Excel (RSM filled)'],
+['Top 20 Partner ที่มี RO ค้างมากสุด','Top 20 Partners by pending RO'],
+['ทุก RSM (ZIP แยก Folder ตาม RSM)','All RSMs (ZIP, one folder per RSM)'],
+['อันดับ Partner ที่ไม่กรอก Remark','Partners not filling in Remark'],
+['เทียบกับ Partner ใน RSM เดียวกัน','compared with Partners in the same RSM'],
+['— ลากไฟล์ใหม่ด้านบนเพื่อแทนที่','— drop a new file above to replace it'],
+['รวมร้านที่เลือกเป็นไฟล์เดียว','Combine selected stores in one file'],
+['ค้นหา SP / Partner / เลข PO…','Search SP / Partner / PO no.…'],
+['รออะไหล่ ไม่มี ETA / เลย ETA','Waiting parts: no ETA / past ETA'],
+['GWM (มีเลข JS / YS / PO / BO)','GWM (has JS / YS / PO / BO no.)'],
+['รหัสผ่านไม่ถูกต้อง ลองอีกครั้ง','Wrong password, try again'],
+['จำนวน RO ที่ไม่กรอก Remark','ROs without Remark'],
+['% RO ที่ไม่กรอก Remark','% of ROs without Remark'],
+['Partner ที่ไม่กรอก Remark','Partners without Remark'],
+['ค้างเฉลี่ย (วัน) ตามสาเหตุ','Average pending days by cause'],
+['RO ค้างแยกตาม Repair Status','Pending RO by Repair Status'],
+['RO ค้างแยกตาม Partner','Pending RO by Partner'],
+['RO ค้างแยกตาม RSM','Pending RO by RSM'],
+['กลับไปใช้ไฟล์ค่าเริ่มต้น','Back to the default file'],
+['PDF ราย PS ทีละหลายร้าน:','PDF per PS, many stores at once:'],
+['รออะไหล่ · ยังไม่มี PO/BO','Waiting parts · no PO/BO yet'],
+['รออนุมัติ · ยังไม่มี YS','Waiting approval · no YS yet'],
+['รอเทคนิค · ยังไม่มี JS','Waiting tech · no JS yet'],
+['ไม่มีรายละเอียดใน Remark','No details in Remark'],
+['ZIP แยกโฟลเดอร์ตาม RSM','ZIP, one folder per RSM'],
+['กำลังแสดงไฟล์ค่าเริ่มต้น','Showing the default file'],
+['คลิกแท่งเพื่อดูรายการ','click a bar to see the list'],
+['คลิกเพื่อดูรายการ','click to see the list'],
+['คลิกเพื่อเจาะลึก','click to drill down'],
+['ค้างนานสุดที่ไม่กรอก','Oldest without Remark'],
+['ไม่จอด (Not Parking)','Not parked'],
+['จอด (Parking)','Parked'],
+['Part ที่ยังไม่มี ETA','Parts without ETA'],
+['อายุงานค้าง (วัน)','Pending age (days)'],
+['จำรหัสในเครื่องนี้','Remember on this device'],
+['อันดับวันค้างซ่อม','Ranking by pending days'],
+['อื่นๆ (มี Remark)','Other (has Remark)'],
+['ปิดและล้างตัวกรอง','Close and clear filters'],
+['รถจอดอยู่ที่ศูนย์','Cars parked at the centre'],
+['ค้างที่ GWM / PS','Held at GWM / PS'],
+['ค้างที่แผนกไหน','Held by department'],
+['ค้นหาชื่อ Store','Search store'],
+['PS (ยังไม่มีเลข)','PS (no number yet)'],
+['✕ ล้างตัวกรองนี้','✕ Clear this filter'],
+['ล้างตัวกรองทั้งหมด','Clear all filters'],
+['อัปโหลดไฟล์ RSM','Upload RSM file'],
+['RSM ที่รับผิดชอบ','RSM responsibility'],
+['RO ค้างทั้งร้าน','Store pending RO'],
+['RO ค้างทั้งหมด','Total pending RO'],
+['ติดที่ / Remark','Stuck at / Remark'],
+['ข้อมูลตัวอย่าง','sample data'],
+['กรองตามสถานะรถ','Filter by car status'],
+['กรองตามสาเหตุ','Filter by cause'],
+['แยกตามคอลัมน์','Split by column'],
+['แยกไฟล์ Excel','Split Excel'],
+['ดาวน์โหลด PDF','Download PDF'],
+['SP ในกลุ่มนี้','SP in group'],
+['เรียงตามจำนวน','Sort by count'],
+['เรียงตาม %','Sort by %'],
+['ค้นหาในอันดับ','Search ranking'],
+['ตามลำดับเดิม','Original order'],
+['เลือกทั้งหมด','Select all'],
+['เฉพาะ RSM นี้','This RSM only'],
+['เฉพาะ RSM','Only RSM'],
+['(ZIP ราย PS)','(ZIP per PS)'],
+['รายการ SP','SP list'],
+['รายการ เรียงจากค้างนานสุด','items, longest pending first'],
+['เรียงจากค้างนานสุด','longest pending first'],
+['ตามตัวกรอง','filtered'],
+['แสดงทั้งหมด','Show all'],
+['แสดง 50 อันดับแรก','Show top 50'],
+['แสดง 15 อันดับแรก','Show top 15'],
+['สรุปราย PS','Summary by PS'],
+['ผลการกรอง','Filter results'],
+['ไม่มี Remark','No Remark'],
+['ไม่กรอก Remark','No Remark'],
+['จอด / ไม่จอด','Parked / Not parked'],
+['ลูกค้า / CR','Customer / CR'],
+['กำลังซ่อม','Repairing'],
+['อายุงานค้าง','Pending age'],
+['ค้างเฉลี่ย','Average pending'],
+['ค้างนานสุด','Oldest'],
+['ติดที่อะไร','Stuck at'],
+['ติดที่:','Stuck at:'],
+['ค้างที่:','Held at:'],
+['ค้างที่','Held at'],
+['วันค้าง:','Pending days:'],
+['วันค้าง','Pending days'],
+['มาก → น้อย','High → low'],
+['น้อย → มาก','Low → high'],
+['เรียงกราฟ','Sort chart'],
+['เรียงตาม','Sort by'],
+['ไม่มี ETA','no ETA'],
+['เลย ETA','past ETA'],
+['เข้าสู่ระบบ','Sign in'],
+['ออกจากระบบ','Sign out'],
+['กำลังตรวจสอบ…','Checking…'],
+['รหัสผ่าน','Password'],
+['จำนวน Store','Stores'],
+['จำนวน RO','ROs'],
+['ราย Partner','By Partner'],
+['ราย RSM','By RSM'],
+['ราย PS','per PS'],
+['ทุก Partner','All Partners'],
+['ทุกสาเหตุ','All causes'],
+['ทุก RSM','All RSMs'],
+['รถ: ทั้งหมด','Car: all'],
+['รถ:','Car:'],
+['กำลังดู:','Viewing:'],
+['กำลังแสดง','Showing'],
+['ประเภทงาน','Job type'],
+['ไม่ระบุ RSM','No RSM'],
+['ไม่ระบุ','Unspecified'],
+['ไม่จอด','Not parked'],
+['จอด','Parked'],
+['RO ค้าง','pending RO'],
+['อ่านหัวตารางจากแถวที่','Header read from row'],
+['ของ Sheet','of sheet'],
+['เพิ่มคอลัมน์','Added columns'],
+['RSM ยึดตามไฟล์','RSM from'],
+['ร้านที่เพิ่ม','added stores'],
+['RO ในไฟล์','ROs in file'],
+['แยกได้ครบ','split complete'],
+['(ไม่นับซ้ำ)','(no double counting)'],
+['(ค่าเริ่มต้น)','(default)'],
+['ใช้ไฟล์','Using'],
+['สีน้ำเงิน','blue'],
+['สีแดง','red'],
+['สีส้ม','orange'],
+['ใช้ RSM','using RSM'],
+['กำหนดไว้ในระบบ','set in the tool'],
+['กำลังสร้าง PDF','Building PDF'],
+['กำลังรวมไฟล์ ZIP…','Zipping…'],
+['รออนุมัติ · ยังไม่มี','Waiting approval · no'],
+['รออะไหล่ · ยังไม่มี','Waiting parts · no'],
+['รอเทคนิค · ยังไม่มี','Waiting tech · no'],
+['รถ','Car'],
+['เกิน 90 วัน','Over 90 days'],
+['ข้อมูลทุกคอลัมน์จากไฟล์','All columns from the file'],
+['รายละเอียด SP','SP details'],
+['ปิดรายละเอียด','Close details'],
+['ค้นหา SP / VIN / Partner / เลข PO…','Search SP / VIN / Partner / PO no.…'],
+['รุ่นรถ','Model'],
+['ค้าง ','Pending '],
+['รออะไหล่ · ไม่มี ETA','Waiting parts · no ETA'],
+['รออะไหล่ · เลย ETA','Waiting parts · past ETA'],
+['รออะไหล่ทั้งหมด','All waiting parts'],
+['ทั้งหมด','All'],
+['แนบไฟล์อาทิตย์ที่แล้ว (ไม่บังคับ)','Attach last week\'s file (optional)'],
+['ยังไม่ได้แนบ — จะเทียบกับตัวเลขที่บันทึกไว้ครั้งก่อน (ถ้ามี)','Not attached — compares with the last saved numbers (if any)'],
+['Report ใช้ขอบเขตที่เลือกอยู่ (Overview / RSM / Partner และ GR/BP) · ไม่ได้ใช้ตัวกรองจาก Pie','The report uses the current scope (Overview / RSM / Partner and GR/BP) · pie filters are not applied'],
+['สร้าง PowerPoint','Create PowerPoint'],
+['จำนวนรถ (VIN ไม่ซ้ำ)','Vehicles (unique VIN)'],
+['คัน (VIN)','vehicles (VIN)'],
+['รถคันนี้มี','This vehicle has'],
+['RO ค้างในไฟล์','pending ROs in the file'],
+['สถานะ ณ ปัจจุบัน','Current status'],
+['ไม่ต้องแนบไฟล์','no file needed'],
+['เทียบกับอาทิตย์ที่แล้ว','Compare with last week'],
+['แนบไฟล์อาทิตย์ที่แล้ว แสดง ▲▼ และ % ที่เปลี่ยน','attach last week\'s file to show ▲▼ and % change'],
+['แนบไฟล์อาทิตย์ที่แล้ว','Attach last week\'s file'],
+['ยังไม่ได้แนบไฟล์','No file attached'],
+['รูปแบบ Report','Report type'],
+['ยกเลิก','Cancel'],
+['มุมมอง','View'],
+['สร้างเมื่อ','created'],
+['ไฟล์:','File:'],
+['ไฟล์','File'],
+['เลือก ','Select '],
+['พบ','Found'],
+['เกิน','over'],
+['จาก','of'],
+['ร้าน','stores'],
+['รายการ','items'],
+['วัน','days'],
+['ไม่กรอก','No Remark'],
+['✕ ปิด','✕ Close']
+].sort((a,b) => b[0].length - a[0].length);
+let lang = 'th';
+try { lang = localStorage.getItem('roLang') === 'en' ? 'en' : 'th'; } catch(e){}
+const trOrig = new Map();           // text node -> original Thai
+const NO_TR = '.fullrem, .detail, script, style, [data-nt]';
+function trString(t){ for (const [a,b] of I18N_PAIRS) if (t.includes(a)) t = t.split(a).join(b); return t; }
+function skipNode(n){ const p = n.parentElement; if (!p) return true; const x = p.closest(NO_TR); return !!x && !(x.matches('.detail') && p.closest('.sub')); }
+let trBusy = false;
+function translateTree(root){
+  if (lang !== 'en') return;
+  trBusy = true;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
+  while ((n = w.nextNode())){
+    const v = n.nodeValue; if (!/[฀-๿]/.test(v) || skipNode(n)) continue;
+    const t = trString(v); if (t === v) continue;
+    if (!trOrig.has(n)) trOrig.set(n, v);
+    n.nodeValue = t;
+  }
+  (root.querySelectorAll ? root : document).querySelectorAll('[placeholder],[aria-label],[title]').forEach(e => {
+    for (const k of ['placeholder','aria-label','title']){ const v = e.getAttribute(k); if (v && /[฀-๿]/.test(v)){ const t = trString(v); if (t !== v){ e.setAttribute('data-th-' + k, v); e.setAttribute(k, t); } } }
+  });
+  if (trObs) trObs.takeRecords();
+  trBusy = false;
+}
+function setLang(l){
+  lang = l; try { localStorage.setItem('roLang', l); } catch(e){}
+  document.documentElement.lang = l;
+  document.querySelectorAll('.langsw [data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === l));
+  if (l === 'th'){
+    trBusy = true;
+    for (const [n, v] of trOrig) if (n.isConnected) n.nodeValue = v;
+    trOrig.clear();
+    document.querySelectorAll('[data-th-placeholder],[data-th-aria-label],[data-th-title]').forEach(e => { for (const k of ['placeholder','aria-label','title']){ const v = e.getAttribute('data-th-' + k); if (v){ e.setAttribute(k, v); e.removeAttribute('data-th-' + k); } } });
+    if (trObs) trObs.takeRecords();
+    trBusy = false;
+  } else translateTree(document.body);
+}
+var trObs = null;
+trObs = new MutationObserver(ms => {
+  if (lang !== 'en' || trBusy) return;
+  for (const m of ms){
+    if (m.type === 'characterData') translateTree(m.target.parentNode || document.body);
+    else m.addedNodes.forEach(x => translateTree(x.nodeType === 3 ? x.parentNode || document.body : x));
+  }
+});
+trObs.observe(document.body, {childList:true, subtree:true, characterData:true});
+document.addEventListener('click', e => { const b = e.target.closest('.langsw [data-lang]'); if (b) setLang(b.dataset.lang); });
+setLang(lang);
 </script>
 
 </body>
