@@ -122,6 +122,15 @@ tr.hl td{background:var(--accent-soft)}
   header h1{font-size:1.3rem}
 }
 /* dashboard */
+.rhost{position:absolute;left:-12000px;top:0;width:960px;padding:0!important;display:block!important}
+.rslide{position:relative;width:960px;height:540px;overflow:hidden;font-family:Calibri,"IBM Plex Sans Thai",Arial,sans-serif}
+.rslide .ritem{position:absolute;overflow:hidden}
+.rslide .rbul{margin:0;padding-left:18px}
+.rslide .rtbl{border-collapse:collapse;table-layout:fixed}
+.rslide .rtbl td{border:0.5px solid #E5E7EB;padding:2px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+.rslide .chart{overflow:visible}
+.rslide .pie{justify-content:center}
+.rslide .legend{font-size:12px}
 .pptopt{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;cursor:pointer;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px}
 .vinrep{font-size:.68rem;padding:0 6px;margin-left:4px;font-family:var(--font-body)}
 .pptpanel{flex-basis:100%;gap:10px}
@@ -215,6 +224,38 @@ tr.click:hover td{background:var(--bg)}
 .pdfroot table.cards td{display:table-cell;width:auto;padding:7px 10px;border-bottom:1px solid var(--line)}
 .pdfroot table.cards td::before{content:none!important}
 
+body[data-role="ps"] .rsmonly{display:none!important}
+body[data-role="ps"] #tabs{display:none!important}
+.deptlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.deptopt{display:flex;flex-direction:column;gap:4px;background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--dc,var(--c2));border-radius:9px;padding:9px 12px}
+.deptopt .dtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.deptopt b.n{font-size:1.2rem;font-variant-numeric:tabular-nums}
+.deptopt button{align-self:flex-start;padding:5px 10px;font-size:.85rem}
+.deptopt.empty{opacity:.55}
+.pdfroot th{position:static!important;top:auto!important}
+.pdfroot .ckpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.pdfroot .ckpi{display:flex;flex-direction:column;gap:2px;border:1px solid #dbe2df;border-radius:10px;padding:10px 14px}
+.pdfroot .ckpi b{font-size:1.9rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.pdfroot .cpts{display:flex;flex-wrap:wrap;gap:4px 22px;background:#f3f5f4;border-radius:8px;padding:9px 14px;font-size:.95rem}
+.pdfroot .crow{display:flex;gap:12px}
+.pdfroot .cbox{border:1px solid #dbe2df;border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.pdfroot .cbox h4{margin:0;font-size:1rem}
+.pdfroot .clegend{display:flex;gap:18px;font-size:.85rem;color:#5d6b66}
+.pdfroot .clegend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
+.pdfroot .dsec{display:flex;flex-direction:column;gap:8px}
+.pdfroot .dhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:3px solid var(--dc,#eb6834);padding-bottom:8px}
+.pdfroot .dhead h2{margin:0;font-size:1.45rem}
+.pdfroot .duty{background:#f3f5f4;border-radius:8px;padding:8px 12px;font-size:.95rem}
+.pdfroot .dkpi{display:flex;gap:18px;flex-wrap:wrap;font-size:.95rem}
+.pdfroot .dkpi b{font-size:1.15rem}
+.pdfroot table.dtab{width:100%;border-collapse:collapse;font-size:.86rem}
+.pdfroot table.dtab th{background:#eef2f0;text-align:left;padding:6px 8px;border-bottom:1px solid #c9d3cf;font-weight:600}
+.pdfroot table.dtab td{padding:6px 8px;border-bottom:1px solid #dbe2df;vertical-align:top}
+.pdfroot table.dtab td.num{text-align:right;font-variant-numeric:tabular-nums}
+.pdfroot table.dtab .rem{max-width:330px;color:#3b4642}
+.pdfroot table.dtab .fu{width:120px;border-left:1px dashed #b9c4c0}
+.pdfroot table.dsum td,.pdfroot table.dsum th{padding:7px 10px}
+
 :root{--c1:#2a78d6;--c2:#eb6834;--k-part:#2a78d6;--k-part0:#9ec5f4;--k-war:#eb6834;--k-war0:#f6b89c;--k-tech:#1baf7a;--k-tech0:#9fe0c6;--k-cust:#eda100;--k-repair:#6250d6;--k-other:#e87ba4;--k-none:#b9bdb9;
   --age0:#86b6ef;--age1:#6da7ec;--age2:#3987e5;--age3:#256abf;--age4:#184f95;--age5:#0d366b;--grid:#e6ebe9;--ink2:#52514e}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#3987e5;--c2:#d95926;--k-part:#3987e5;--k-part0:#1c4f8a;--k-war:#d95926;--k-war0:#7f3518;--k-tech:#199e70;--k-tech0:#0f5c42;--k-cust:#c98500;--k-repair:#9085e9;--k-other:#d55181;--k-none:#4c5452;
@@ -291,7 +332,7 @@ table.rank td{vertical-align:top}
 </div>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Aftersales · Pending RO · <span class="ver">V.9 by Natchanon C.</span> <button id="lockOut" class="linkbtn" type="button">ออกจากระบบ</button> <span class="langsw" role="group" aria-label="Language"><button type="button" data-lang="th" aria-pressed="true">TH</button><button type="button" data-lang="en" aria-pressed="false">EN</button></span></div>
+    <div class="eyebrow">Aftersales · Pending RO · <span class="ver">V.9 by Natchanon C.</span> <span class="pill muted" id="roleTag"></span> <button id="lockOut" class="linkbtn" type="button">ออกจากระบบ</button> <span class="langsw" role="group" aria-label="Language"><button type="button" data-lang="th" aria-pressed="true">TH</button><button type="button" data-lang="en" aria-pressed="false">EN</button></span></div>
     <h1>Pending RO · Dashboard และแยกไฟล์ตาม Store</h1>
     <p>อัปโหลดไฟล์ Pending RO แล้วดู Dashboard แบบ Overview, ราย RSM หรือราย Partner พร้อมอันดับวันค้างซ่อมและสาเหตุ จากนั้นแยกไฟล์ส่ง Dealer ได้ในแท็บถัดไป ไฟล์ถูกประมวลผลในเบราว์เซอร์ของคุณเท่านั้น</p>
   </header>
@@ -310,10 +351,10 @@ table.rank td{vertical-align:top}
     <div class="stat"><span class="k">จำนวน Store</span><span class="v" id="sStores">0</span></div>
     <label class="field">Sheet<select id="sheetSel"></select></label>
     <label class="field">แยกตามคอลัมน์<select id="colSel"></select></label>
-    <button id="fullBtn" class="primary" style="margin-left:auto">ดาวน์โหลด Excel ทั้งไฟล์ (กรอก RSM แล้ว)</button>
+    <button id="fullBtn" class="primary rsmonly" style="margin-left:auto">ดาวน์โหลด Excel ทั้งไฟล์ (กรอก RSM แล้ว)</button>
   </section>
 
-  <section class="card rsmpanel" id="rsmPanel">
+  <section class="card rsmpanel rsmonly" id="rsmPanel">
     <div class="rankhead"><h3>RSM ที่รับผิดชอบ</h3><span class="sub" id="rsmSrc"></span>
       <div class="rankf"><label class="btn" for="rsmFile">อัปโหลดไฟล์ RSM</label><input type="file" id="rsmFile" class="vh" accept=".xlsx,.xls,.csv"><button id="rsmReset" hidden>กลับไปใช้ไฟล์ค่าเริ่มต้น</button></div></div>
     <div class="banner" id="rsmWarn" hidden></div>
@@ -322,30 +363,34 @@ table.rank td{vertical-align:top}
 
   <nav class="tabs" id="tabs" hidden role="tablist">
     <button data-tab="dash" role="tab" aria-selected="true">Dashboard</button>
-    <button data-tab="split" role="tab" aria-selected="false">แยกไฟล์ Excel</button>
+    <button data-tab="split" role="tab" aria-selected="false" class="rsmonly">แยกไฟล์ Excel</button>
   </nav>
 
   <section id="dash" hidden class="dash">
     <div class="dbar">
       <div class="seg" id="dView" role="group" aria-label="มุมมอง">
-        <button data-v="overview" aria-pressed="true">Overview</button>
-        <button data-v="rsm" aria-pressed="false">ราย RSM</button>
+        <button data-v="overview" aria-pressed="true" class="rsmonly">Overview</button>
+        <button data-v="rsm" aria-pressed="false" class="rsmonly">ราย RSM</button>
         <button data-v="store" aria-pressed="false">ราย Partner</button>
       </div>
-      <label class="field" id="dRsmWrap" hidden>RSM<select id="dRsm"></select></label>
+      <label class="field rsmonly" id="dRsmWrap" hidden>RSM<select id="dRsm"></select></label>
       <label class="field" id="dStoreWrap" hidden>Partner<select id="dStore"></select></label>
       <div class="types" id="dTypes" role="group" aria-label="ประเภทงาน"><span class="sub">ประเภทงาน</span>
         <label><input type="checkbox" data-t="GR" checked> GR · General repair (SP) <span class="sub" id="nGR"></span></label>
         <label><input type="checkbox" data-t="BP"> BP · Body &amp; Paint <span class="sub" id="nBP"></span></label></div>
       <div class="scope">กำลังดู: <b id="dScope">ทุก Partner</b></div>
       <button id="pdfBtn" class="primary">ดาวน์โหลด PDF</button>
-      <button id="pptBtn" class="primary">Export PPTX (EN)</button>
+      <button id="pptBtn" class="primary">Weekly Report (EN)</button>
+      <button id="deptBtn" class="primary" hidden>Partner Report แยกฝ่าย (PDF)</button>
       <div class="pptpanel card" id="pptPanel" hidden>
-        <div class="rankhead"><h3>Weekly report · PowerPoint (English)</h3><span class="sub" id="pptScope"></span><div class="rankf"><button id="pptClose" class="linkbtn">✕ ปิด</button></div></div>
+        <div class="rankhead"><h3>Weekly report (English) · PowerPoint / PDF</h3><span class="sub" id="pptScope"></span><div class="rankf"><button id="pptClose" class="linkbtn">✕ ปิด</button></div></div>
         <p class="sub" style="margin:0">Report ใช้ขอบเขตที่เลือกอยู่ (Overview / RSM / Partner และ GR/BP) · ไม่ได้ใช้ตัวกรองจาก Pie</p>
         <div class="pptrow" role="radiogroup" aria-label="รูปแบบ Report">
           <label class="pptopt"><input type="radio" name="pptMode" value="current" checked> <b>สถานะ ณ ปัจจุบัน</b> <span class="sub">ไม่ต้องแนบไฟล์</span></label>
           <label class="pptopt"><input type="radio" name="pptMode" value="compare"> <b>เทียบกับอาทิตย์ที่แล้ว</b> <span class="sub">แนบไฟล์อาทิตย์ที่แล้ว แสดง ▲▼ และ % ที่เปลี่ยน</span></label></div>
+        <div class="pptrow" role="radiogroup" aria-label="ไฟล์ที่ได้"><span class="sub">ไฟล์:</span>
+          <label class="pptopt"><input type="radio" name="pptFmt" value="pptx" checked> PowerPoint (.pptx)</label>
+          <label class="pptopt"><input type="radio" name="pptFmt" value="pdf"> PDF <span class="sub">เหมาะกับมือถือ</span></label></div>
         <div class="pptrow" role="radiogroup" aria-label="เรียงกราฟใน Report"><span class="sub">เรียงกราฟแท่ง:</span>
           <label class="pptopt"><input type="radio" name="pptSort" value="desc" checked> มาก → น้อย</label>
           <label class="pptopt"><input type="radio" name="pptSort" value="asc"> น้อย → มาก</label></div>
@@ -353,7 +398,13 @@ table.rank td{vertical-align:top}
           <span class="sub" id="pptPrevName">ยังไม่ได้แนบไฟล์</span><button id="pptPrevClear" class="linkbtn" hidden>ล้าง</button></div>
         <button id="pptGo" class="primary" style="align-self:flex-start">สร้าง PowerPoint</button>
       </div>
-      <div class="batch" id="batchWrap" hidden><span class="sub">PDF ราย PS ทีละหลายร้าน:</span>
+      <div class="pptpanel card" id="deptPanel" hidden>
+        <div class="rankhead"><h3>Partner Report · ติดตามงานแยกตามฝ่าย</h3><span class="sub" id="deptScope"></span><div class="rankf"><button id="deptClose" class="linkbtn">✕ ปิด</button></div></div>
+        <p class="sub" style="margin:0">ชุดเต็มสำหรับ SVM รายงานเจ้าของศูนย์: หน้าแรก Dashboard สรุป + อันดับแผนกที่ต้อง Follow up → หน้าละฝ่าย (เรียงจากงานมากไปน้อย) → หน้าสุดท้ายติดตามกับ GWM แยกแผนก · งานที่มีเลข JS / YS / PO / BO อยู่กับฝ่ายที่ต้องตาม GWM ใน DingTalk · ใช้ GR/BP ตามที่เลือก</p>
+        <div class="deptlist" id="deptList"></div>
+        <div class="pptrow"><button id="deptAll" class="primary">ดาวน์โหลด Partner Report ทั้งชุด (PDF)</button><button id="deptZip">ZIP แยกไฟล์ราย ฝ่าย</button></div>
+      </div>
+      <div class="batch rsmonly" id="batchWrap" hidden><span class="sub">PDF ราย PS ทีละหลายร้าน:</span>
         <button id="batchAll">ทุก RSM (ZIP แยก Folder ตาม RSM)</button>
         <button id="batchRsm">เฉพาะ RSM นี้ (ZIP ราย PS)</button></div>
     </div>
@@ -381,7 +432,7 @@ table.rank td{vertical-align:top}
         <thead><tr><th class="num">#</th><th class="num">วันค้าง</th><th>SP / VIN</th><th>PS</th><th>รถ</th><th>ติดที่ / Remark</th><th class="num">ETA</th></tr></thead>
         <tbody id="fSpBody"></tbody></table></div>
     </section>
-    <div class="card" id="remCard">
+    <div class="card rsmonly" id="remCard">
       <div class="rankhead"><h3>อันดับ Partner ที่ไม่กรอก Remark</h3><span class="sub" id="remCount"></span>
         <div class="rankf"><div class="seg" id="remSort" role="group" aria-label="เรียงตาม"><button data-s="pct" aria-pressed="true">เรียงตาม %</button><button data-s="n" aria-pressed="false">เรียงตามจำนวน</button></div></div></div>
       <div id="remChart" class="chart"></div>
@@ -1212,6 +1263,7 @@ function countBy(recs, f){ const m = new Map(); for (const r of recs){ const k =
 
 function renderDash(){
   if (!state || !state.recs) return;
+  if (ROLE === 'ps'){ dash.view = 'store'; dash.rsm = ''; }
   const rsms = [...new Set(state.recs.map(r => r.rsm))].sort();
   $('dRsm').innerHTML = rsms.map(r => `<option ${r===dash.rsm?'selected':''}>${esc(r)}</option>`).join('');
   const stores = (dash.rsm && dash.view !== 'overview' ? state.list.filter(g => ([...g.rsm][0] || 'ไม่ระบุ RSM') === dash.rsm) : state.list).map(g => g.name).sort();
@@ -1220,7 +1272,7 @@ function renderDash(){
   if (dash.view === 'store' && (!dash.store || !stores.includes(dash.store))) { dash.store = stores[0] || ''; $('dStore').value = dash.store; }
   document.querySelectorAll('#dView button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === dash.view));
   $('dRsmWrap').hidden = dash.view === 'overview'; $('dStoreWrap').hidden = dash.view !== 'store';
-  $('batchWrap').hidden = dash.view !== 'store'; $('batchRsm').textContent = `เฉพาะ RSM ${dash.rsm || ''} (ZIP ราย PS)`;
+  $('batchWrap').hidden = dash.view !== 'store'; $('deptBtn').hidden = dash.view !== 'store' || !dash.store; if (dash.view !== 'store') $('deptPanel').hidden = true; else if (!$('deptPanel').hidden) renderDeptPanel(); $('batchRsm').textContent = `เฉพาะ RSM ${dash.rsm || ''} (ZIP ราย PS)`;
   const recs = scopeRecs();
   const scopeName = dash.view === 'overview' ? 'ทุก Partner' : dash.view === 'rsm' ? 'RSM ' + dash.rsm : dash.store;
   $('dScope').textContent = scopeName;
@@ -1404,7 +1456,7 @@ function renderRank(){
   $('dRankCount').textContent = `${recs.length.toLocaleString()} RO · ${vinCount(recs).toLocaleString()} คัน (VIN) · เรียงจากค้างนานสุด` + (anyFilter() ? ' · ตามตัวกรอง' : '');
 }
 function initDash(){
-  $('dView').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; dash.view = b.dataset.v; dash.showAll = false; renderDash(); });
+  $('dView').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b || (ROLE === 'ps' && b.dataset.v !== 'store')) return; dash.view = b.dataset.v; dash.showAll = false; renderDash(); });
   $('dRsm').addEventListener('change', e => { dash.rsm = e.target.value; dash.store = ''; renderDash(); });
   $('dStore').addEventListener('change', e => { dash.store = e.target.value; renderDash(); });
   $('dQ').addEventListener('input', e => { dash.q = e.target.value; renderRank(); });
@@ -1431,6 +1483,7 @@ function initDash(){
   let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (!$('dash').hidden) renderDash(); }, 150); });
 }
 function setTab(t){
+  if (ROLE === 'ps') t = 'dash';
   document.querySelectorAll('#tabs [data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
   $('dash').hidden = t !== 'dash'; $('work').hidden = t !== 'split';
   if (t === 'dash') renderDash();
@@ -1639,12 +1692,84 @@ async function ensurePptx(){
   }
   return !!window.PptxGenJS;
 }
-let pptMode = 'current', pptSort = 'desc';
+/* ---------- the same weekly report as a PDF: the deck builder runs against this recorder, which lays the slides out in HTML ---------- */
+class SlideRecorder {
+  constructor(){ this.slides = []; this.charts = {BAR:'bar', DOUGHNUT:'doughnut'}; this.shapes = {ROUNDED_RECTANGLE:'rrect', RECTANGLE:'rect'}; }
+  addSlide(){
+    const sl = {bg:'FFFFFF', items:[]}; this.slides.push(sl);
+    const api = {
+      addText: (t, o) => sl.items.push({type:'text', t, o}), addShape: (k, o) => sl.items.push({type:'shape', k, o}),
+      addChart: (k, d, o) => sl.items.push({type:'chart', k, d, o}), addTable: (rows, o) => sl.items.push({type:'table', rows, o}), addNotes: () => {}
+    };
+    Object.defineProperty(api, 'background', {set(v){ sl.bg = (v && v.color) || 'FFFFFF'; }, get(){ return {color: sl.bg}; }});
+    return api;
+  }
+}
+const IN = 96, PT = 96 / 72;
+const hex = c => '#' + String(c || '1F2933').replace('#', '');
+function boxStyle(o){ return `left:${(o.x||0)*IN}px;top:${(o.y||0)*IN}px;width:${(o.w||1)*IN}px;height:${(o.h||0.4)*IN}px;`; }
+function runCss(o){ return `font-size:${(o.fontSize||14)*PT}px;color:${hex(o.color)};font-weight:${o.bold ? 700 : 400};${o.italic ? 'font-style:italic;' : ''}${o.charSpacing ? `letter-spacing:${o.charSpacing}px;` : ''}`; }
+function renderSlideHtml(sl, host){
+  const page = document.createElement('div'); page.className = 'rslide'; page.style.background = hex(sl.bg); host.appendChild(page);
+  for (const it of sl.items){
+    const o = it.o || {}, el = document.createElement('div'); el.className = 'ritem'; el.style.cssText = boxStyle(o);
+    if (it.type === 'shape'){ el.style.background = hex(o.fill && o.fill.color); el.style.borderRadius = it.k === 'rrect' ? ((o.rectRadius || 0.08) * IN) + 'px' : '0'; }
+    else if (it.type === 'text'){
+      el.style.cssText += runCss(o) + `text-align:${o.align || 'left'};display:flex;flex-direction:column;justify-content:${o.valign === 'top' ? 'flex-start' : o.valign === 'bottom' ? 'flex-end' : 'center'};line-height:1.25;`;
+      if (Array.isArray(it.t)){
+        let html = '<div>', bullets = it.t.some(r => r.options && r.options.bullet);
+        if (bullets) html = '<ul class="rbul">' + it.t.map(r => `<li style="${runCss({...o, ...(r.options||{})})};margin-bottom:${(o.paraSpaceAfter||0)*PT}px">${esc(r.text)}</li>`).join('') + '</ul>';
+        else html = '<div>' + it.t.map(r => `<span style="${runCss({...o, ...(r.options||{})})}">${esc(r.text)}</span>${r.options && r.options.breakLine ? '<br>' : ''}`).join('') + '</div>';
+        el.innerHTML = html;
+      } else el.innerHTML = `<div>${esc(it.t)}</div>`;
+    }
+    else if (it.type === 'table'){
+      const colW = o.colW || [], tw = (o.w || colW.reduce((a,b) => a+b, 0)) * IN;
+      el.style.height = 'auto';
+      el.innerHTML = `<table class="rtbl" style="width:${tw}px">${colW.length ? '<colgroup>' + colW.map(w => `<col style="width:${w*IN}px">`).join('') + '</colgroup>' : ''}${it.rows.map(r => '<tr>' + r.map(c => { const op = (c && c.options) || {};
+        return `<td style="${runCss({fontSize: op.fontSize || 10, color: op.color, bold: op.bold})}background:${op.fill ? hex(op.fill.color) : 'transparent'};height:${(o.rowH || 0.28)*IN}px">${esc(c && c.text !== undefined ? c.text : c)}</td>`; }).join('') + '</tr>').join('')}</table>`;
+    }
+    else if (it.type === 'chart'){
+      el.classList.add('chart');
+      page.appendChild(el);
+      const ser = it.d[0];
+      if (it.k === 'bar'){
+        const color = hex((o.chartColors || ['0F6B5C'])[0]);
+        vbar(el, ser.labels.map((l, i) => ({label: String(l), value: ser.values[i], color})), {rotate: !!o.catAxisLabelRotate, height: (o.h || 3.8) * IN, title: ser.name});
+      } else {
+        const cols = (o.chartColors || []).map(hex);
+        pie(el, ser.labels.map((l, i) => ({key: l, label: l, value: ser.values[i], color: cols[i % cols.length]})), ser.name);
+      }
+      continue;
+    }
+    page.appendChild(el);
+  }
+  return page;
+}
+async function slidesToPdf(rec, scale = 1.6){
+  const host = document.createElement('div'); host.className = 'pdfroot rhost'; document.body.appendChild(host);
+  try{
+    const {jsPDF} = window.jspdf;
+    const pdf = new jsPDF({unit:'in', format:[10, 5.625], orientation:'landscape', compress:true});
+    for (let i = 0; i < rec.slides.length; i++){
+      host.innerHTML = '';
+      const page = renderSlideHtml(rec.slides[i], host);
+      await new Promise(r => setTimeout(r, 30));
+      const canvas = await html2canvas(page, {scale, backgroundColor: hex(rec.slides[i].bg), logging:false, width: 10*IN, height: 5.625*IN});
+      if (i) pdf.addPage([10, 5.625], 'landscape');
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 10, 5.625);
+    }
+    return pdf.output('blob');
+  } finally { host.remove(); }
+}
+
+let pptMode = 'current', pptSort = 'desc', pptFmt = 'pptx';
 async function exportPptx(){
   if (!state) return;
-  if (!(await ensurePptx())){ toast('PPTX_LIB_FAIL'); return; }
+  if (pptFmt === 'pptx' && !(await ensurePptx())){ toast('PPTX_LIB_FAIL'); return; }
+  if (pptFmt === 'pdf' && (!window.html2canvas || !window.jspdf)){ toast('PPTX_LIB_FAIL'); return; }
   if (pptMode === 'compare' && !pptPrev){ toast('PPTX_NEED_PREV'); return; }
-  const btn = $('pptGo'); btn.disabled = true; const label = btn.textContent; btn.textContent = 'กำลังสร้าง PowerPoint…';
+  const btn = $('pptGo'); btn.disabled = true; const label = btn.textContent; btn.textContent = pptFmt === 'pdf' ? 'กำลังสร้าง PDF…' : 'กำลังสร้าง PowerPoint…';
   try{
     const recs = scopeRecs(), M = metricsOf(recs), now = new Date(), [wy, wk] = isoWeek(now);
     // comparison: last week's file if attached, else the last saved snapshot of an earlier week
@@ -1668,7 +1793,7 @@ async function exportPptx(){
     const dateTxt = now.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
 
     const NAVY='1B2A41', INK='1F2933', MUTED='6B7280', LINE='E5E7EB', SOFT='F4F6F8', TEAL='0F6B5C', RED='B42318', AMBER='B54708', BLUE='2A78D6', ORANGE='E8622C', FONT='Calibri';
-    const pres = new PptxGenJS();
+    const pres = pptFmt === 'pdf' ? new SlideRecorder() : new PptxGenJS();
     pres.layout = 'LAYOUT_16x9'; pres.author = 'Natchanon C.'; pres.company = 'GWM Thailand Aftersales'; pres.title = 'Pending RO Weekly Status — ' + scopeTxt;
     pres.theme = {headFontFace: FONT, bodyFontFace: FONT};
     let pageNo = 0;
@@ -1821,16 +1946,17 @@ async function exportPptx(){
       s.addText('Without a remark the stage and owner can only be read from the Repair Status, so these ROs are the least visible in this report.', {x:0.5, y:4.75, w:9, h:0.35, fontSize:10, color:MUTED, italic:true, fontFace:FONT, margin:0, isTextBox:true});
       s.addNotes(top.map(([k, v]) => `${k}: ${v.e}/${v.n}`).join('; ')); }
 
-    const blob = await pres.write({outputType:'blob'});
+    const blob = pptFmt === 'pdf' ? await slidesToPdf(pres) : await pres.write({outputType:'blob'});
     const tag = dash.view === 'overview' ? 'Overall' : dash.view === 'rsm' ? 'RSM_' + dash.rsm : 'PS_' + dash.store.replace(/^GWM\s+/, '');
-    await saveFile(safeFile(`Pending_RO_Weekly_${tag}_W${wk}_${wy}${P ? '_vs_LW' : ''}`) + '.pptx', blob);
+    await saveFile(safeFile(`Pending_RO_Weekly_${tag}_W${wk}_${wy}${P ? '_vs_LW' : ''}`) + (pptFmt === 'pdf' ? '.pdf' : '.pptx'), blob);
     $('pptPanel').hidden = true;
   } catch(e){ console.error(e); toast('สร้าง PowerPoint ไม่สำเร็จ: ' + (e && e.message || '')); }
   finally { btn.disabled = false; btn.textContent = label; }
 }
-$('pptBtn').addEventListener('click', () => { $('pptPanel').hidden = !$('pptPanel').hidden; $('pptScope').textContent = $('dScope').textContent + ' · ' + ['GR','BP'].filter(t => dash.types[t]).join(' + '); });
+$('pptBtn').addEventListener('click', () => { if (window.innerWidth < 761 && !window.__pptFmtSet){ window.__pptFmtSet = true; const r = document.querySelector('input[name="pptFmt"][value="pdf"]'); r.checked = true; r.dispatchEvent(new Event('change')); } $('pptPanel').hidden = !$('pptPanel').hidden; $('pptScope').textContent = $('dScope').textContent + ' · ' + ['GR','BP'].filter(t => dash.types[t]).join(' + '); });
 $('pptClose').addEventListener('click', () => { $('pptPanel').hidden = true; });
 $('pptGo').addEventListener('click', exportPptx);
+document.querySelectorAll('input[name="pptFmt"]').forEach(r => r.addEventListener('change', () => { pptFmt = document.querySelector('input[name="pptFmt"]:checked').value; $('pptGo').textContent = pptFmt === 'pdf' ? 'สร้าง PDF' : 'สร้าง PowerPoint'; }));
 document.querySelectorAll('input[name="pptSort"]').forEach(r => r.addEventListener('change', () => { pptSort = document.querySelector('input[name="pptSort"]:checked').value; }));
 document.querySelectorAll('input[name="pptMode"]').forEach(r => r.addEventListener('change', () => { pptMode = document.querySelector('input[name="pptMode"]:checked').value; $('pptPrevRow').hidden = pptMode !== 'compare'; }));
 $('pptPrev').addEventListener('change', async e => {
@@ -1844,6 +1970,174 @@ $('pptPrev').addEventListener('change', async e => {
 $('pptPrevClear').addEventListener('click', () => { pptPrev = null; $('pptPrevName').textContent = 'ยังไม่ได้แนบไฟล์'; $('pptPrevClear').hidden = true; });
 
 initDash();
+
+/* ---------- Partner report by team: SVM prints it for the dealer owner (cover dashboard → one page per team → GWM follow-up last) ---------- */
+// every SP belongs to one PS team; items holding a JS / YS / PO / BO number stay with the PS team that chases GWM for it in DingTalk
+const DEPT_REPORT = [
+  {k:'SA',       th:'SA (Service Advisor)', from:['PS:SA','PS:Cashier'], color:'#eb6834',
+   duty:'อัปเดตสถานะและ Remark ให้ครบ · ยืนยันรายการซ่อมกับลูกค้า · ปิด RO ที่ส่งมอบแล้ว (รวมงาน Cashier)'},
+  {k:'Tech',     th:'Tech (ช่าง / Foreman)', from:['PS:Tech','PS:Foreman','GWM:Tech'], color:'#1baf7a',
+   duty:'Foreman จ่ายงานและเร่งงานที่ค้างซ่อม · ช่างวิเคราะห์อาการให้จบ · งานที่เปิด JS แล้ว ติดตาม GWM Technical ใน DingTalk'},
+  {k:'Spare part', th:'Spare part (อะไหล่)', from:['PS:Spare part','GWM:Spare part'], color:'#2a78d6',
+   duty:'สั่งอะไหล่ให้ได้เลข PO/BO และใส่ ETA ใน Remark · ติดตาม ETA กับ GWM Parts ใน DingTalk โดยเฉพาะงานที่เลย ETA หรือยังไม่มี ETA · แจ้ง CR ทันทีเมื่ออะไหล่เข้า'},
+  {k:'Warranty', th:'Warranty (เคลม)', from:['PS:Warranty','GWM:Warranty'], color:'#c2410c',
+   duty:'เก็บข้อมูลเคลมให้ครบและส่งขออนุมัติให้ได้เลข YS · ติดตามผลอนุมัติกับ GWM Warranty ใน DingTalk'},
+  {k:'SVM',      th:'SVM (Service Manager)', from:['PS:SVM','PS:ไม่ระบุ'], color:'#6250d6',
+   duty:'ตัดสินใจงานที่รอผู้จัดการ · ตรวจงานที่ยังไม่ระบุฝ่ายแล้วมอบหมายผู้รับผิดชอบ · ติดตามทุกฝ่ายให้ปิดงานตามเป้า'},
+  {k:'CR',       th:'CR (ติดตามลูกค้า)', from:['PS:Customer','PS:CR','GWM:Customer'], color:'#eda100',
+   duty:'ติดต่อลูกค้าให้มารับรถ / นัดเข้าซ่อม / ตอบเรื่องร้องเรียน · งานที่อะไหล่เข้าแล้วให้นัดลูกค้าทันที · บันทึกวันนัดใน Remark'}
+];
+// last page: what is waiting on GWM, by the GWM department that owns it (same view an RSM follows up with)
+const GWM_FOLLOW = [
+  {k:'GWM:Tech',       th:'GWM Technical', ref:'JS',    team:'Tech',       color:'#1baf7a'},
+  {k:'GWM:Warranty',   th:'GWM Warranty',  ref:'YS',    team:'Warranty',   color:'#c2410c'},
+  {k:'GWM:Spare part', th:'GWM Parts',     ref:'PO/BO', team:'Spare part', color:'#2a78d6'}
+];
+const GWM_CARD = {k:'GWM', th:'ติดตามกับ GWM (หน้าสุดท้าย)', color:'#0d366b'};
+const DEPT_SUB = {'PS:SA':'SA','PS:CR':'CR','PS:Cashier':'Cashier','PS:Tech':'ช่าง','PS:Foreman':'Foreman','PS:Spare part':'Spare part','PS:Warranty':'Warranty','PS:SVM':'SVM','PS:ไม่ระบุ':'ไม่ระบุฝ่าย','PS:Customer':'ลูกค้า',
+  'GWM:Tech':'GWM Technical (JS)','GWM:Warranty':'GWM Warranty (YS)','GWM:Spare part':'GWM Parts (PO/BO)','GWM:Customer':'อะไหล่เข้าแล้ว · นัดลูกค้า'};
+const byAge = (a,b) => (b.age ?? -1) - (a.age ?? -1);
+const waitsGwm = r => GWM_FOLLOW.some(g => g.k === r.ownKey);
+function deptRecs(d){ return d.k === 'GWM' ? gwmRecs() : scopeRecs().filter(r => d.from.includes(r.ownKey)).sort(byAge); }
+function gwmRecs(){ const rs = scopeRecs(); return GWM_FOLLOW.flatMap(g => rs.filter(r => r.ownKey === g.k).sort(byAge)); }
+function renderDeptPanel(){
+  $('deptScope').textContent = dash.store + ' · ' + ['GR','BP'].filter(t => dash.types[t]).join(' + ');
+  $('deptList').innerHTML = [...DEPT_REPORT, GWM_CARD].map(d => { const rs = deptRecs(d), n = rs.length, g = rs.filter(waitsGwm).length; const old = n ? Math.max(...rs.map(r => r.age || 0)) : 0;
+    return `<div class="deptopt ${n ? '' : 'empty'}" style="--dc:${d.color}"><div class="dtop"><b>${esc(d.th)}</b><b class="n">${n}</b></div>
+      <span class="sub">${n ? `${vinCount(rs)} คัน · ค้างนานสุด ${old} วัน${g && d.k !== 'GWM' ? ` · รอ GWM ${g}` : ''}` : 'ไม่มีงานค้าง'}</span>${n ? `<button data-dept="${esc(d.k)}">PDF ${d.k === 'GWM' ? 'หน้านี้' : 'ฝ่ายนี้'}</button>` : ''}</div>`; }).join('');
+}
+const stampNow = () => { const now = new Date(); return now.toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'}) + ' ' + now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}); };
+const ageColor = a => a > 90 ? '#b3261e' : a > 30 ? '#a86400' : 'inherit';
+const refsOf = r => [r.tech, r.war, r.part].filter(Boolean).join(' · ');
+const remCell = r => { const rem = String(r.remark || '').replace(/\s+/g, ' ').trim(); return `<td class="rem" data-nt>${esc(rem.length > 170 ? rem.slice(0, 168) + '…' : rem) || '<span class="sub">ไม่มี Remark</span>'}</td>`; };
+const etaCell = r => `<td class="num">${r.eta ? esc(r.eta) + (r.etaLate ? '<div class="sub" style="color:#b3261e">เลย ETA</div>' : '') : PART_KEYS.includes(r.cause) ? '<span style="color:#a86400">ไม่มี ETA</span>' : '–'}</td>`;
+// vertical bars only (stacked when a second value is given); drawn as SVG so html2canvas keeps it sharp
+function svgVBars(items, w, h, opt = {}){
+  const L = 34, B = 58, T = 22, max = Math.max(1, ...items.map(it => it.a + (it.b || 0))), step = (w - L - 8) / Math.max(items.length, 1), bw = Math.min(64, step * .62);
+  const nice = Math.ceil(max / 4) || 1, ticks = [0, 1, 2, 3, 4].map(i => i * nice), top = ticks[4], y = v => T + (h - T - B) * (1 - v / top);
+  let g = ticks.map(t => `<line x1="${L}" x2="${w - 4}" y1="${y(t)}" y2="${y(t)}" stroke="#e6ebe9"/><text x="${L - 6}" y="${y(t) + 4}" font-size="11" text-anchor="end" fill="#5d6b66">${t}</text>`).join('');
+  items.forEach((it, i) => { const x = L + step * i + (step - bw) / 2, tot = it.a + (it.b || 0);
+    g += `<rect x="${x}" y="${y(it.a)}" width="${bw}" height="${y(0) - y(it.a)}" fill="${it.color || opt.ca || '#eb6834'}" rx="2"/>`;
+    if (it.b) g += `<rect x="${x}" y="${y(tot)}" width="${bw}" height="${y(it.a) - y(tot)}" fill="${opt.cb || '#2a78d6'}" rx="2"/>`;
+    g += `<text x="${x + bw/2}" y="${y(tot) - 6}" font-size="13" font-weight="700" text-anchor="middle" fill="#17201d">${tot}</text>`;
+    const lab = String(it.label).split('\n');
+    lab.forEach((t, k) => g += `<text x="${x + bw/2}" y="${h - B + 18 + k * 15}" font-size="${k ? 11 : 12.5}" text-anchor="middle" fill="${k ? '#5d6b66' : '#17201d'}">${esc(t)}</text>`); });
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" font-family="inherit">${g}</svg>`;
+}
+function coverHtml(stamp){
+  const all = scopeRecs(), n = all.length, ages = all.map(r => r.age || 0), avg = n ? Math.round(ages.reduce((a,b) => a+b, 0) / n) : 0;
+  const gw = all.filter(waitsGwm), late = gw.filter(r => r.etaLate).length, noRem = all.filter(r => r.cause === 'none').length;
+  const teams = DEPT_REPORT.map(d => { const rs = deptRecs(d); return {d, rs, g: rs.filter(waitsGwm).length}; }).filter(t => t.rs.length).sort((a,b) => b.rs.length - a.rs.length);
+  const bars = teams.map(t => ({label: t.d.k + '\n' + (t.rs.length ? `${Math.round(t.rs.length / n * 100)}%` : ''), a: t.rs.length - t.g, b: t.g, color: t.d.color}));
+  const bk = [['0–7',0,7],['8–15',8,15],['16–30',16,30],['31–60',31,60],['61–90',61,90],['>90',91,1e9]].map(([l,a,b], i) => ({label: l + ' วัน', a: all.filter(r => (r.age || 0) >= a && (r.age || 0) <= b).length, color: ['#86b6ef','#6da7ec','#3987e5','#256abf','#a86400','#b3261e'][i]}));
+  const kpi = (k, v, s, c) => `<div class="ckpi"><span class="sub">${k}</span><b style="${c ? 'color:' + c : ''}">${v}</b>${s ? `<span class="sub">${s}</span>` : ''}</div>`;
+  const pts = [];
+  if (teams[0]) pts.push(`แผนกที่ต้องตามมากสุด: <b>${esc(teams[0].d.th)}</b> ${teams[0].rs.length} RO (${Math.round(teams[0].rs.length / n * 100)}%)`);
+  const old = all.slice().sort(byAge)[0]; if (old) pts.push(`ค้างนานสุด <b>${old.age} วัน</b> · ${esc(old.sp)} (${esc((DEPT_REPORT.find(d => d.from.includes(old.ownKey)) || {}).k || '')})`);
+  pts.push(`รอ GWM <b>${gw.length}</b> RO ต้องตามใน DingTalk${late ? ` · เลย ETA <b style="color:#b3261e">${late}</b>` : ''}`);
+  if (noRem) pts.push(`ไม่มี Remark <b>${noRem}</b> RO — ต้องกรอกให้ครบ`);
+  const top = all.slice().sort(byAge).slice(0, 8);
+  return `<div class="dhead" style="--dc:#0f6b5c"><div><div class="sub">Aftersales · Pending RO · Partner report · ${stamp}</div><h2>${esc(dash.store)}</h2></div>
+      <div class="sub" style="text-align:right">ไฟล์: ${esc(fileBase)}<br>ประเภทงาน: ${['GR','BP'].filter(t => dash.types[t]).join(' + ')}</div></div>
+    <div class="ckpis">${kpi('RO ค้าง', n, vinCount(all) + ' คัน (VIN)')}${kpi('ค้างเฉลี่ย', avg + ' วัน')}${kpi('เกิน 30 วัน', ages.filter(a => a > 30).length, n ? Math.round(ages.filter(a => a > 30).length / n * 100) + '%' : '', '#a86400')}${kpi('เกิน 90 วัน', ages.filter(a => a > 90).length, n ? Math.round(ages.filter(a => a > 90).length / n * 100) + '%' : '', '#b3261e')}${kpi('รอ GWM', gw.length, 'ตามใน DingTalk', '#2a78d6')}${kpi('ไม่มี Remark', noRem, '', noRem ? '#b3261e' : '')}</div>
+    <div class="cpts">${pts.map(p => `<span>• ${p}</span>`).join('')}</div>
+    <div class="crow"><div class="cbox" style="flex:1.25"><h4>อันดับแผนกที่ต้อง Follow up (มาก → น้อย)</h4>${svgVBars(bars, 640, 270, {cb:'#0d366b'})}
+        <div class="clegend"><span><i style="background:#9aa5a1"></i>สีแผนก = งานภายใน PS</span><span><i style="background:#0d366b"></i>รอ GWM (ตามใน DingTalk)</span></div></div>
+      <div class="cbox" style="flex:1"><h4>อายุงานค้าง (วัน)</h4>${svgVBars(bk, 520, 270)}</div></div>
+    <div class="cbox"><h4>8 อันดับค้างนานสุด</h4><table class="dtab"><thead><tr><th>#</th><th>วันค้าง</th><th>SP / VIN</th><th>รถ</th><th>แผนกที่ต้องตาม</th><th>ติดที่</th><th>ETA</th></tr></thead><tbody>${top.map((r, i) => `<tr><td class="num">${i+1}</td><td class="num"><b style="color:${ageColor(r.age)}">${r.age ?? '–'}</b></td><td class="mono">${esc(r.sp)} <span class="sub">${esc(r.vin || '')}</span></td><td>${esc(r.model)}</td><td>${esc((DEPT_REPORT.find(d => d.from.includes(r.ownKey)) || {}).k || r.ownDept)}${waitsGwm(r) ? ' · รอ GWM' : ''}</td><td>${esc(Object.fromEntries(CAUSES.map(c => [c.k, c.label]))[r.cause] || '')}${refsOf(r) ? ' · ' + esc(refsOf(r)) : ''}</td>${etaCell(r)}</tr>`).join('')}</tbody></table></div>`;
+}
+function deptSectionHtml(d, rs, stamp){
+  const n = rs.length, ages = rs.map(r => r.age || 0), avg = n ? Math.round(ages.reduce((a,b) => a+b, 0) / n) : 0, g = rs.filter(waitsGwm).length;
+  const lab = Object.fromEntries(CAUSES.map(c => [c.k, c.label]));
+  const head = `<div class="dhead" style="--dc:${d.color}"><div><div class="sub">${esc(dash.store)} · ${stamp}</div><h2>${esc(d.th)}</h2></div>
+    <div class="dkpi"><span>RO <b>${n}</b></span><span>VIN <b>${vinCount(rs)}</b></span><span>เฉลี่ย <b>${avg}</b> วัน</span><span>เกิน 30 วัน <b>${ages.filter(a => a > 30).length}</b></span><span>เกิน 90 วัน <b>${ages.filter(a => a > 90).length}</b></span><span>รอ GWM <b>${g}</b></span></div></div>
+    <div class="duty"><b>หน้าที่:</b> ${esc(d.duty)}</div>`;
+  const th = `<thead><tr><th>#</th><th>วันค้าง</th><th>SP / VIN</th><th>รถ / สถานะ</th><th>ค้างที่ / ติดที่</th><th>Remark</th><th>ETA</th><th>ติดตาม (วันที่ / ผล)</th></tr></thead>`;
+  const row = (r, i) => `<tr><td class="num">${i+1}</td><td class="num"><b style="color:${ageColor(r.age)}">${r.age ?? '–'}</b></td>
+      <td class="mono">${esc(r.sp)}<div class="sub">${esc(r.vin || '–')}</div></td>
+      <td>${esc(r.model)}<div class="sub">${esc(r.status || '–')}${r.park === 'Parking' ? ' · จอด' : r.park === 'Not Parking' ? ' · ไม่จอด' : ''} · ${r.jt}</div></td>
+      <td>${waitsGwm(r) ? `<b style="color:#0d366b">รอ GWM · ตามใน DingTalk</b><div class="sub">${esc(DEPT_SUB[r.ownKey])}${refsOf(r) ? ' · ' + esc(refsOf(r)) : ''}</div>` : `${esc(DEPT_SUB[r.ownKey] || r.ownDept)}<div class="sub">${esc(lab[r.cause] || '')}${refsOf(r) ? ' · ' + esc(refsOf(r)) : ''}</div>`}</td>
+      ${remCell(r)}${etaCell(r)}<td class="fu"></td></tr>`;
+  return {head, th, rows: n ? rs.map(row) : ['<tr><td colspan="8" class="sub">ไม่มีงานค้าง</td></tr>']};
+}
+function gwmSectionHtml(stamp){
+  const rs = gwmRecs();
+  const head = `<div class="dhead" style="--dc:#0d366b"><div><div class="sub">${esc(dash.store)} · ${stamp}</div><h2>ติดตามกับ GWM — แยกตามแผนกของ GWM</h2></div>
+    <div class="dkpi">${GWM_FOLLOW.map(g => { const k = rs.filter(r => r.ownKey === g.k); return `<span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${g.color}"></i> ${g.th} (${g.ref}) <b>${k.length}</b></span>`; }).join('')}<span>เลย ETA <b style="color:#b3261e">${rs.filter(r => r.etaLate).length}</b></span></div></div>
+    <div class="duty"><b>วิธีติดตาม:</b> ฝ่ายที่รับผิดชอบฝั่ง PS ตามเลขอ้างอิงกับ GWM ใน DingTalk ทุกวัน (Tech → JS · Warranty → YS · Spare part → PO/BO + ETA) · เรื่องที่ไม่คืบหน้าเกิน 7 วัน หรือเลย ETA ให้ SVM แจ้ง RSM</div>`;
+  const th = `<thead><tr><th>#</th><th>GWM แผนก</th><th>เลขอ้างอิง</th><th>วันค้าง</th><th>SP / VIN</th><th>รถ</th><th>ฝ่ายที่ตาม (PS)</th><th>Remark</th><th>ETA</th></tr></thead>`;
+  const row = (r, i) => { const g = GWM_FOLLOW.find(x => x.k === r.ownKey); return `<tr><td class="num">${i+1}</td><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${g.color};margin-right:5px"></span>${g.th}</td>
+      <td class="mono">${esc(refsOf(r)) || '–'}</td><td class="num"><b style="color:${ageColor(r.age)}">${r.age ?? '–'}</b></td><td class="mono">${esc(r.sp)}<div class="sub">${esc(r.vin || '–')}</div></td>
+      <td>${esc(r.model)}<div class="sub">${esc(r.status || '–')}</div></td><td>${esc(g.team)}</td>${remCell(r)}${etaCell(r)}</tr>`; };
+  return {head, th, rows: rs.length ? rs.map(row) : ['<tr><td colspan="9" class="sub">ไม่มีงานที่รอ GWM</td></tr>']};
+}
+// splits a section into page-sized pieces by measuring the real row heights, so pages always break between rows
+function paginate(root, sec, pagePx){
+  root.innerHTML = `<div class="dsec">${sec.head}<table class="dtab">${sec.th}<tbody>${sec.rows.join('')}</tbody></table></div>`;
+  const box = root.firstElementChild, top0 = box.getBoundingClientRect().top;
+  const trs = [...box.querySelectorAll('tbody tr')], thH = box.querySelector('thead').offsetHeight;
+  const out = []; let from = 0, pageTop = 0;
+  trs.forEach((tr, i) => {
+    const bottom = tr.getBoundingClientRect().bottom - top0;
+    if (bottom - pageTop > pagePx && i > from){ out.push([from, i]); from = i; pageTop = tr.getBoundingClientRect().top - top0 - thH; }
+  });
+  out.push([from, trs.length]);
+  return out.map(([a, b], k) => (k === 0 ? sec.head : '') + `<table class="dtab">${sec.th}<tbody>${sec.rows.slice(a, b).join('')}</tbody></table>`);
+}
+// list: team keys, plus 'COVER' and 'GWM'; every page is one image, fitted to a landscape A4 page
+async function deptPdfBlob(keys){
+  const {jsPDF} = window.jspdf;
+  const root = document.createElement('div'); root.className = 'pdfroot'; document.body.appendChild(root);
+  try{
+    const stamp = stampNow(), PWmm = 297, PHmm = 210, M = 9, W = PWmm - 2*M, PX = 1280;
+    root.style.width = PX + 'px'; root.style.padding = '0';
+    const pagePx = (PHmm - 2*M - 4) * (PX / W);
+    const pages = [];
+    for (const k of keys){
+      if (k === 'COVER') pages.push(coverHtml(stamp));
+      else if (k === 'GWM') pages.push(...paginate(root, gwmSectionHtml(stamp), pagePx));
+      else { const d = DEPT_REPORT.find(x => x.k === k), rs = deptRecs(d); if (rs.length || keys.length === 1) pages.push(...paginate(root, deptSectionHtml(d, rs, stamp), pagePx)); }
+    }
+    const pdf = new jsPDF({unit:'mm', format:'a4', orientation:'landscape', compress:true});
+    for (let i = 0; i < pages.length; i++){
+      if (i) pdf.addPage();
+      root.innerHTML = `<div class="dsec">${pages[i]}</div>`;
+      if (lang === 'en') translateTree(root);
+      await new Promise(r => setTimeout(r, 20));
+      const canvas = await html2canvas(root.firstElementChild, {scale: 1.6, backgroundColor:'#ffffff', useCORS:true, logging:false});
+      let w = W, h = canvas.height / (canvas.width / W); const room = PHmm - 2*M - 4;
+      if (h > room){ w = W * room / h; h = room; }
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.82), 'JPEG', M, M, w, h);
+    }
+    const n = pdf.getNumberOfPages();
+    for (let i = 1; i <= n; i++){ pdf.setPage(i); pdf.setFontSize(8); pdf.setTextColor(120); pdf.text(`${i} / ${n}`, PWmm - M, PHmm - 4, {align:'right'}); }
+    return pdf.output('blob');
+  } finally { root.remove(); }
+}
+const localDay = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const deptFile = tag => safeFile(`Pending_RO_${dash.store.replace(/^GWM\s+/, '')}_${tag}_${localDay()}`) + '.pdf';
+async function deptExport(kind, key){
+  if (!state || !window.html2canvas || !window.jspdf){ toast('ยังโหลดเครื่องมือสร้าง PDF ไม่เสร็จ ลองอีกครั้ง'); return; }
+  const btns = [...document.querySelectorAll('#deptPanel button:not(#deptClose)')]; btns.forEach(b => b.disabled = true);
+  const status = kind === 'one' ? null : $(kind === 'all' ? 'deptAll' : 'deptZip'), label = status && status.textContent;
+  try{
+    const teams = DEPT_REPORT.filter(d => deptRecs(d).length).sort((a,b) => deptRecs(b).length - deptRecs(a).length).map(d => d.k);
+    if (kind === 'one') await saveFile(deptFile(key === 'GWM' ? 'GWM_Follow_up' : key.replace(/\s+/g, '_')), await deptPdfBlob([key]));
+    else if (kind === 'all'){ status.textContent = 'กำลังสร้าง PDF…'; await saveFile(deptFile('Partner_Report'), await deptPdfBlob(['COVER', ...teams, 'GWM'])); }
+    else {
+      const zip = new JSZip(), list = ['COVER', ...teams, 'GWM'];
+      for (let i = 0; i < list.length; i++){ status.textContent = `กำลังสร้าง ${i+1}/${list.length}…`; zip.file(deptFile(`${String(i).padStart(2,'0')}_${list[i] === 'COVER' ? 'Summary' : list[i] === 'GWM' ? 'GWM_Follow_up' : list[i].replace(/\s+/g, '_')}`), await deptPdfBlob([list[i]])); }
+      await saveFile(safeFile(`Pending_RO_${dash.store.replace(/^GWM\s+/, '')}_by_Department_${localDay()}`) + '.zip', await zip.generateAsync({type:'blob'}));
+    }
+  } catch(e){ console.error(e); toast('สร้าง PDF ไม่สำเร็จ: ' + (e && e.message || '')); }
+  finally { btns.forEach(b => b.disabled = false); if (status) status.textContent = label; }
+}
+$('deptBtn').addEventListener('click', () => { $('deptPanel').hidden = !$('deptPanel').hidden; $('pptPanel').hidden = true; if (!$('deptPanel').hidden) renderDeptPanel(); });
+$('deptClose').addEventListener('click', () => { $('deptPanel').hidden = true; });
+$('deptList').addEventListener('click', e => { const b = e.target.closest('[data-dept]'); if (b) deptExport('one', b.dataset.dept); });
+$('deptAll').addEventListener('click', () => deptExport('all'));
+$('deptZip').addEventListener('click', () => deptExport('zip'));
+
 $('pdfBtn').addEventListener('click', exportPdf);
 $('batchAll').addEventListener('click', () => batchPdf('all'));
 $('batchRsm').addEventListener('click', () => batchPdf('rsm'));
@@ -1852,31 +2146,44 @@ $('rsmFile').addEventListener('change', e => { handleRsmFile(e.target.files[0]);
 $('rsmReset').addEventListener('click', () => { rsmBook = DEFAULT_RSM; rsmIdx = null; try { localStorage.removeItem('rsmBook'); } catch(e){} if (state) analyse(state.sheetName); else renderRsmPanel(); toast('กลับมาใช้ไฟล์ RSM ค่าเริ่มต้นแล้ว'); });
 
 /* ---------- password lock: the default data and RSM list are AES-GCM encrypted with a key derived from the password ---------- */
-const VAULT = {"s":"C6C/U4SiQ0von7h2JTIQzg==","i":"3/E1cBfdH4iKKCn8PEXrUg==","it":20000,"c":"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","alg":"AES-CBC"};
+const VAULT = [{"s":"DBV0efxJY/WNPoxmoxMnvQ==","i":"azG2K7bqqgNGa/iFTL2cNQ==","it":20000,"c":"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","alg":"AES-CBC"},{"s":"iiJ62XcKRmE6aKjIXObjPA==","i":"3Ss6yFcD+D1gfXvY77QJrQ==","it":20000,"c":"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","alg":"AES-CBC"}];
 const DEFAULT_DATA_NAME = 'data_11.xlsx';
 const b64bytes = b => Uint8Array.from(atob(b), c => c.charCodeAt(0));
 // AES-256-CBC + PBKDF2-SHA256. Uses the browser's WebCrypto when it is available (fast), otherwise CryptoJS,
 // so it also opens in phone viewers and in-app browsers that have no WebCrypto.
-async function openVault(pw){
+async function openVaultOne(pw, V){
   let text;
   if (window.crypto && crypto.subtle && window.isSecureContext !== false){
     try{
       const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
-      const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt: b64bytes(VAULT.s), iterations: VAULT.it, hash:'SHA-256'}, base, {name:'AES-CBC', length:256}, false, ['decrypt']);
-      text = new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-CBC', iv: b64bytes(VAULT.i)}, key, b64bytes(VAULT.c)));
+      const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt: b64bytes(V.s), iterations: V.it, hash:'SHA-256'}, base, {name:'AES-CBC', length:256}, false, ['decrypt']);
+      text = new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-CBC', iv: b64bytes(V.i)}, key, b64bytes(V.c)));
     } catch(e){ if (e && e.name === 'OperationError') throw e; text = null; }
   }
   if (text == null){
     if (!window.CryptoJS) throw new Error('nocrypto');
-    const C = window.CryptoJS, salt = C.enc.Base64.parse(VAULT.s), iv = C.enc.Base64.parse(VAULT.i);
+    const C = window.CryptoJS, salt = C.enc.Base64.parse(V.s), iv = C.enc.Base64.parse(V.i);
     await new Promise(r => setTimeout(r, 30));
-    const key = C.PBKDF2(pw, salt, {keySize: 8, iterations: VAULT.it, hasher: C.algo.SHA256});
-    const out = C.AES.decrypt({ciphertext: C.enc.Base64.parse(VAULT.c)}, key, {iv, mode: C.mode.CBC, padding: C.pad.Pkcs7});
+    const key = C.PBKDF2(pw, salt, {keySize: 8, iterations: V.it, hasher: C.algo.SHA256});
+    const out = C.AES.decrypt({ciphertext: C.enc.Base64.parse(V.c)}, key, {iv, mode: C.mode.CBC, padding: C.pad.Pkcs7});
     text = out.toString(C.enc.Utf8);
   }
   const v = JSON.parse(text);
   if (v.ok !== 'pending-ro') throw new Error('bad');
   return v;
+}
+// each password opens its own copy of the vault; the copy says which role it unlocks (rsm = everything, ps = Partner view only)
+async function openVault(pw){
+  let err;
+  for (const V of [].concat(VAULT)){ try { return await openVaultOne(pw, V); } catch(e){ if (e && e.message === 'nocrypto') throw e; err = e; } }
+  throw err || new Error('bad');
+}
+let ROLE = 'rsm';
+function applyRole(role){
+  ROLE = role === 'ps' ? 'ps' : 'rsm';
+  document.body.dataset.role = ROLE;
+  $('roleTag').textContent = ROLE === 'ps' ? 'โหมด PS' : 'โหมด RSM';
+  if (ROLE === 'ps'){ dash.view = 'store'; dash.rsm = ''; if (typeof setTab === 'function' && !$('work').hidden) setTab('dash'); }
 }
 async function unlock(pw, remember){
   let v, used = pw;
@@ -1884,7 +2191,7 @@ async function unlock(pw, remember){
   const tries = [...new Set([pw, pw.trim(), pw.trim().toLowerCase()])].filter(Boolean);
   for (const t of tries.slice(0, -1)){ try { v = await openVault(t); used = t; break; } catch(e){} }
   if (!v) try { used = tries[tries.length-1]; v = await openVault(used); } catch(e){ if (e && e.message === 'nocrypto'){ $('lockErr').textContent = 'โหลดตัวถอดรหัสไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่'; } else $('lockErr').textContent = 'รหัสผ่านไม่ถูกต้อง ลองอีกครั้ง'; return false; }
-  DEFAULT_RSM.list = v.r; rsmIdx = null;
+  DEFAULT_RSM.list = v.r; rsmIdx = null; applyRole(v.role);
   try { if (remember) localStorage.setItem('roPw', used); else localStorage.removeItem('roPw'); sessionStorage.setItem('roPw', used); } catch(e){}
   $('lock').hidden = true;
   renderRsmPanel();
@@ -1909,6 +2216,16 @@ $('lockOut').addEventListener('click', () => { try { localStorage.removeItem('ro
 })();
 /* ---------- EN / TH switch: UI text only; Remark text written by dealers is never translated ---------- */
 const I18N_PAIRS = [
+['__unused_แต่ละฝ่ายได้รายการ SP ที่ค้างอยู่ที่ตัวเอง เรียงจากค้างนานสุด พร้อมหน้าที่ที่ต้องทำและช่องเขียนติดตาม · งานที่มีเลข JS / YS / PO / BO อยู่ในหมวด GWM เพื่อติดตามกับ GWM · ใช้ GR/BP ตามที่เลือก ไม่ใช้ตัวกรองจาก Pie','Each team gets the SPs held with it, oldest first, with its duties and a follow-up column · Items with a JS / YS / PO / BO number go under GWM, to follow up with GWM · Uses the GR/BP selection, not the Pie filters'],
+['ดาวน์โหลด Partner Report ทั้งชุด (PDF)','Download full Partner Report (PDF)'],['Partner Report แยกฝ่าย (PDF)','Partner Report by team (PDF)'],['Partner Report · ติดตามงานแยกตามฝ่าย','Partner Report · follow-up by team'],['ติดตามกับ GWM (หน้าสุดท้าย)','Follow up with GWM (last page)'],
+['รายงานติดตามงานแยกตามฝ่าย','Follow-up report by team'],
+['รายงานแยกฝ่าย (PDF)','Report by team (PDF)'],
+['ZIP แยกไฟล์ราย ฝ่าย','ZIP, one PDF per team'],
+['CR (ติดตามลูกค้า)','CR (customer follow-up)'],['Owner (เจ้าของศูนย์ · ค้างเกิน 90 วัน)','Owner (dealer owner · over 90 days)'],
+['PDF ฝ่ายนี้','PDF for this team'],
+['ไม่มีงานค้าง','Nothing pending'],
+['โหมด PS','PS mode'],
+['โหมด RSM','RSM mode'],
 ['อัปโหลดไฟล์ Pending RO แล้วดู Dashboard แบบ Overview, ราย RSM หรือราย Partner พร้อมอันดับวันค้างซ่อมและสาเหตุ จากนั้นแยกไฟล์ส่ง Dealer ได้ในแท็บถัดไป ไฟล์ถูกประมวลผลในเบราว์เซอร์ของคุณเท่านั้น','Upload a Pending RO file to see the Dashboard by Overview, RSM or Partner, with pending-day rankings and causes. Split files for dealers in the next tab. Files are processed only in your browser.'],
 ['ไฟล์ที่ได้มีครบ 18 คอลัมน์มาตรฐาน พร้อม Dropdown ทุกช่องเสมอ ไม่ว่าไฟล์ต้นทางจะมีกี่คอลัมน์','Output always has the 18 standard columns with every dropdown, whatever the source file contains'],
 ['ไฟล์ที่ได้มีหัวตารางเดิม ตัวกรอง และรูปแบบวันที่ตามต้นฉบับ (สูตรถูกแปลงเป็นค่า)','Output keeps the original headers, filters and date formats (formulas become values)'],
@@ -2090,6 +2407,10 @@ const I18N_PAIRS = [
 ['เรียงกราฟแท่ง:','Sort bar charts:'],
 ['เรียงกราฟใน Report','Chart order in report'],
 ['ยังไม่มีข้อมูล — ลากไฟล์ Pending RO มาวางด้านบน หรือคลิกเพื่อเลือกไฟล์','No data yet — drop a Pending RO file above or click to choose one'],
+['เหมาะกับมือถือ','best on phones'],
+['ไฟล์:','File:'],
+['ไฟล์ที่ได้','Output file'],
+['สร้าง PDF','Create PDF'],
 ['ยกเลิก','Cancel'],
 ['มุมมอง','View'],
 ['สร้างเมื่อ','created'],
