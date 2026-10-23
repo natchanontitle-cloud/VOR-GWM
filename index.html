@@ -139,6 +139,10 @@ tr.hl td{background:var(--accent-soft)}
 div.kpi.click{cursor:pointer}
 div.kpi.click:hover{border-color:var(--accent)}
 div.kpi.click.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.vinlink{border:none;background:none;padding:0;color:var(--accent);text-decoration:underline dotted;text-underline-offset:2px;cursor:pointer;font:inherit}
+.gsearch{display:flex;gap:8px;margin:10px 0 4px;max-width:560px}
+.gsearch input{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--fg);font:inherit}
+#vinDlg{z-index:47} #vinBack{z-index:46}
 .splink{border:none;background:none;padding:0;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-size:.86rem}
 .spback{position:fixed;inset:0;background:rgba(10,20,16,.5);z-index:44}
 .spdlg{position:fixed;z-index:45;top:max(4vh, env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(760px,94vw);max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.3);gap:10px}
@@ -333,7 +337,8 @@ table.rank td{vertical-align:top}
 <div class="wrap">
   <header>
     <div class="eyebrow">Aftersales · Pending RO · <span class="ver">V.9 by Natchanon C.</span> <span class="pill muted" id="roleTag"></span> <button id="lockOut" class="linkbtn" type="button">ออกจากระบบ</button> <span class="langsw" role="group" aria-label="Language"><button type="button" data-lang="th" aria-pressed="true">TH</button><button type="button" data-lang="en" aria-pressed="false">EN</button></span></div>
-    <h1>Pending RO · Dashboard และแยกไฟล์ตาม Store</h1>
+    <h1>Pending RO · Dashboard และแยกไฟล์ตาม PS</h1>
+    <form class="gsearch" id="gSearch" hidden role="search"><input type="search" id="gQ" placeholder="ค้นหา VIN / RO (SP, BP)…" aria-label="ค้นหา VIN หรือเลข RO" autocomplete="off"><button type="submit" class="primary">ค้นหา</button></form>
     <p>อัปโหลดไฟล์ Pending RO แล้วดู Dashboard แบบ Overview, ราย RSM หรือราย Partner พร้อมอันดับวันค้างซ่อมและสาเหตุ จากนั้นแยกไฟล์ส่ง Dealer ได้ในแท็บถัดไป ไฟล์ถูกประมวลผลในเบราว์เซอร์ของคุณเท่านั้น</p>
   </header>
 
@@ -343,12 +348,12 @@ table.rank td{vertical-align:top}
     <input type="file" id="file" accept=".xlsx,.xls,.xlsm,.csv">
   </label>
 
-  <div class="banner" id="sampleBanner" hidden>กำลังแสดง <b>ข้อมูลตัวอย่าง</b> (ร้านสมมติ) — อัปโหลดไฟล์จริงด้านบนเพื่อแทนที่</div>
+  <div class="banner" id="sampleBanner" hidden>กำลังแสดง <b>ข้อมูลตัวอย่าง</b> (ศูนย์บริการสมมติ) — อัปโหลดไฟล์จริงด้านบนเพื่อแทนที่</div>
 
   <section class="summary" id="summary" hidden>
     <div class="stat file"><span class="k">ไฟล์</span><span class="v" id="sFile">–</span></div>
     <div class="stat"><span class="k">จำนวน RO</span><span class="v" id="sRows">0</span></div>
-    <div class="stat"><span class="k">จำนวน Store</span><span class="v" id="sStores">0</span></div>
+    <div class="stat"><span class="k">จำนวน PS</span><span class="v" id="sStores">0</span></div>
     <label class="field">Sheet<select id="sheetSel"></select></label>
     <label class="field">แยกตามคอลัมน์<select id="colSel"></select></label>
     <button id="fullBtn" class="primary rsmonly" style="margin-left:auto">ดาวน์โหลด Excel ทั้งไฟล์ (กรอก RSM แล้ว)</button>
@@ -404,7 +409,7 @@ table.rank td{vertical-align:top}
         <div class="deptlist" id="deptList"></div>
         <div class="pptrow"><button id="deptAll" class="primary">ดาวน์โหลด Partner Report ทั้งชุด (PDF)</button><button id="deptZip">ZIP แยกไฟล์ราย ฝ่าย</button></div>
       </div>
-      <div class="batch rsmonly" id="batchWrap" hidden><span class="sub">PDF ราย PS ทีละหลายร้าน:</span>
+      <div class="batch rsmonly" id="batchWrap" hidden><span class="sub">PDF ราย PS ทีละหลายศูนย์:</span>
         <button id="batchAll">ทุก RSM (ZIP แยก Folder ตาม RSM)</button>
         <button id="batchRsm">เฉพาะ RSM นี้ (ZIP ราย PS)</button></div>
     </div>
@@ -417,7 +422,7 @@ table.rank td{vertical-align:top}
       <div class="card"><h3>ค้างที่แผนกไหน · <span class="sub">สีน้ำเงิน = GWM · สีส้ม = PS · คลิกเพื่อดูรายการ</span></h3><div id="dOwn" class="chart"></div></div>
       <div class="card"><h3>อายุงานค้าง (วัน) · <span class="sub">คลิกแท่งเพื่อดูรายการ</span></h3><div id="dAge" class="chart"></div></div>
       <div class="card"><h3>ค้างเฉลี่ย (วัน) ตามสาเหตุ</h3><div id="dCauseAge" class="chart"></div></div>
-      <div class="card wide" id="dTopWrap"><h3>Top 20 Partner ที่มี RO ค้างมากสุด · คลิกเพื่อเจาะลึก</h3><div id="dTop" class="chart"></div></div>
+      <div class="card wide" id="dTopWrap"><h3><span id="dTopT">Top 20 Partner ที่มี RO ค้างมากสุด</span> · คลิกเพื่อเจาะลึก</h3><div id="dTop" class="chart"></div></div>
     </div>
     <div class="fbackdrop" id="fBackdrop" hidden></div>
     <section class="fpanel card" id="fPanel" hidden role="dialog" aria-labelledby="fTitle">
@@ -425,7 +430,7 @@ table.rank td{vertical-align:top}
         <div class="fact"><button id="fPdf">ดาวน์โหลด PDF</button><button id="fClose" class="primary" aria-label="ปิดและล้างตัวกรอง">✕ ปิด</button></div></div>
       <h4 id="fSumTitle">สรุปราย PS</h4>
       <div class="tablebox flat"><table class="rank cards">
-        <thead><tr><th class="num">#</th><th>PS</th><th>RSM</th><th class="num">SP ในกลุ่มนี้</th><th class="num">VIN</th><th class="num">RO ค้างทั้งร้าน</th><th class="num">%</th><th class="num">ค้างนานสุด</th></tr></thead>
+        <thead><tr><th class="num">#</th><th>PS</th><th>RSM</th><th class="num">SP ในกลุ่มนี้</th><th class="num">VIN</th><th class="num">RO ค้างทั้งศูนย์</th><th class="num">%</th><th class="num">ค้างนานสุด</th></tr></thead>
         <tbody id="fSumBody"></tbody></table></div>
       <h4 id="fSpTitle">รายการ SP</h4>
       <div class="tablebox flat"><table class="rank cards">
@@ -453,18 +458,18 @@ table.rank td{vertical-align:top}
 
   <section id="work" hidden style="display:flex;flex-direction:column;gap:12px">
     <div class="toolbar">
-      <input type="search" id="q" placeholder="ค้นหาชื่อ Store…" aria-label="ค้นหาชื่อ Store">
+      <input type="search" id="q" placeholder="ค้นหาชื่อ PS…" aria-label="ค้นหาชื่อ PS">
       <div class="chips" id="chips"></div>
       <div class="actions">
         <button id="zipBtn" class="primary">ZIP แยกโฟลเดอร์ตาม RSM</button>
-        <button id="bookBtn">รวมร้านที่เลือกเป็นไฟล์เดียว</button>
+        <button id="bookBtn">รวม PS ที่เลือกเป็นไฟล์เดียว</button>
       </div>
     </div>
     <div class="tablebox">
       <table>
         <thead><tr>
           <th style="width:36px"><input type="checkbox" id="all" aria-label="เลือกทั้งหมด"></th>
-          <th>Store</th><th class="hide-sm" id="rsmHead">RSM</th>
+          <th>PS</th><th class="hide-sm" id="rsmHead">RSM</th>
           <th class="num">RO</th><th class="num hide-sm" id="ageHead">ค้างนานสุด</th><th class="num hide-sm" id="tagHead">Tech · Warranty · Part</th><th></th>
         </tr></thead>
         <tbody id="tbody"></tbody>
@@ -475,6 +480,13 @@ table.rank td{vertical-align:top}
 </div>
 <div class="toast" id="toast" hidden></div>
 <div class="dtip" id="dtip" hidden></div>
+<div class="spback" id="vinBack" hidden></div>
+<section class="spdlg card" id="vinDlg" hidden role="dialog" aria-modal="true" aria-labelledby="vinTitle">
+  <div class="sphead"><div><div class="sub" id="vinKick">ประวัติ VIN</div><h3 id="vinTitle" class="mono"></h3><div class="sub" id="vinSub"></div></div>
+    <button id="vinClose" class="primary" aria-label="ปิด">✕ ปิด</button></div>
+  <div class="spchips" id="vinChips"></div>
+  <div class="tablebox flat"><table class="rank cards"><thead><tr><th class="num">#</th><th>SP / VIN</th><th>PS</th><th class="num">วันค้าง</th><th>Repair Status</th><th>ติดที่</th><th class="num">ETA</th></tr></thead><tbody id="vinBody"></tbody></table></div>
+</section>
 <div class="spback" id="spBack" hidden></div>
 <section class="spdlg card" id="spDlg" hidden role="dialog" aria-modal="true" aria-labelledby="spTitle">
   <div class="sphead"><div><div class="sub">รายละเอียด SP</div><h3 id="spTitle" class="mono"></h3><div class="sub mono" id="spVin"></div></div>
@@ -815,7 +827,7 @@ function buildFromTemplate(groups){
   return z.generateAsync({type:'uint8array', compression:'DEFLATE', mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
 }
 /* ---------- RSM book: who is responsible for which Partner (default = RSM_and_PS file, replaceable by upload) ---------- */
-const DEFAULT_RSM = {source:'RSM_and_PS_20261020.xlsx + 3 ร้านที่เพิ่ม', ver:2, isDefault:true, list: []};
+const DEFAULT_RSM = {source:'RSM_and_PS_20261020.xlsx + 3 PS ที่เพิ่ม', ver:2, isDefault:true, list: []};
 const nkey = s => String(s ?? '').toLowerCase().replace(/^\s*gwm\s+/,'').replace(/[\s_\-.,&'()\/]+/g,'');
 let rsmBook = DEFAULT_RSM;
 try { const saved = JSON.parse(localStorage.getItem('rsmBook') || 'null'); if (saved && Array.isArray(saved.list) && saved.list.length) rsmBook = saved; } catch(e){}
@@ -853,7 +865,7 @@ function renderRsmPanel(){
     const regions = [...new Set(ps.map(p => p.region).filter(Boolean))].join(' · ');
     const ro = ps.reduce((s,p) => s + (pend.get(nkey(p.store)) || 0), 0), withRo = ps.filter(p => pend.get(nkey(p.store))).length;
     return `<details class="rsmcard"><summary><span class="rn">${esc(rsm)}</span><span class="sub">${esc(regions || '–')}</span>
-      <span class="rstat"><b>${ps.length}</b> Partner${state ? ` · <b>${ro.toLocaleString()}</b> RO ค้าง (${withRo} ร้าน)` : ''}</span></summary>
+      <span class="rstat"><b>${ps.length}</b> Partner${state ? ` · <b>${ro.toLocaleString()}</b> RO ค้าง (${withRo} ศูนย์)` : ''}</span></summary>
       <ul>${ps.sort((a,b) => (pend.get(nkey(b.store))||0) - (pend.get(nkey(a.store))||0) || a.store.localeCompare(b.store)).map(p => `<li><span class="mono sub">${esc(p.code)}</span><span class="pn">${esc(p.store)}</span><span class="sub">${esc(p.region)}</span><span class="num">${state ? (pend.get(nkey(p.store)) || 0) : ''}</span></li>`).join('')}</ul></details>`;
   }).join('');
   // Partners in the Pending file that are not in the RSM file
@@ -862,7 +874,7 @@ function renderRsmPanel(){
   const extra = state.list.filter(g => !idx.has(nkey(g.name)) && g.src === 'extra');
   const miss = state.list.filter(g => !idx.has(nkey(g.name)) && g.src !== 'extra');
   const extraNote = extra.length ? `<div class="sub" style="margin-top:4px">ไม่มีในไฟล์ RSM แต่กำหนดไว้ในระบบแล้ว: ${extra.map(g => esc(g.name) + ' → ' + esc([...g.rsm][0])).join(' · ')}</div>` : '';
-  if (!miss.length){ w.className = 'banner ok'; w.hidden = false; w.innerHTML = `ทุก Partner ในไฟล์ Pending มี RSM ครบทั้ง ${state.list.length} ร้าน` + extraNote; return; }
+  if (!miss.length){ w.className = 'banner ok'; w.hidden = false; w.innerHTML = `ทุก Partner ในไฟล์ Pending มี RSM ครบทั้ง ${state.list.length} ศูนย์` + extraNote; return; }
   w.className = 'banner'; w.hidden = false;
   w.innerHTML = `<b>พบ ${miss.length} ชื่อ Partner ที่ไม่ตรงกับไฟล์ RSM</b><ul class="miss">${miss.map(g => {
     const sug = closest(g.name), used = [...g.rsm][0];
@@ -1008,7 +1020,7 @@ function visible(){
 }
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function render(){
-  $('summary').hidden = false; $('tabs').hidden = false; renderRsmPanel();
+  $('summary').hidden = false; $('tabs').hidden = false; $('gSearch').hidden = false; renderRsmPanel();
   state.recs = buildRecords();
   state.vinN = new Map(); for (const r of state.recs) if (r.vin) state.vinN.set(r.vin, (state.vinN.get(r.vin) || 0) + 1);
   const curTab = (document.querySelector('#tabs [aria-selected="true"]')||{}).dataset?.tab || 'dash';
@@ -1036,7 +1048,7 @@ function renderRows(){
       ${state.ageCol>=0?`<td class="num hide-sm">${age==null?'–':`<span class="pill ${cls}">${Math.round(age)} วัน</span>`}</td>`:''}
       ${state.addCols.length?`<td class="num hide-sm"><span class="tag">${g.tech}</span> · <span class="tag">${g.war}</span> · <span class="tag">${g.part}</span>${g.noEta?` <span class="pill warn" title="Part ที่ยังไม่มี ETA">${g.noEta} ไม่มี ETA</span>`:''}</td>`:''}
       <td style="text-align:right"><button data-dl="${esc(g.name)}">.xlsx</button></td></tr>`;
-  }).join('') : `<tr><td colspan="7" class="empty">ไม่พบ Store ที่ตรงกับตัวกรอง</td></tr>`;
+  }).join('') : `<tr><td colspan="7" class="empty">ไม่พบ PS ที่ตรงกับตัวกรอง</td></tr>`;
   $('all').checked = v.length > 0 && v.every(g => selected.has(g.name));
   $('foot').textContent = `อ่านหัวตารางจากแถวที่ ${state.headerRow+1} ของ Sheet “${state.sheetName}” · ไฟล์ที่ได้มีหัวตารางเดิม ตัวกรอง และรูปแบบวันที่ตามต้นฉบับ (สูตรถูกแปลงเป็นค่า)`.replace('ไฟล์ที่ได้มีหัวตารางเดิม ตัวกรอง และรูปแบบวันที่ตามต้นฉบับ (สูตรถูกแปลงเป็นค่า)', tpl ? 'ไฟล์ที่ได้มีครบ 18 คอลัมน์มาตรฐาน พร้อม Dropdown ทุกช่องเสมอ ไม่ว่าไฟล์ต้นทางจะมีกี่คอลัมน์' : 'ไฟล์ที่ได้มีหัวตารางเดิม ตัวกรอง และรูปแบบวันที่ตามต้นฉบับ (สูตรถูกแปลงเป็นค่า)') + (state.addCols.length ? ' · เพิ่มคอลัมน์ ' + state.addCols.join(' / ') + ' และเติมสถานะรถ (จอด/ไม่จอด) จาก Remark' : '') + ` · RSM ยึดตามไฟล์ ${rsmBook.source}` + ` · RO ในไฟล์ ${state.data.length.toLocaleString()} = แยกได้ครบ ${state.list.reduce((s,g)=>s+g.rows.length,0).toLocaleString()} RO`;
   updateCount();
@@ -1064,7 +1076,7 @@ async function downloadFull(){
     const bytes = await fileBytes(rows);
     const blank = rows.filter(x => !state.rsmMap.get(x.name)).length;
     await saveFile(safeFile(fileBase + '_RSM') + '.xlsx', xlsxBlob(bytes));
-    if (blank) toast(`มี ${blank} RO ที่ยังไม่มี RSM ดูชื่อร้านในแถบ RSM ที่รับผิดชอบ`);
+    if (blank) toast(`มี ${blank} RO ที่ยังไม่มี RSM ดูชื่อศูนย์บริการในแถบ RSM ที่รับผิดชอบ`);
   } finally { b.disabled = false; b.textContent = old; }
 }
 $('fullBtn').addEventListener('click', downloadFull);
@@ -1139,9 +1151,9 @@ function causeOf(rem, ex, dd, etaLate){
 // Who holds the job now: GWM when a JS / YS / PO / BO number exists, otherwise the PS department
 // (from the Remark first, then the Repair_Status flow: Reserved/unconfirmed → SA, To be dispatched → Foreman, … Out/Delivery → Cashier).
 const STATUS_OWNER = {'reserved':'SA','unconfirmed':'SA','to be dispatched':'Foreman','dispatched':'Tech','in maintenance':'Tech','interrupt':'Foreman',
-  'quality inspection':'Tech','car wash':'Tech','to be settled':'SA','settled':'SA','out':'Cashier','delivery completed':'Cashier'};
-const OWNER_DEPTS = {GWM:['Tech','Warranty','Spare part','Customer'], PS:['SVM','CR','SA','Tech','Foreman','Warranty','Spare part','Cashier','Customer','ไม่ระบุ']};
-const OWNER_TH = {'Tech':'Tech', 'Warranty':'Warranty', 'Spare part':'Spare part', 'Customer':'Customer', 'SVM':'SVM', 'CR':'CR', 'SA':'SA', 'Foreman':'Foreman', 'Cashier':'Cashier', 'ไม่ระบุ':'ไม่ระบุ'};
+  'quality inspection':'Tech','car wash':'Tech','to be settled':'SA','settled':'SA','out':'Cashier','delivery completed':'Cashier','reverse settlement':'N/A','void':'N/A'};
+const OWNER_DEPTS = {GWM:['Tech','Warranty','Spare part','Customer'], PS:['SVM','CR','SA','Tech','Foreman','Warranty','Spare part','Cashier','Customer','ไม่ระบุ','N/A']};
+const OWNER_TH = {'Tech':'Tech', 'Warranty':'Warranty', 'Spare part':'Spare part', 'Customer':'Customer', 'SVM':'SVM', 'CR':'CR', 'SA':'SA', 'Foreman':'Foreman', 'Cashier':'Cashier', 'ไม่ระบุ':'ไม่ระบุ', 'N/A':'N/A'};
 function ownerOf(rem, ex, status, cause){
   if (ex.part || ex.war || ex.tech){
     const d = cause === 'cust' ? 'Customer' : ex.part ? 'Spare part' : ex.war ? 'Warranty' : 'Tech';
@@ -1152,8 +1164,17 @@ function ownerOf(rem, ex, status, cause){
   if (/รอ\s*อะไหล่|อะไหล่ติด|back\s*order|b\/o|สั่งอะไหล่|รอตัดอะไหล่/i.test(rem) && !/อะไหล่\s*(?:เข้า|มา|ถึง|ครบ|พร้อม)/.test(rem)) return ['PS','Spare part'];
   if (/เคลม|warrant|waranty|รับประกัน|รออนุมัติ|ขออนุมัติ/i.test(rem)) return ['PS','Warranty'];
   if (/ลูกค้า|นัดหมาย|นัด\s/.test(rem)) return ['PS','Customer'];
-  return ['PS', STATUS_OWNER[String(status || '').trim().toLowerCase()] || 'ไม่ระบุ'];
+  return ['PS', STATUS_OWNER[stNorm(status).toLowerCase()] || 'ไม่ระบุ'];
 }
+// Repair_Status as GCIP names it in both languages; files may come in Thai or English, the page shows the selected language
+const STATUS_PAIRS = [['Reserved','จองแล้ว'],['Unconfirmed','ยังไม่ยืนยัน'],['To be dispatched','งานที่รอการมอบหมาย'],['Dispatched','งานที่ได้มอบหมายแล้ว'],
+  ['In maintenance','อยู่ระหว่างการซ่อมแซม'],['Interrupt','แทรกงาน'],['Quality inspection','การตรวจสอบคุณภาพ'],['Car wash','ล้างรถยนต์'],['To be settled','รอชำระเงิน'],
+  ['Settled','ชำระแล้ว'],['Out','ออก'],['Delivery completed','ส่งมอบเสร็จสมบูรณ์'],['Reverse settlement','ยกเลิกการชำระเงิน'],['Void','ยกเลิก']];
+const ST_IDX = new Map(STATUS_PAIRS.flatMap(([en, th]) => [[en.toLowerCase(), en], [th, en]]));
+const stNorm = s => { const t = String(s || '').trim().replace(/\s+/g, ' '); return ST_IDX.get(t.toLowerCase()) || ST_IDX.get(t) || t; };
+const ST_TH = Object.fromEntries(STATUS_PAIRS);
+const isEn = () => { try { return lang === 'en'; } catch(e){ return false; } };
+function stLabel(s){ if (!s || s === 'ไม่ระบุ') return isEn() ? 'Unspecified' : 'ไม่ระบุ'; return isEn() ? s : (ST_TH[s] || s); }
 function parseDMY(s){ const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s || ''); return m ? new Date(+m[3], +m[2]-1, +m[1]) : null; }
 function buildRecords(){
   const c = {sp: colByName(/^repair_?order$|^repairorder$/), model: colByName(/basicmodel|^model$/), status: colByName(/repairstatus/),
@@ -1169,7 +1190,7 @@ function buildRecords(){
     const etaD = parseDMY(ex.eta);
     const sp = c.sp>=0 ? txt(r[c.sp]) : '', etaLate = !!(etaD && etaD < today);
     recs.push({store:g.name, rsm:[...g.rsm][0] || 'ไม่ระบุ RSM', age, sp, jt: /^BP/i.test(sp) ? 'BP' : 'GR', model: c.model>=0 ? txt(r[c.model]) : '',
-      status: c.status>=0 ? txt(r[c.status]) : '', park, cause: causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate), detail: detailOf(rem), ...(() => { const st = c.status>=0 ? txt(r[c.status]) : ''; const [g2, d2] = ownerOf(rem, ex, st, causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate)); return {ownGrp:g2, ownDept:d2, ownKey:g2 + ':' + d2}; })(),
+      status: c.status>=0 ? stNorm(txt(r[c.status])) : '', park, cause: causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate), detail: detailOf(rem), ...(() => { const st = c.status>=0 ? txt(r[c.status]) : ''; const [g2, d2] = ownerOf(rem, ex, st, causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate)); return {ownGrp:g2, ownDept:d2, ownKey:g2 + ':' + d2}; })(),
       tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', etaLate: !!(etaD && etaD < today), remark: rem, vin: c.vin>=0 ? txt(r[c.vin]) : '', row: r, idx: recs.length});
   }
   return recs;
@@ -1202,6 +1223,7 @@ function vbar(el, items0, opt = {}){
     const modes = opt.defaultSort === 'natural' ? [['natural','ตามลำดับเดิม'],['desc','มาก → น้อย'],['asc','น้อย → มาก']] : [['desc','มาก → น้อย'],['asc','น้อย → มาก']];
     const mode = chartSort[opt.sortId] || opt.defaultSort || 'desc';
     if (mode !== 'natural') items = items0.slice().sort((a,b) => mode === 'desc' ? b.value - a.value : a.value - b.value);
+    if (opt.limit) items = items.slice(0, opt.limit);
     ctrl = `<div class="csort" role="group" aria-label="เรียงกราฟ">${modes.map(([k,l]) => `<button data-m="${k}" aria-pressed="${k === mode}">${l}</button>`).join('')}</div>`;
   }
   const W = Math.max(el.clientWidth, 260);
@@ -1313,7 +1335,7 @@ function renderDash(){
     barTitle = 'RO ค้างแยกตาม Partner · คลิกเพื่อเจาะลึก'; barClick = it => { dash.view = 'store'; dash.store = it.key; renderDash(); };
   } else {
     const m = countBy(recs, r => r.status || 'ไม่ระบุ');
-    barItems = [...m].sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label, value, key:label}));
+    barItems = [...m].sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label: stLabel(label), value, key:label}));
     barTitle = 'RO ค้างแยกตาม Repair Status · คลิกเพื่อดูรายการ'; barClick = it => { dash.fStatus = dash.fStatus === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); };
   }
   $('dBar1T').textContent = barTitle;
@@ -1323,8 +1345,10 @@ function renderDash(){
   $('dTopWrap').hidden = dash.view !== 'overview';
   if (dash.view === 'overview'){
     const m = countBy(recs, r => r.store);
-    const top = [...m].sort((a,b) => b[1]-a[1]).slice(0, $('dTop').clientWidth < 600 ? 10 : 20).map(([label,value]) => ({label: label.replace(/^GWM\s+/,''), value, key:label}));
-    vbar($('dTop'), top, {sortId:'top', rotate:true, height:300, onClick: it => { dash.view = 'store'; dash.store = it.key; dash.rsm = (state.recs.find(r => r.store === it.key)||{}).rsm || ''; renderDash(); }, title:'Top 20 Partner'});
+    const top = [...m].sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label: label.replace(/^GWM\s+/,''), value, key:label}));
+    const topT = () => { const n = $('dTop').clientWidth < 600 ? 10 : 20; $('dTopT').textContent = (chartSort.top || 'desc') === 'asc' ? `${n} Partner ที่มี RO ค้างน้อยสุด` : `Top ${n} Partner ที่มี RO ค้างมากสุด`; if (isEn()) translateTree($('dTopT')); };
+    topT();
+    vbar($('dTop'), top, {after: topT, limit: $('dTop').clientWidth < 600 ? 10 : 20, sortId:'top', rotate:true, height:300, onClick: it => { dash.view = 'store'; dash.store = it.key; dash.rsm = (state.recs.find(r => r.store === it.key)||{}).rsm || ''; renderDash(); }, title:'Top 20 Partner'});
   }
 
   // aging (ordinal blue ramp)
@@ -1374,7 +1398,7 @@ function renderFilter(){
   $('fChips').innerHTML = (dash.fCause ? `<button class="fchip" data-f="cause"><span class="sw" style="background:${causeColor(dash.fCause)}"></span>ติดที่: ${esc(lab[dash.fCause])} ✕</button>` : '')
     + (dash.fPark ? `<button class="fchip" data-f="park">รถ: ${esc(PARK_LABEL[dash.fPark])} ✕</button>` : '')
     + (dash.fAge ? `<button class="fchip" data-f="age">${dash.fAge === '0-' ? 'RO ค้างทั้งหมด' : 'วันค้าง: ' + esc(dash.fAge.endsWith('-') ? 'เกิน ' + (+dash.fAge.slice(0,-1) - 1) : dash.fAge.replace('-', '–')) + ' วัน'} ✕</button>` : '')
-    + (dash.fStatus ? `<button class="fchip" data-f="status">Repair Status: ${esc(dash.fStatus)} ✕</button>` : '')
+    + (dash.fStatus ? `<button class="fchip" data-f="status">Repair Status: ${esc(stLabel(dash.fStatus))} ✕</button>` : '')
     + (dash.fEta ? `<button class="fchip" data-f="eta">${({noeta:'รออะไหล่ · ไม่มี ETA', late:'รออะไหล่ · เลย ETA', parts:'รออะไหล่ทั้งหมด', parked:'รถจอดอยู่ที่ศูนย์'})[dash.fEta]} ✕</button>` : '')
     + (dash.fOwner ? `<button class="fchip" data-f="owner">ค้างที่: ${esc(dash.fOwner.includes(':') ? dash.fOwner.replace(':', ' · ') : dash.fOwner)} ✕</button>` : '');
   $('dCauseF').value = dash.fCause; $('dParkF').value = dash.fPark;
@@ -1385,9 +1409,9 @@ function renderFilter(){
   for (const r of scope){ if (!m.has(r.store)) m.set(r.store, {store:r.store, rsm:r.rsm, n:0, hit:0, oldest:null, vins:new Set()}); m.get(r.store).n++; }
   for (const r of hit){ const g = m.get(r.store); g.hit++; if (r.vin) g.vins.add(r.vin); if (r.age != null) g.oldest = Math.max(g.oldest ?? 0, r.age); }
   const rows = [...m.values()].filter(g => g.hit).sort((a,b) => b.hit - a.hit || b.hit/b.n - a.hit/a.n);
-  $('fSumTitle').textContent = `สรุปราย PS · ${rows.length} ร้าน`;
+  $('fSumTitle').textContent = `สรุปราย PS · ${rows.length} ศูนย์`;
   $('fSumBody').innerHTML = rows.map((g,i) => `<tr><td class="num" data-l="อันดับ">${i+1}</td><td data-l="PS"><b>${esc(g.store.replace(/^GWM\s+/,''))}</b></td><td data-l="RSM">${esc(g.rsm)}</td>
-    <td class="num" data-l="SP ในกลุ่มนี้"><b>${g.hit}</b></td><td class="num" data-l="VIN">${g.vins.size}</td><td class="num" data-l="RO ค้างทั้งร้าน">${g.n}</td><td class="num" data-l="%">${Math.round(g.hit/g.n*100)}%</td><td class="num" data-l="ค้างนานสุด">${g.oldest != null ? g.oldest + ' วัน' : '–'}</td></tr>`).join('')
+    <td class="num" data-l="SP ในกลุ่มนี้"><b>${g.hit}</b></td><td class="num" data-l="VIN">${g.vins.size}</td><td class="num" data-l="RO ค้างทั้งศูนย์">${g.n}</td><td class="num" data-l="%">${Math.round(g.hit/g.n*100)}%</td><td class="num" data-l="ค้างนานสุด">${g.oldest != null ? g.oldest + ' วัน' : '–'}</td></tr>`).join('')
     || `<tr><td colspan="8" class="empty">ไม่พบรายการ</td></tr>`;
   const list = hit.slice().sort((a,b) => (b.age ?? -1) - (a.age ?? -1));
   $('fSpTitle').textContent = `รายการ SP · ${list.length.toLocaleString()} รายการ เรียงจากค้างนานสุด`;
@@ -1395,7 +1419,7 @@ function renderFilter(){
     const sev = r.age > 90 ? 'crit' : r.age > 30 ? 'warn' : '';
     const refs = [r.tech, r.war, r.part].filter(Boolean).map(x => `<span class="ref">${esc(x)}</span>`).join(' ');
     return `<tr><td class="num" data-l="อันดับ">${i+1}</td><td class="num" data-l="วันค้าง"><span class="pill ${sev}">${r.age ?? '–'}</span></td>
-      <td data-l="SP"><button class="splink mono" data-rec="${r.idx}">${esc(r.sp)}</button><div class="sub mono">VIN ${esc(r.vin || '–')}${vinTag(r)}</div><div class="sub">${esc(r.model)} · ${esc(r.status)}</div></td>
+      <td data-l="SP"><button class="splink mono" data-rec="${r.idx}">${esc(r.sp)}</button><div class="sub mono">VIN ${vinLink(r.vin)}${vinTag(r)}</div><div class="sub">${esc(r.model)} · ${esc(stLabel(r.status))}</div></td>
       <td data-l="PS">${esc(r.store.replace(/^GWM\s+/,''))}<div class="sub">${esc(r.rsm)}</div></td>
       <td data-l="รถ">${parkPill(r)}</td>
       <td data-l="ติดที่ / Remark" class="wide"><span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span> <span class="own ${r.ownGrp}">ค้างที่ ${r.ownGrp} · ${esc(OWNER_TH[r.ownDept])}</span>
@@ -1416,13 +1440,13 @@ function renderRemark(){
   $('remCount').textContent = `${totE.toLocaleString()} จาก ${totN.toLocaleString()} RO ไม่มี Remark (${totN ? Math.round(totE/totN*100) : 0}%)` + (dash.view === 'store' ? ' · เทียบกับ Partner ใน RSM เดียวกัน' : '');
   document.querySelectorAll('#remSort button').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === remSort));
   const N = $('remChart').clientWidth < 600 ? 10 : 20;
-  const top = rows.filter(g => g.empty > 0).slice(0, N);
-  const remNote = `<div class="sub">${remSort === 'pct' ? '% RO ที่ไม่กรอก Remark' : 'จำนวน RO ที่ไม่กรอก Remark'} · Top ${N} · สีแดง ≥ 80% · สีส้ม ≥ 50%</div>`;
+  const top = rows;
+  const remNote = () => `<div class="sub">${remSort === 'pct' ? '% RO ที่ไม่กรอก Remark' : 'จำนวน RO ที่ไม่กรอก Remark'} · ${(chartSort.rem || 'desc') === 'asc' ? 'น้อยสุด' : 'มากสุด'} ${N} อันดับ · สีแดง ≥ 80% · สีส้ม ≥ 50%</div>`;
   vbar($('remChart'), top.map(g => ({label: g.store.replace(/^GWM\s+/,''), value: remSort === 'pct' ? Math.round(g.pct) : g.empty, key:g.store,
       color: g.store === dash.store ? 'var(--c2)' : g.pct >= 80 ? 'var(--crit)' : g.pct >= 50 ? 'var(--warn)' : 'var(--c1)',
       note: `ไม่กรอก ${g.empty}/${g.n} RO (${Math.round(g.pct)}%)`})),
-    {sortId:'rem', after: () => $('remChart').insertAdjacentHTML('afterbegin', remNote), rotate:true, height:280, title:'Partner ที่ไม่กรอก Remark', onClick: it => { if (dash.view === 'store' && it.key === dash.store){ dash.fCause = 'none'; dash.showAll = false; renderDash(); revealFilter(); return; } dash.view = 'store'; dash.store = it.key; dash.rsm = (state.recs.find(r => r.store === it.key)||{}).rsm || ''; renderDash(); }});
-  $('remChart').insertAdjacentHTML('afterbegin', remNote);
+    {limit: N, sortId:'rem', after: () => $('remChart').insertAdjacentHTML('afterbegin', remNote()), rotate:true, height:280, title:'Partner ที่ไม่กรอก Remark', onClick: it => { if (dash.view === 'store' && it.key === dash.store){ dash.fCause = 'none'; dash.showAll = false; renderDash(); revealFilter(); return; } dash.view = 'store'; dash.store = it.key; dash.rsm = (state.recs.find(r => r.store === it.key)||{}).rsm || ''; renderDash(); }});
+  $('remChart').insertAdjacentHTML('afterbegin', remNote());
   const shown = remAll ? rows : rows.slice(0, 15);
   $('remMore').hidden = rows.length <= 15; $('remMore').textContent = remAll ? 'แสดง 15 อันดับแรก' : `แสดงทั้งหมด ${rows.length} Partner`;
   $('remBody').innerHTML = shown.map((g,i) => {
@@ -1443,7 +1467,7 @@ function renderRank(){
     return `<tr>
       <td class="num" data-l="อันดับ">${i+1}</td>
       <td class="num" data-l="วันค้าง"><span class="pill ${sev}">${r.age ?? '–'}</span></td>
-      <td data-l="SP"><button class="splink mono" data-rec="${r.idx}">${esc(r.sp)}</button><div class="sub mono">VIN ${esc(r.vin || '–')}${vinTag(r)}</div><div class="sub">${esc(r.model)} · ${esc(r.status)}</div></td>
+      <td data-l="SP"><button class="splink mono" data-rec="${r.idx}">${esc(r.sp)}</button><div class="sub mono">VIN ${vinLink(r.vin)}${vinTag(r)}</div><div class="sub">${esc(r.model)} · ${esc(stLabel(r.status))}</div></td>
       <td data-l="Partner">${esc(r.store.replace(/^GWM\s+/,''))}<div class="sub">${esc(r.rsm)}</div></td>
       <td data-l="รถ">${r.park === 'Parking' ? '<span class="pill">จอด</span>' : r.park === 'Not Parking' ? '<span class="pill muted">ไม่จอด</span>' : '<span class="sub">–</span>'}</td>
       <td data-l="ติดที่" class="wide"><span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span> <span class="own ${r.ownGrp}">ค้างที่ ${r.ownGrp} · ${esc(OWNER_TH[r.ownDept])}</span>
@@ -1502,7 +1526,7 @@ async function renderPdfBlob(opt = {}){
     const keepAll = [dash.showAll, remAll]; dash.showAll = true; remAll = true;
     try { renderDash(); } finally { [dash.showAll, remAll] = keepAll; }
     const now = new Date(), scope = $('dScope').textContent;
-    const stamp = now.toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'}) + ' ' + now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+    const stamp = stampNow();
     root.insertAdjacentHTML('afterbegin', `<div class="pdfhead"><div class="eyebrow">Aftersales · Pending RO</div><h1>Pending RO Report — ${esc(scope)}</h1>
       <div class="sub">มุมมอง: ${dash.view === 'overview' ? 'Overview' : dash.view === 'rsm' ? 'ราย RSM' : 'ราย Partner · RSM ' + esc(dash.rsm)} · ไฟล์: ${esc(fileBase)} · RSM ตาม ${esc(rsmBook.source)} · ประเภทงาน: ${['GR','BP'].filter(t => dash.types[t]).join(' + ')} · สร้างเมื่อ ${stamp}</div></div>`);
     await new Promise(r => setTimeout(r, 60));
@@ -1605,14 +1629,14 @@ function openSp(i){
   const r = state.recs[+i]; if (!r) return;
   const lab = Object.fromEntries(CAUSES.map(c => [c.k, c.label]));
   $('spTitle').textContent = r.sp || '–';
-  $('spVin').textContent = 'VIN ' + (r.vin || '–') + ((state.vinN && state.vinN.get(r.vin) > 1) ? ` · รถคันนี้มี ${state.vinN.get(r.vin)} RO ค้างในไฟล์` : '');
+  $('spVin').innerHTML = 'VIN ' + vinLink(r.vin) + ((state.vinN && state.vinN.get(r.vin) > 1) ? ` · <button class="linkbtn" data-vin="${esc(r.vin)}">รถคันนี้มี ${state.vinN.get(r.vin)} RO ค้างในไฟล์ · ดูประวัติ</button>` : '');
   const sev = r.age > 90 ? 'crit' : r.age > 30 ? 'warn' : '';
   $('spChips').innerHTML = `<span class="pill ${sev}">ค้าง ${r.age ?? '–'} วัน</span> ${parkPill(r)}
     <span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span>
     <span class="own ${r.ownGrp}">ค้างที่ ${r.ownGrp} · ${esc(OWNER_TH[r.ownDept])}</span> <span class="pill muted">${r.jt}</span>`;
   const f = (k, v) => `<div><span class="sub">${k}</span><b>${v || '–'}</b></div>`;
   $('spGrid').innerHTML = [
-    f('Partner (PS)', esc(r.store)), f('RSM', esc(r.rsm)), f('รุ่นรถ', esc(r.model)), f('Repair Status', esc(r.status)),
+    f('Partner (PS)', esc(r.store)), f('RSM', esc(r.rsm)), f('รุ่นรถ', esc(r.model)), f('Repair Status', esc(stLabel(r.status))),
     f('Tech (JS)', esc(r.tech)), f('Warranty (YS)', esc(r.war)), f('Part (PO/BO)', esc(r.part)),
     f('ETA', r.eta ? esc(r.eta) + (r.etaLate ? ' <span class="late">(เลย ETA)</span>' : '') : (PART_KEYS.includes(r.cause) ? '<span class="late">ไม่มี ETA</span>' : ''))
   ].join('');
@@ -1628,7 +1652,53 @@ function closeSp(){
   $('spBack').hidden = true; $('spDlg').hidden = true;
   if ($('fPanel').hidden || !$('fPanel').classList.contains('modal')) document.documentElement.classList.remove('noscroll');
 }
-document.addEventListener('click', e => { const b = e.target.closest('.splink[data-rec]'); if (b){ e.preventDefault(); openSp(b.dataset.rec); } });
+document.addEventListener('click', e => { const b = e.target.closest('.splink[data-rec]'); if (b){ e.preventDefault(); if (!$('vinDlg').hidden) closeVin(); openSp(b.dataset.rec); } });
+
+/* ---------- VIN history and VIN / RO search ---------- */
+const vinLink = v => v ? `<button class="vinlink" data-vin="${esc(v)}" title="ดูประวัติ VIN นี้">${esc(v)}</button>` : '–';
+function vinRows(list, oneVin){
+  const lab = Object.fromEntries(CAUSES.map(c => [c.k, c.label]));
+  return list.map((r, i) => `<tr><td class="num" data-l="#">${i+1}</td>
+    <td data-l="SP"><button class="splink mono" data-rec="${r.idx}">${esc(r.sp)}</button> <span class="pill muted">${r.jt}</span>${oneVin ? '' : `<div class="sub mono">VIN ${vinLink(r.vin)}</div>`}<div class="sub">${esc(r.model)}</div></td>
+    <td data-l="PS">${esc(r.store.replace(/^GWM\s+/, ''))}<div class="sub">${esc(r.rsm)}</div></td>
+    <td class="num" data-l="วันค้าง"><span class="pill ${r.age > 90 ? 'crit' : r.age > 30 ? 'warn' : ''}">${r.age ?? '–'}</span></td>
+    <td data-l="Repair Status">${esc(stLabel(r.status))}</td>
+    <td data-l="ติดที่" class="wide"><span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span> <span class="own ${r.ownGrp}">ค้างที่ ${r.ownGrp} · ${esc(OWNER_TH[r.ownDept])}</span>
+      ${[r.tech, r.war, r.part].filter(Boolean).length ? `<div class="refs">${[r.tech, r.war, r.part].filter(Boolean).map(x => `<span class="ref">${esc(x)}</span>`).join(' ')}</div>` : ''}</td>
+    <td class="num" data-l="ETA">${r.eta ? `<span class="${r.etaLate ? 'late' : ''}">${esc(r.eta)}</span>` : '–'}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>';
+}
+function showVinDlg(kick, title, sub, chips, list, oneVin){
+  closeSp();
+  $('vinKick').textContent = kick; $('vinTitle').textContent = title; $('vinSub').textContent = sub; $('vinChips').innerHTML = chips; $('vinBody').innerHTML = vinRows(list, oneVin);
+  $('vinBack').hidden = false; $('vinDlg').hidden = false; $('vinDlg').scrollTop = 0;
+  document.documentElement.classList.add('noscroll'); $('vinClose').focus({preventScroll:true});
+}
+function openVin(vin){
+  if (!state || !vin) return;
+  const list = state.recs.filter(r => r.vin === vin).sort((a, b) => (b.age ?? -1) - (a.age ?? -1));
+  const ps = [...new Set(list.map(r => r.store))], gr = list.filter(r => r.jt === 'GR').length, bp = list.length - gr;
+  const chips = `<span class="pill">${list.length} RO ค้าง</span> <span class="pill muted">GR (SP) ${gr}</span> <span class="pill muted">BP ${bp}</span>`
+    + (list.filter(r => r.ownGrp === 'GWM').length ? ` <span class="own GWM">ค้างที่ GWM ${list.filter(r => r.ownGrp === 'GWM').length}</span>` : '')
+    + (list.length && list[0].age != null ? ` <span class="pill ${list[0].age > 90 ? 'crit' : list[0].age > 30 ? 'warn' : ''}">ค้างนานสุด ${list[0].age} วัน</span>` : '');
+  showVinDlg('ประวัติ VIN · ทุก RO ที่ค้างในไฟล์', vin, [list[0] && list[0].model, ps.join(', ')].filter(Boolean).join(' · '), chips, list, true);
+}
+function closeVin(){ $('vinBack').hidden = true; $('vinDlg').hidden = true; if ($('spDlg').hidden && ($('fPanel').hidden || !$('fPanel').classList.contains('modal'))) document.documentElement.classList.remove('noscroll'); }
+function globalSearch(q){
+  q = String(q || '').trim(); if (!state || !q) return;
+  const k = q.toUpperCase().replace(/\s+/g, '');
+  const exactSp = state.recs.find(r => String(r.sp).toUpperCase() === k);
+  if (exactSp){ closeVin(); openSp(exactSp.idx); return; }
+  const vins = [...new Set(state.recs.filter(r => r.vin && r.vin.toUpperCase().includes(k)).map(r => r.vin))];
+  const bySp = state.recs.filter(r => String(r.sp).toUpperCase().includes(k));
+  if (vins.length === 1 && !bySp.length){ openVin(vins[0]); return; }
+  const list = state.recs.filter(r => (r.vin && r.vin.toUpperCase().includes(k)) || String(r.sp).toUpperCase().includes(k)).sort((a, b) => String(a.vin).localeCompare(String(b.vin)) || (b.age ?? -1) - (a.age ?? -1));
+  showVinDlg('ผลการค้นหา VIN / RO', q, list.length ? `พบ ${list.length} RO · ${new Set(list.map(r => r.vin).filter(Boolean)).size} VIN` + (list.length > 100 ? ' · แสดง 100 รายการแรก' : '') : 'ไม่พบ VIN หรือเลข RO นี้ในไฟล์', '', list.slice(0, 100));
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-vin]'); if (b){ e.preventDefault(); e.stopPropagation(); openVin(b.dataset.vin); } }, true);
+$('vinClose').addEventListener('click', closeVin); $('vinBack').addEventListener('click', closeVin);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('vinDlg').hidden){ e.stopImmediatePropagation(); closeVin(); } }, true);
+$('gSearch').addEventListener('submit', e => { e.preventDefault(); globalSearch($('gQ').value); });
+
 $('spClose').addEventListener('click', closeSp);
 $('spBack').addEventListener('click', closeSp);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('spDlg').hidden){ e.stopImmediatePropagation(); closeSp(); } }, true);
@@ -1640,8 +1710,30 @@ const enRsm = r => r === 'ไม่ระบุ RSM' ? 'No RSM' : r;
 const fmtN = n => Number(n || 0).toLocaleString('en-US');
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
 function isoWeek(d){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return [t.getUTCFullYear(), Math.ceil(((t - y0) / 86400000 + 1) / 7)]; }
+// weekly report departments (RSM view): GWM side and PS side, as the RSM follows them up
+const WK_GROUPS = {
+  GWM: [{k:'Tech', from:['GWM:Tech']}, {k:'Spare part', from:['GWM:Spare part']}, {k:'Warranty', from:['GWM:Warranty']}, {k:'CRM', from:['GWM:Customer']}],
+  PS:  [{k:'SVM', from:['PS:SVM','PS:ไม่ระบุ']}, {k:'SA', from:['PS:SA','PS:Cashier']}, {k:'Tech', from:['PS:Tech','PS:Foreman']}, {k:'Warranty', from:['PS:Warranty']}, {k:'Spare part', from:['PS:Spare part']}, {k:'CR', from:['PS:CR','PS:Customer']}]};
+const WK_NA = ['PS:N/A'];
+const WK_DUTY = {'GWM:Tech':'Follow up GWM Technical on open JS cases; push for a repair direction.', 'GWM:Spare part':'Chase GWM Parts for ETA on every PO/BO; escalate ROs with no ETA or past ETA.',
+  'GWM:Warranty':'Follow up YS approvals with GWM Warranty; clear missing claim data.', 'GWM:CRM':'Parts have arrived: make sure the PS books the customer in and closes the RO.',
+  'PS:SVM':'Decide open items and assign an owner to ROs with no department.', 'PS:SA':'Update remarks, confirm jobs with customers, close delivered ROs.',
+  'PS:Tech':'Dispatch and finish repairs; raise a JS when GWM technical help is needed.', 'PS:Warranty':'Complete claim data and submit to get a YS number.',
+  'PS:Spare part':'Order parts to get a PO/BO number and record the ETA.', 'PS:CR':'Contact customers to book in or collect their vehicle; record the date.'};
+// needs-attention score per PS (0–100): ageing, average age, missing remarks, parts without / past ETA
+function psRanking(recs){
+  const m = new Map(); recs.forEach(r => { if (!m.has(r.store)) m.set(r.store, []); m.get(r.store).push(r); });
+  const out = [];
+  for (const [store, rs] of m){ if (rs.length < 5) continue;
+    const a = rs.filter(r => r.age != null), avg = a.length ? Math.round(a.reduce((q, r) => q + r.age, 0) / a.length) : 0;
+    const p30 = pct(rs.filter(r => r.age > 30).length, rs.length), pNo = pct(rs.filter(r => !r.remark.trim()).length, rs.length);
+    const parts = rs.filter(r => PART_KEYS.includes(r.cause)), pEta = parts.length ? pct(parts.filter(r => !r.eta || r.etaLate).length, parts.length) : 0;
+    const score = Math.round(0.4 * p30 + 0.3 * Math.min(avg, 120) / 120 * 100 + 0.2 * pNo + 0.1 * pEta);
+    out.push({store, rsm: rs[0].rsm, n: rs.length, avg, p30, pNo, pEta, score}); }
+  return out.sort((x, y) => y.score - x.score || y.n - x.n);
+}
 function metricsOf(recs){
-  const m = {total: recs.length, b0:0, b1:0, b2:0, b3:0, sum:0, n:0, gwm:0, noRem:0, parts:0, noEta:0, late:0, byRsm:{}, byStore:{}, byCause:{}, sps: new Set()};
+  const m = {total: recs.length, b0:0, b1:0, b2:0, b3:0, sum:0, n:0, gwm:0, noRem:0, parts:0, noEta:0, late:0, byRsm:{}, byStore:{}, byCause:{}, byOwn:{}, sps: new Set()};
   for (const r of recs){
     if (r.age != null){ m.sum += r.age; m.n++; if (r.age <= 7) m.b0++; else if (r.age <= 30) m.b1++; else if (r.age <= 90) m.b2++; else m.b3++; }
     if (r.ownGrp === 'GWM') m.gwm++;
@@ -1649,6 +1741,7 @@ function metricsOf(recs){
     if (PART_KEYS.includes(r.cause)){ m.parts++; if (!r.eta) m.noEta++; if (r.etaLate) m.late++; }
     m.byRsm[r.rsm] = (m.byRsm[r.rsm] || 0) + 1; m.byStore[r.store] = (m.byStore[r.store] || 0) + 1; m.byCause[r.cause] = (m.byCause[r.cause] || 0) + 1;
     if (r.sp) m.sps.add(r.sp);
+    for (const side of ['GWM','PS']) for (const g of WK_GROUPS[side]) if (g.from.includes(r.ownKey)) m.byOwn[side + ':' + g.k] = (m.byOwn[side + ':' + g.k] || 0) + 1;
   }
   m.avg = m.n ? m.sum / m.n : 0;
   return m;
@@ -1670,7 +1763,7 @@ function recsFromBook(book){
       const etaD = parseDMY(ex.eta), today0 = new Date(); today0.setHours(0,0,0,0); const late = !!(etaD && etaD < today0);
       const cause = causeOf(rem, ex, '', late), own = ownerOf(rem, ex, st, cause);
       out.push({store, sp, rsm: (b && b.rsm) || EXTRA_RSM[store] || 'ไม่ระบุ RSM', age: Number.isFinite(av) ? av : null, jt: /^BP/i.test(sp) ? 'BP' : 'GR',
-        remark: rem, cause, ownGrp: own[0], eta: ex.eta, etaLate: late});
+        remark: rem, cause, ownGrp: own[0], ownKey: own[0] + ':' + own[1], eta: ex.eta, etaLate: late});
     }
     return out;
   }
@@ -1694,7 +1787,7 @@ async function ensurePptx(){
 }
 /* ---------- the same weekly report as a PDF: the deck builder runs against this recorder, which lays the slides out in HTML ---------- */
 class SlideRecorder {
-  constructor(){ this.slides = []; this.charts = {BAR:'bar', DOUGHNUT:'doughnut'}; this.shapes = {ROUNDED_RECTANGLE:'rrect', RECTANGLE:'rect'}; }
+  constructor(){ this.slides = []; this.charts = {BAR:'bar', DOUGHNUT:'doughnut', PIE:'pie'}; this.shapes = {ROUNDED_RECTANGLE:'rrect', RECTANGLE:'rect'}; }
   addSlide(){
     const sl = {bg:'FFFFFF', items:[]}; this.slides.push(sl);
     const api = {
@@ -1817,6 +1910,7 @@ async function exportPptx(){
     const tbl = (rows, opt) => { const hdr = rows[0].map(t => ({text:t, options:{bold:true, color:'FFFFFF', fill:{color:NAVY}, fontSize:10, fontFace:FONT}}));
       const body = rows.slice(1).map((r, i) => r.map(c => (typeof c === 'object' && c && c.text !== undefined) ? {text:String(c.text), options:Object.assign({fontSize:10, fontFace:FONT, color:INK, fill:{color: i % 2 ? 'FFFFFF' : 'F9FAFB'}}, c.options || {})} : {text:String(c ?? ''), options:{fontSize:10, fontFace:FONT, color:INK, fill:{color: i % 2 ? 'FFFFFF' : 'F9FAFB'}}}));
       return [[...[hdr], ...body], Object.assign({border:{type:'solid', pt:0.5, color:LINE}, margin:0.05, valign:'middle'}, opt)]; };
+    const pick = (arr, val, n) => arr.slice().sort((a, b) => pptSort === 'asc' ? val(a) - val(b) : val(b) - val(a)).slice(0, n);
     const short = (t, n = 18) => (t = String(t).replace(/^GWM\s+/, '')).length > n ? t.slice(0, n - 1) + '…' : t;
     const topCause = Object.entries(M.byCause).sort((a,b) => b[1]-a[1]);
     const loadKey = dash.view === 'overview' ? 'byRsm' : 'byStore';
@@ -1829,7 +1923,7 @@ async function exportPptx(){
       s.addText(scopeTxt + ' · ' + jobTxt + (P ? ' · vs last week' : ''), {x:0.6, y:2.3, w:8.8, h:0.45, fontSize:18, color:'CADCFC', fontFace:FONT, margin:0, isTextBox:true});
       s.addText(`Week ${wk}, ${wy} · ${dateTxt}`, {x:0.6, y:2.85, w:8.8, h:0.4, fontSize:14, color:'FFFFFF', fontFace:FONT, margin:0, isTextBox:true});
       s.addText('Prepared by Natchanon C. · Regional Aftersales', {x:0.6, y:4.35, w:8.8, h:0.3, fontSize:12, color:'CADCFC', fontFace:FONT, margin:0, isTextBox:true});
-      s.addText(`Source: ${fileBase} · RSM mapping: ${rsmBook.source.replace('ร้านที่เพิ่ม', 'added stores')}` + (P ? ` · compared with ${prevLabel}` : ''), {x:0.6, y:4.7, w:8.8, h:0.3, fontSize:9, color:'8A9BB5', fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(`Source: ${fileBase} · RSM mapping: ${rsmBook.source.replace('PS ที่เพิ่ม', 'added PS')}` + (P ? ` · compared with ${prevLabel}` : ''), {x:0.6, y:4.7, w:8.8, h:0.3, fontSize:9, color:'8A9BB5', fontFace:FONT, margin:0, isTextBox:true});
       s.addNotes(`Weekly pending RO status for ${scopeTxt} (${jobTxt}), week ${wk}.`); }
 
     // 2. Executive summary
@@ -1869,7 +1963,7 @@ async function exportPptx(){
       let items;
       if (dash.view === 'store'){ const m = {}; recs.forEach(r => m[r.status || 'Unspecified'] = (m[r.status || 'Unspecified'] || 0) + 1); items = Object.entries(m).sort((a,b) => b[1]-a[1]); }
       else items = loads;
-      const top = items.slice(0, dash.view === 'rsm' ? 12 : 10);
+      const top = pick(items, x => x[1], dash.view === 'rsm' ? 12 : 10);
       const s = content('Where the backlog sits', `Pending ROs by ${kind}`);
       addBar(s, 'Pending ROs', top.map(([k]) => kind === 'RSM' ? enRsm(k) : short(k, 16)), top.map(([,v]) => v),
         barOpts({x:0.4, y:1.2, w:5.6, h:3.85, catAxisLabelRotate: top.length > 5 ? -40 : 0}));
@@ -1891,14 +1985,58 @@ async function exportPptx(){
         {x:0.5, y:4.55, w:9, h:0.55, fontSize:10, color:MUTED, fontFace:FONT, margin:0, isTextBox:true});
       s.addNotes(order.map(k => `${CAUSE_EN[k]}: ${M.byCause[k] || 0}`).join('; ')); }
 
-    // 6. Ownership GWM vs PS
-    { const s = content('Ownership', `${pct(M.total - M.gwm, M.total)}% of pending ROs are held at the PS`);
-      s.addChart(pres.charts.DOUGHNUT, [{name:'Owner', labels:['GWM (JS/YS/PO/BO raised)','PS (no number yet)'], values:[M.gwm, M.total - M.gwm]}],
-        {x:0.4, y:1.2, w:3.6, h:3.8, holeSize:58, chartColors:[BLUE, ORANGE], showPercent:true, showValue:false, showLegend:true, legendPos:'b', legendFontSize:10, legendFontFace:FONT, legendColor:INK,
+    // 6. Ownership: GWM vs PS, then each side ranked by department (bars high → low + pie), then one detail slide per department
+    { const s = content('Ownership', `${pct(M.total - M.gwm, M.total)}% of pending ROs are held at the PS · ${pct(M.gwm, M.total)}% at GWM`);
+      s.addChart(pres.charts.PIE, [{name:'GWM vs PS', labels:['GWM (JS/YS/PO/BO raised)','PS (no number yet)'], values:[M.gwm, M.total - M.gwm]}],
+        {x:0.4, y:1.2, w:3.7, h:3.85, chartColors:[BLUE, ORANGE], showPercent:true, showValue:false, showLegend:true, legendPos:'b', legendFontSize:10, legendFontFace:FONT, legendColor:INK,
          dataLabelColor:'FFFFFF', dataLabelFontSize:12, dataLabelFontFace:FONT, dataLabelFontBold:true});
-      const items = []; for (const g of ['GWM','PS']) for (const d of OWNER_DEPTS[g]){ const n = recs.filter(r => r.ownKey === g + ':' + d).length; if (n) items.push([g + ' · ' + enOwn(d), n]); }
-      addBar(s, 'ROs', items.map(i => i[0]), items.map(i => i[1]), barOpts({x:4.2, y:1.2, w:5.4, h:3.85, catAxisLabelRotate:-40, chartColors:[NAVY]}));
-      s.addNotes(items.map(i => `${i[0]}: ${i[1]}`).join('; ')); }
+      const rows = [['Held at','Department','ROs','Share', P ? 'vs ' + shortPrev : '>90 d']];
+      for (const side of ['GWM','PS']) for (const g of WK_GROUPS[side]){ const sub = recs.filter(r => g.from.includes(r.ownKey)); if (!sub.length) continue;
+        const d = P ? delta(sub.length, P.byOwn[side + ':' + g.k] || 0) : null;
+        rows.push([{text:side, options:{bold:true, color: side === 'GWM' ? BLUE : ORANGE}}, g.k, fmtN(sub.length), pct(sub.length, M.total) + '%', P ? {text:d.s, options:{color:d.c, bold:true}} : fmtN(sub.filter(r => r.age > 90).length)]); }
+      const na = recs.filter(r => WK_NA.includes(r.ownKey)).length; if (na) rows.push(['–', 'N/A (Reverse settlement / Void)', fmtN(na), pct(na, M.total) + '%', '–']);
+      const [t, o] = tbl(rows, {x:4.4, y:1.25, w:5.1, colW:[0.75, 1.95, 0.7, 0.7, 1.0], rowH:0.27}); s.addTable(t, o);
+      s.addNotes(rows.slice(1).map(r => r.map(c => c && c.text !== undefined ? c.text : c).join(' ')).join('\n')); }
+    for (const side of ['GWM','PS']){
+      const groups = WK_GROUPS[side].map(g => ({g, sub: recs.filter(r => g.from.includes(r.ownKey))})), tot = groups.reduce((a, x) => a + x.sub.length, 0);
+      if (!tot) continue;
+      const rank = groups.slice().sort((a, b) => b.sub.length - a.sub.length);
+      const s = content(side === 'GWM' ? 'GWM follow-up · by department' : 'PS follow-up · by department',
+        `${fmtN(tot)} ROs at ${side} · most at ${rank[0].g.k} (${fmtN(rank[0].sub.length)}, ${pct(rank[0].sub.length, tot)}%)`);
+      addBar(s, 'Pending ROs', groups.map(x => x.g.k), groups.map(x => x.sub.length), barOpts({x:0.4, y:1.2, w:4.4, h:2.45, chartColors:[side === 'GWM' ? BLUE : ORANGE]}));
+      s.addChart(pres.charts.PIE, [{name:'Share', labels: rank.filter(x => x.sub.length).map(x => x.g.k), values: rank.filter(x => x.sub.length).map(x => x.sub.length)}],
+        {x:0.4, y:3.7, w:4.4, h:1.38, chartColors: side === 'GWM' ? ['2A78D6','1B2A41','6DA7EC','9EC5F4'] : ['E8622C','F2A07B','B54708','0F6B5C','6250D6','EDA100'], showPercent:true, showValue:false, showLegend:true, legendPos:'r',
+         legendFontSize:9, legendFontFace:FONT, legendColor:INK, dataLabelColor:'FFFFFF', dataLabelFontSize:9, dataLabelFontFace:FONT});
+      const rows = [['#','Department','ROs','Share','>30 d','>90 d','Avg d','Oldest', P ? 'vs ' + shortPrev : '']];
+      rank.forEach((x, i) => { const a = x.sub.filter(r => r.age != null), av = a.length ? Math.round(a.reduce((q, r) => q + r.age, 0) / a.length) : 0; const d = P ? delta(x.sub.length, P.byOwn[side + ':' + x.g.k] || 0) : null;
+        rows.push([i + 1, {text:x.g.k, options:{bold:true}}, fmtN(x.sub.length), pct(x.sub.length, tot) + '%', fmtN(x.sub.filter(r => r.age > 30).length), {text:fmtN(x.sub.filter(r => r.age > 90).length), options:{color:RED, bold:true}}, av,
+          x.sub.length ? fmtN(Math.max(...x.sub.map(r => r.age || 0))) : '–', d ? {text:d.s, options:{color:d.c, bold:true}} : '']); });
+      const cw = P ? [0.3, 1.0, 0.45, 0.45, 0.4, 0.4, 0.4, 0.45, 0.85] : [0.3, 1.1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.6], rws = P ? rows : rows.map(r => r.slice(0, -1));
+      const [t, o] = tbl(rws, {x:5.0, y:1.25, w:4.5, colW: cw.map(w => w * 4.5 / cw.reduce((p, q) => p + q, 0)), rowH:0.3}); t.forEach((row, ri) => row.forEach(c => { if (ri) c.options.fontSize = 9.5; })); s.addTable(t, o);
+      s.addText(side === 'GWM' ? 'GWM = a JS / YS / PO / BO number exists. Tech = GWM Technical (JS) · Warranty = YS approval · Spare part = PO/BO + ETA · CRM = parts arrived, waiting for the customer.'
+        : 'PS = no GWM number yet. Department from the remark, else from Repair status. SVM includes unassigned ROs · SA includes Cashier · Tech includes Foreman · CR = customer follow-up.',
+        {x:5.0, y:4.45, w:4.5, h:0.65, fontSize:9, color:MUTED, fontFace:FONT, margin:0, isTextBox:true, valign:'top'});
+      s.addNotes(rank.map(x => `${x.g.k}: ${x.sub.length}`).join('; '));
+      // one detail slide per department with work
+      for (const x of rank){ if (!x.sub.length) continue;
+        const sub = x.sub.slice().sort((a, b) => (b.age ?? -1) - (a.age ?? -1)), a = sub.filter(r => r.age != null), av = a.length ? Math.round(a.reduce((q, r) => q + r.age, 0) / a.length) : 0;
+        const ds = content(`${side} · ${x.g.k}`, `${x.g.k}: ${fmtN(sub.length)} ROs · ${fmtN(sub.filter(r => r.age > 90).length)} over 90 days`);
+        card(ds, 0.5, 1.2, 2.0, 1.3, fmtN(sub.length), 'Pending ROs', P ? delta(sub.length, P.byOwn[side + ':' + x.g.k] || 0) : null, side === 'GWM' ? BLUE : ORANGE);
+        card(ds, 2.65, 1.2, 2.0, 1.3, fmtN(sub.filter(r => r.age > 90).length), 'Over 90 days', null, RED);
+        card(ds, 4.8, 1.2, 2.0, 1.3, av + ' d', 'Average age', null);
+        const extra = side === 'GWM' && x.g.k === 'Spare part' ? [fmtN(sub.filter(r => !r.eta).length), 'No ETA', AMBER] : side === 'GWM' ? [fmtN(vinCount(sub)), 'Vehicles (VIN)', null] : [fmtN(sub.filter(r => !r.remark.trim()).length), 'No remark', AMBER];
+        card(ds, 6.95, 1.2, 2.55, 1.3, extra[0], extra[1], null, extra[2]);
+        ds.addText(WK_DUTY[side + ':' + x.g.k] || '', {x:0.5, y:2.6, w:9, h:0.3, fontSize:10.5, italic:true, color:TEAL, fontFace:FONT, margin:0, isTextBox:true});
+        let by;
+        if (dash.view === 'store'){ const m = {}; sub.forEach(r => { const k = CAUSE_EN[r.cause]; m[k] = (m[k] || 0) + 1; }); by = Object.entries(m); }
+        else { const m = {}; sub.forEach(r => { const k = r.store; m[k] = (m[k] || 0) + 1; }); by = pick(Object.entries(m), x => x[1], 8); }
+        addBar(ds, dash.view === 'store' ? 'ROs by blocker' : 'Top Partners', by.map(([k]) => short(k, 14)), by.map(([, v]) => v), barOpts({x:0.4, y:2.9, w:4.3, h:2.25, catAxisLabelRotate: by.length > 3 ? -35 : 0, catAxisLabelFontSize:8, chartColors:[side === 'GWM' ? BLUE : ORANGE]}));
+        const top = sub.slice(0, 7);
+        const rows = [['SP', dash.view === 'store' ? 'Repair status' : 'Partner', 'Days', side === 'GWM' ? 'Ref / ETA' : 'Stuck at']].concat(top.map(r => [r.sp, dash.view === 'store' ? (r.status || '–') : short(r.store, 16),
+          {text:fmtN(r.age), options:{bold:true, color: r.age > 90 ? RED : INK}}, side === 'GWM' ? short([r.tech, r.war, r.part].filter(Boolean).join(' ') || '–', 18) + (r.eta ? ' · ' + r.eta : '') : short(CAUSE_EN[r.cause], 22)]));
+        const [t2, o2] = tbl(rows, {x:4.85, y:2.95, w:4.65, colW:[1.45, 1.3, 0.45, 1.45], rowH:0.27}); t2.forEach((row, ri) => row.forEach(c => { if (ri) c.options.fontSize = 9; })); ds.addTable(t2, o2);
+        ds.addNotes(top.map(r => `${r.sp} ${r.store} ${r.age} d`).join('\n')); }
+    }
 
     // 7. Spare parts follow-up
     { const s = content('Spare parts follow-up', `${fmtN(M.parts)} ROs waiting for parts · ${fmtN(M.noEta)} without ETA`);
@@ -1911,14 +2049,18 @@ async function exportPptx(){
       else s.addText('No waiting-parts RO is missing an ETA or past its ETA.', {x:0.5, y:2.8, w:9, h:0.4, fontSize:13, color:INK, fontFace:FONT, isTextBox:true});
       s.addNotes(`Waiting parts ${M.parts}; no ETA ${M.noEta}; past ETA ${M.late}.`); }
 
-    // 8. Top partners (not on a single-partner report)
+    // 8. PS ranking (not on a single-partner report): a needs-attention score, worst first
     if (dash.view !== 'store'){
-      const top = Object.entries(M.byStore).sort((a,b) => b[1]-a[1]).slice(0, 10);
-      const s = content('Partners to watch', `Top 10 Partners hold ${pct(top.reduce((x, [,v]) => x + v, 0), M.total)}% of the backlog`);
-      addBar(s, 'ROs', top.map(([k]) => short(k, 16)), top.map(([,v]) => v), barOpts({x:0.4, y:1.2, w:5.6, h:3.85, catAxisLabelRotate:-40}));
-      const rows = [['Partner','RSM','ROs','>90 d']].concat(top.slice(0, 8).map(([k, v]) => { const sub = recs.filter(r => r.store === k); return [short(k, 20), enRsm(sub[0].rsm), fmtN(v), fmtN(sub.filter(r => r.age > 90).length)]; }));
-      const [t, o] = tbl(rows, {x:6.2, y:1.3, w:3.3, colW:[1.45, 0.85, 0.5, 0.5]}); s.addTable(t, o);
-      s.addNotes(top.map(([k, v]) => `${k}: ${v}`).join('; ')); }
+      const rk = psRanking(recs), top = pick(rk, x => x.score, 10);
+      if (top.length){
+        const s = content('PS ranking · needs attention', `Score 0–100 (higher = needs more follow-up) · ${fmtN(rk.length)} PS with 5+ ROs`);
+        addBar(s, 'Score', top.map(x => short(x.store, 14)), top.map(x => x.score), barOpts({x:0.4, y:1.2, w:4.3, h:3.35, catAxisLabelRotate:-40, catAxisLabelFontSize:8, chartColors:[RED]}));
+        const rows = [['#','PS','RSM','ROs','>30 d %','Avg d','No rmk %','Score']].concat(top.map((x, i) => [i + 1, short(x.store, 16), enRsm(x.rsm), fmtN(x.n), x.p30 + '%', x.avg, x.pNo + '%', {text:String(x.score), options:{bold:true, color:RED}}]));
+        const [t, o] = tbl(rows, {x:4.85, y:1.25, w:4.65, colW:[0.3, 1.35, 0.75, 0.4, 0.5, 0.4, 0.5, 0.45], rowH:0.28}); t.forEach((row, ri) => row.forEach(c => { if (ri) c.options.fontSize = 9; })); s.addTable(t, o);
+        s.addText('Score = 40% share of ROs over 30 days + 30% average age (capped at 120 days) + 20% share without remark + 10% parts ROs with no ETA or past ETA. PS with fewer than 5 ROs are not ranked.',
+          {x:0.5, y:4.6, w:9, h:0.5, fontSize:9, color:MUTED, fontFace:FONT, margin:0, isTextBox:true});
+        s.addNotes(top.map((x, i) => `${i + 1}. ${x.store} — score ${x.score}`).join('\n')); }
+    }
 
     // 9–10. Oldest ROs
     { const old = recs.slice().sort((a,b) => (b.age ?? -1) - (a.age ?? -1)).slice(0, 20);
@@ -1931,7 +2073,7 @@ async function exportPptx(){
 
     // 11. Remark compliance
     { const m = {}; recs.forEach(r => { (m[r.store] = m[r.store] || {n:0, e:0}).n++; if (!r.remark.trim()) m[r.store].e++; });
-      const top = Object.entries(m).filter(([,v]) => v.e).sort((a,b) => b[1].e - a[1].e).slice(0, 10);
+      const top = pptSort === 'asc' ? pick(Object.entries(m), x => x[1].e, 10) : pick(Object.entries(m).filter(([,v]) => v.e), x => x[1].e, 10);
       const s = content('Data quality', `${pct(M.noRem, M.total)}% of pending ROs have no remark`);
       if (dash.view === 'store'){
         const miss = recs.filter(r => !r.remark.trim()).sort((a,b) => (b.age ?? 0) - (a.age ?? 0)).slice(0, 10);
@@ -1971,6 +2113,37 @@ $('pptPrevClear').addEventListener('click', () => { pptPrev = null; $('pptPrevNa
 
 initDash();
 
+// English for the Partner Report (applied to report text only, never to Remark cells)
+const DEPT_EN = [
+ ['ฝ่ายที่รับผิดชอบฝั่ง PS ตามเลขอ้างอิงกับ GWM ใน DingTalk ทุกวัน (Tech → JS · Warranty → YS · Spare part → PO/BO + ETA) · เรื่องที่ไม่คืบหน้าเกิน 7 วัน หรือเลย ETA ให้ SVM แจ้ง RSM','The responsible PS team follows up with GWM in DingTalk every day using the reference number (Tech → JS · Warranty → YS · Spare part → PO/BO + ETA) · Anything with no progress for 7+ days or past ETA: SVM informs the RSM'],
+ ['สั่งอะไหล่ให้ได้เลข PO/BO และใส่ ETA ใน Remark · ติดตาม ETA กับ GWM Parts ใน DingTalk โดยเฉพาะงานที่เลย ETA หรือยังไม่มี ETA · แจ้ง CR ทันทีเมื่ออะไหล่เข้า','Order parts to get a PO/BO number and put the ETA in the remark · Chase the ETA with GWM Parts in DingTalk, especially past-ETA or no-ETA jobs · Tell CR as soon as parts arrive'],
+ ['ติดต่อลูกค้าให้มารับรถ / นัดเข้าซ่อม / ตอบเรื่องร้องเรียน · งานที่อะไหล่เข้าแล้วให้นัดลูกค้าทันที · บันทึกวันนัดใน Remark','Contact customers to collect their car / book the repair / answer complaints · Book the customer at once when parts have arrived · Record the date in the remark'],
+ ['ตัดสินใจงานที่รอผู้จัดการ · ตรวจงานที่ยังไม่ระบุฝ่ายแล้วมอบหมายผู้รับผิดชอบ · ติดตามทุกฝ่ายให้ปิดงานตามเป้า','Decide items waiting for the manager · Assign an owner to unassigned jobs · Follow up every team to close jobs on target'],
+ ['Foreman จ่ายงานและเร่งงานที่ค้างซ่อม · ช่างวิเคราะห์อาการให้จบ · งานที่เปิด JS แล้ว ติดตาม GWM Technical ใน DingTalk','Foreman dispatches and speeds up pending repairs · Technicians complete the diagnosis · Jobs with a JS: follow up GWM Technical in DingTalk'],
+ ['อัปเดตสถานะและ Remark ให้ครบ · ยืนยันรายการซ่อมกับลูกค้า · ปิด RO ที่ส่งมอบแล้ว (รวมงาน Cashier)','Keep status and remarks up to date · Confirm the job with the customer · Close delivered ROs (includes Cashier)'],
+ ['เก็บข้อมูลเคลมให้ครบและส่งขออนุมัติให้ได้เลข YS · ติดตามผลอนุมัติกับ GWM Warranty ใน DingTalk','Complete the claim data and submit for a YS number · Follow up the approval with GWM Warranty in DingTalk'],
+ ['อันดับแผนกที่ต้อง Follow up (มาก → น้อย)','Departments to follow up (high → low)'],
+ ['N/A (ยกเลิก / ยกเลิกการชำระเงิน)','N/A (Void / Reverse settlement)'],
+ ['อะไหล่เข้าแล้ว · นัดลูกค้า','Parts arrived · book customer'],
+ ['สีแผนก = งานภายใน PS','Team colour = internal PS work'],['รอ GWM (ตามใน DingTalk)','Waiting for GWM (follow up in DingTalk)'],
+ ['รอ GWM · ตามใน DingTalk','Waiting for GWM · follow up in DingTalk'],['ต้องตามใน DingTalk','to follow up in DingTalk'],['ตามใน DingTalk','follow up in DingTalk'],
+ ['ติดตามกับ GWM — แยกตามแผนกของ GWM','Follow up with GWM — by GWM department'],['ติดตามกับ GWM (หน้าสุดท้าย)','Follow up with GWM (last page)'],
+ ['ติดตาม (วันที่ / ผล)','Follow-up (date / result)'],['แผนกที่ต้องตามมากสุด','Team with most to follow up'],['8 อันดับค้างนานสุด','8 oldest pending ROs'],
+ ['ค้างที่ / ติดที่','Held at / stuck at'],['ฝ่ายที่ตาม (PS)','PS team'],['ไม่มีงานที่รอ GWM','Nothing waiting for GWM'],['ไม่มีงานค้าง','Nothing pending'],
+ ['Tech (ช่าง / Foreman)','Tech (technician / Foreman)'],['Spare part (อะไหล่)','Spare part'],['Warranty (เคลม)','Warranty'],['CR (ติดตามลูกค้า)','CR (customer follow-up)'],
+ ['GWM (ติดตามกับ GWM)','GWM (follow up with GWM)'],['แผนกที่ต้องตาม','Team'],['ต้องกรอกให้ครบ','must be filled in'],['ไม่ระบุฝ่าย','Unassigned'],['เลขอ้างอิง','Reference'],
+ ['รถ / สถานะ','Model / status'],['วิธีติดตาม:','How to follow up:'],['หน้าที่:','Duties:'],['อายุงานค้าง (วัน)','Pending age (days)'],['ค้างนานสุด','oldest'],
+ ['RO ค้างทั้งหมด','Total pending ROs'],['ค้างที่ GWM','At GWM'],['ค้างที่ PS','At PS'],['RO ค้าง','Pending ROs'],['ค้างเฉลี่ย','Average age'],['ไม่มี Remark','No remark'],
+ ['เกิน 30 วัน','Over 30 days'],['เกิน 90 วัน','Over 90 days'],['เลย ETA','Past ETA'],['ไม่มี ETA','No ETA'],['ไฟล์:','File:'],['ประเภทงาน:','Job type:'],
+ ['GWM แผนก','GWM department'],['วันค้าง','Days'],['ติดที่','Stuck at'],['เฉลี่ย','Avg'],['รอ GWM','Waiting GWM'],['ลูกค้า','Customer'],['ช่าง','Technician'],
+ ['งานภายใน','Internal'],['หน้านี้','this page'],['ฝ่ายนี้','this team'],['คัน','vehicles'],['วัน','days'],['ฝ่าย','Team'],['รถ','Model'],['จอด','Parked'],['ไม่จอด','Not parked']
+].sort((a, b) => b[0].length - a[0].length);
+function trDept(root){
+  if (!isEn()) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {acceptNode: n => n.parentElement && n.parentElement.closest('[data-nt]') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+  const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+  for (const n of nodes){ let t = n.nodeValue; if (!/[ก-๙]/.test(t)) continue; for (const [a, b] of DEPT_EN) if (t.includes(a)) t = t.split(a).join(b); if (t !== n.nodeValue) n.nodeValue = t; }
+}
 /* ---------- Partner report by team: SVM prints it for the dealer owner (cover dashboard → one page per team → GWM follow-up last) ---------- */
 // every SP belongs to one PS team; items holding a JS / YS / PO / BO number stay with the PS team that chases GWM for it in DingTalk
 const DEPT_REPORT = [
@@ -1982,7 +2155,7 @@ const DEPT_REPORT = [
    duty:'สั่งอะไหล่ให้ได้เลข PO/BO และใส่ ETA ใน Remark · ติดตาม ETA กับ GWM Parts ใน DingTalk โดยเฉพาะงานที่เลย ETA หรือยังไม่มี ETA · แจ้ง CR ทันทีเมื่ออะไหล่เข้า'},
   {k:'Warranty', th:'Warranty (เคลม)', from:['PS:Warranty','GWM:Warranty'], color:'#c2410c',
    duty:'เก็บข้อมูลเคลมให้ครบและส่งขออนุมัติให้ได้เลข YS · ติดตามผลอนุมัติกับ GWM Warranty ใน DingTalk'},
-  {k:'SVM',      th:'SVM (Service Manager)', from:['PS:SVM','PS:ไม่ระบุ'], color:'#6250d6',
+  {k:'SVM',      th:'SVM (Service Manager)', from:['PS:SVM','PS:ไม่ระบุ','PS:N/A'], color:'#6250d6',
    duty:'ตัดสินใจงานที่รอผู้จัดการ · ตรวจงานที่ยังไม่ระบุฝ่ายแล้วมอบหมายผู้รับผิดชอบ · ติดตามทุกฝ่ายให้ปิดงานตามเป้า'},
   {k:'CR',       th:'CR (ติดตามลูกค้า)', from:['PS:Customer','PS:CR','GWM:Customer'], color:'#eda100',
    duty:'ติดต่อลูกค้าให้มารับรถ / นัดเข้าซ่อม / ตอบเรื่องร้องเรียน · งานที่อะไหล่เข้าแล้วให้นัดลูกค้าทันที · บันทึกวันนัดใน Remark'}
@@ -1994,7 +2167,7 @@ const GWM_FOLLOW = [
   {k:'GWM:Spare part', th:'GWM Parts',     ref:'PO/BO', team:'Spare part', color:'#2a78d6'}
 ];
 const GWM_CARD = {k:'GWM', th:'ติดตามกับ GWM (หน้าสุดท้าย)', color:'#0d366b'};
-const DEPT_SUB = {'PS:SA':'SA','PS:CR':'CR','PS:Cashier':'Cashier','PS:Tech':'ช่าง','PS:Foreman':'Foreman','PS:Spare part':'Spare part','PS:Warranty':'Warranty','PS:SVM':'SVM','PS:ไม่ระบุ':'ไม่ระบุฝ่าย','PS:Customer':'ลูกค้า',
+const DEPT_SUB = {'PS:SA':'SA','PS:CR':'CR','PS:Cashier':'Cashier','PS:Tech':'ช่าง','PS:Foreman':'Foreman','PS:Spare part':'Spare part','PS:Warranty':'Warranty','PS:SVM':'SVM','PS:ไม่ระบุ':'ไม่ระบุฝ่าย','PS:N/A':'N/A (ยกเลิก / ยกเลิกการชำระเงิน)','PS:Customer':'ลูกค้า',
   'GWM:Tech':'GWM Technical (JS)','GWM:Warranty':'GWM Warranty (YS)','GWM:Spare part':'GWM Parts (PO/BO)','GWM:Customer':'อะไหล่เข้าแล้ว · นัดลูกค้า'};
 const byAge = (a,b) => (b.age ?? -1) - (a.age ?? -1);
 const waitsGwm = r => GWM_FOLLOW.some(g => g.k === r.ownKey);
@@ -2005,8 +2178,9 @@ function renderDeptPanel(){
   $('deptList').innerHTML = [...DEPT_REPORT, GWM_CARD].map(d => { const rs = deptRecs(d), n = rs.length, g = rs.filter(waitsGwm).length; const old = n ? Math.max(...rs.map(r => r.age || 0)) : 0;
     return `<div class="deptopt ${n ? '' : 'empty'}" style="--dc:${d.color}"><div class="dtop"><b>${esc(d.th)}</b><b class="n">${n}</b></div>
       <span class="sub">${n ? `${vinCount(rs)} คัน · ค้างนานสุด ${old} วัน${g && d.k !== 'GWM' ? ` · รอ GWM ${g}` : ''}` : 'ไม่มีงานค้าง'}</span>${n ? `<button data-dept="${esc(d.k)}">PDF ${d.k === 'GWM' ? 'หน้านี้' : 'ฝ่ายนี้'}</button>` : ''}</div>`; }).join('');
+  trDept($('deptList')); if (isEn()) translateTree($('deptList'));
 }
-const stampNow = () => { const now = new Date(); return now.toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'}) + ' ' + now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}); };
+const stampNow = () => { const now = new Date(), loc = isEn() ? 'en-GB' : 'th-TH'; return now.toLocaleDateString(loc, {day:'numeric', month:'short', year:'numeric'}) + ' ' + now.toLocaleTimeString(loc, {hour:'2-digit', minute:'2-digit'}); };
 const ageColor = a => a > 90 ? '#b3261e' : a > 30 ? '#a86400' : 'inherit';
 const refsOf = r => [r.tech, r.war, r.part].filter(Boolean).join(' · ');
 const remCell = r => { const rem = String(r.remark || '').replace(/\s+/g, ' ').trim(); return `<td class="rem" data-nt>${esc(rem.length > 170 ? rem.slice(0, 168) + '…' : rem) || '<span class="sub">ไม่มี Remark</span>'}</td>`; };
@@ -2055,7 +2229,7 @@ function deptSectionHtml(d, rs, stamp){
   const th = `<thead><tr><th>#</th><th>วันค้าง</th><th>SP / VIN</th><th>รถ / สถานะ</th><th>ค้างที่ / ติดที่</th><th>Remark</th><th>ETA</th><th>ติดตาม (วันที่ / ผล)</th></tr></thead>`;
   const row = (r, i) => `<tr><td class="num">${i+1}</td><td class="num"><b style="color:${ageColor(r.age)}">${r.age ?? '–'}</b></td>
       <td class="mono">${esc(r.sp)}<div class="sub">${esc(r.vin || '–')}</div></td>
-      <td>${esc(r.model)}<div class="sub">${esc(r.status || '–')}${r.park === 'Parking' ? ' · จอด' : r.park === 'Not Parking' ? ' · ไม่จอด' : ''} · ${r.jt}</div></td>
+      <td>${esc(r.model)}<div class="sub">${esc(r.status ? stLabel(r.status) : '–')}${r.park === 'Parking' ? ' · จอด' : r.park === 'Not Parking' ? ' · ไม่จอด' : ''} · ${r.jt}</div></td>
       <td>${waitsGwm(r) ? `<b style="color:#0d366b">รอ GWM · ตามใน DingTalk</b><div class="sub">${esc(DEPT_SUB[r.ownKey])}${refsOf(r) ? ' · ' + esc(refsOf(r)) : ''}</div>` : `${esc(DEPT_SUB[r.ownKey] || r.ownDept)}<div class="sub">${esc(lab[r.cause] || '')}${refsOf(r) ? ' · ' + esc(refsOf(r)) : ''}</div>`}</td>
       ${remCell(r)}${etaCell(r)}<td class="fu"></td></tr>`;
   return {head, th, rows: n ? rs.map(row) : ['<tr><td colspan="8" class="sub">ไม่มีงานค้าง</td></tr>']};
@@ -2068,12 +2242,13 @@ function gwmSectionHtml(stamp){
   const th = `<thead><tr><th>#</th><th>GWM แผนก</th><th>เลขอ้างอิง</th><th>วันค้าง</th><th>SP / VIN</th><th>รถ</th><th>ฝ่ายที่ตาม (PS)</th><th>Remark</th><th>ETA</th></tr></thead>`;
   const row = (r, i) => { const g = GWM_FOLLOW.find(x => x.k === r.ownKey); return `<tr><td class="num">${i+1}</td><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${g.color};margin-right:5px"></span>${g.th}</td>
       <td class="mono">${esc(refsOf(r)) || '–'}</td><td class="num"><b style="color:${ageColor(r.age)}">${r.age ?? '–'}</b></td><td class="mono">${esc(r.sp)}<div class="sub">${esc(r.vin || '–')}</div></td>
-      <td>${esc(r.model)}<div class="sub">${esc(r.status || '–')}</div></td><td>${esc(g.team)}</td>${remCell(r)}${etaCell(r)}</tr>`; };
+      <td>${esc(r.model)}<div class="sub">${esc(r.status ? stLabel(r.status) : '–')}</div></td><td>${esc(g.team)}</td>${remCell(r)}${etaCell(r)}</tr>`; };
   return {head, th, rows: rs.length ? rs.map(row) : ['<tr><td colspan="9" class="sub">ไม่มีงานที่รอ GWM</td></tr>']};
 }
 // splits a section into page-sized pieces by measuring the real row heights, so pages always break between rows
 function paginate(root, sec, pagePx){
   root.innerHTML = `<div class="dsec">${sec.head}<table class="dtab">${sec.th}<tbody>${sec.rows.join('')}</tbody></table></div>`;
+  if (isEn()){ trDept(root); translateTree(root); }
   const box = root.firstElementChild, top0 = box.getBoundingClientRect().top;
   const trs = [...box.querySelectorAll('tbody tr')], thH = box.querySelector('thead').offsetHeight;
   const out = []; let from = 0, pageTop = 0;
@@ -2102,7 +2277,7 @@ async function deptPdfBlob(keys){
     for (let i = 0; i < pages.length; i++){
       if (i) pdf.addPage();
       root.innerHTML = `<div class="dsec">${pages[i]}</div>`;
-      if (lang === 'en') translateTree(root);
+      if (lang === 'en'){ trDept(root); translateTree(root); }
       await new Promise(r => setTimeout(r, 20));
       const canvas = await html2canvas(root.firstElementChild, {scale: 1.6, backgroundColor:'#ffffff', useCORS:true, logging:false});
       let w = W, h = canvas.height / (canvas.width / W); const room = PHmm - 2*M - 4;
@@ -2216,6 +2391,7 @@ $('lockOut').addEventListener('click', () => { try { localStorage.removeItem('ro
 })();
 /* ---------- EN / TH switch: UI text only; Remark text written by dealers is never translated ---------- */
 const I18N_PAIRS = [
+['ประวัติ VIN · ทุก RO ที่ค้างในไฟล์','VIN history · every pending RO in the file'],['ผลการค้นหา VIN / RO','VIN / RO search results'],['ค้นหา VIN / RO (SP, BP)…','Search VIN / RO (SP, BP)…'],['ไม่พบ VIN หรือเลข RO นี้ในไฟล์','No such VIN or RO in this file'],['แสดง 100 รายการแรก','showing the first 100'],['ดูประวัติ VIN นี้','View this VIN history'],['RO ค้างในไฟล์ · ดูประวัติ','pending ROs in this file · view history'],['ค้างนานสุด','oldest'],['ค้นหา','Search'],
 ['__unused_แต่ละฝ่ายได้รายการ SP ที่ค้างอยู่ที่ตัวเอง เรียงจากค้างนานสุด พร้อมหน้าที่ที่ต้องทำและช่องเขียนติดตาม · งานที่มีเลข JS / YS / PO / BO อยู่ในหมวด GWM เพื่อติดตามกับ GWM · ใช้ GR/BP ตามที่เลือก ไม่ใช้ตัวกรองจาก Pie','Each team gets the SPs held with it, oldest first, with its duties and a follow-up column · Items with a JS / YS / PO / BO number go under GWM, to follow up with GWM · Uses the GR/BP selection, not the Pie filters'],
 ['ดาวน์โหลด Partner Report ทั้งชุด (PDF)','Download full Partner Report (PDF)'],['Partner Report แยกฝ่าย (PDF)','Partner Report by team (PDF)'],['Partner Report · ติดตามงานแยกตามฝ่าย','Partner Report · follow-up by team'],['ติดตามกับ GWM (หน้าสุดท้าย)','Follow up with GWM (last page)'],
 ['รายงานติดตามงานแยกตามฝ่าย','Follow-up report by team'],
@@ -2240,14 +2416,14 @@ const I18N_PAIRS = [
 ['ชื่อใกล้เคียงในไฟล์ RSM','closest name in the RSM file'],
 ['จากแท็บในไฟล์ Pending','from a tab in the Pending file'],
 ['จากคอลัมน์ RSM ในไฟล์','from the RSM column in the file'],
-['Pending RO · Dashboard และแยกไฟล์ตาม Store','Pending RO · Dashboard & split by Store'],
+['Pending RO · Dashboard และแยกไฟล์ตาม PS','Pending RO · Dashboard & split by PS'],
 ['ดาวน์โหลด Excel ทั้งไฟล์ (กรอก RSM แล้ว)','Download full Excel (RSM filled)'],
-['Top 20 Partner ที่มี RO ค้างมากสุด','Top 20 Partners by pending RO'],
+['Top 20 Partner ที่มี RO ค้างมากสุด','Top 20 Partners by pending RO'],['Top 10 Partner ที่มี RO ค้างมากสุด','Top 10 Partners by pending RO'],['20 Partner ที่มี RO ค้างน้อยสุด','20 Partners with the fewest pending ROs'],['10 Partner ที่มี RO ค้างน้อยสุด','10 Partners with the fewest pending ROs'],['น้อยสุด 20 อันดับ','lowest 20'],['มากสุด 20 อันดับ','highest 20'],['น้อยสุด 10 อันดับ','lowest 10'],['มากสุด 10 อันดับ','highest 10'],
 ['ทุก RSM (ZIP แยก Folder ตาม RSM)','All RSMs (ZIP, one folder per RSM)'],
 ['อันดับ Partner ที่ไม่กรอก Remark','Partners not filling in Remark'],
 ['เทียบกับ Partner ใน RSM เดียวกัน','compared with Partners in the same RSM'],
 ['— ลากไฟล์ใหม่ด้านบนเพื่อแทนที่','— drop a new file above to replace it'],
-['รวมร้านที่เลือกเป็นไฟล์เดียว','Combine selected stores in one file'],
+['รวม PS ที่เลือกเป็นไฟล์เดียว','Combine selected PS in one file'],
 ['ค้นหา SP / Partner / เลข PO…','Search SP / Partner / PO no.…'],
 ['รออะไหล่ ไม่มี ETA / เลย ETA','Waiting parts: no ETA / past ETA'],
 ['GWM (มีเลข JS / YS / PO / BO)','GWM (has JS / YS / PO / BO no.)'],
@@ -2260,7 +2436,7 @@ const I18N_PAIRS = [
 ['RO ค้างแยกตาม Partner','Pending RO by Partner'],
 ['RO ค้างแยกตาม RSM','Pending RO by RSM'],
 ['กลับไปใช้ไฟล์ค่าเริ่มต้น','Back to the default file'],
-['PDF ราย PS ทีละหลายร้าน:','PDF per PS, many stores at once:'],
+['PDF ราย PS ทีละหลายศูนย์:','PDF per PS, many PS at once:'],
 ['รออะไหล่ · ยังไม่มี PO/BO','Waiting parts · no PO/BO yet'],
 ['รออนุมัติ · ยังไม่มี YS','Waiting approval · no YS yet'],
 ['รอเทคนิค · ยังไม่มี JS','Waiting tech · no JS yet'],
@@ -2282,13 +2458,13 @@ const I18N_PAIRS = [
 ['รถจอดอยู่ที่ศูนย์','Cars parked at the centre'],
 ['ค้างที่ GWM / PS','Held at GWM / PS'],
 ['ค้างที่แผนกไหน','Held by department'],
-['ค้นหาชื่อ Store','Search store'],
+['ค้นหาชื่อ PS','Search PS'],
 ['PS (ยังไม่มีเลข)','PS (no number yet)'],
 ['✕ ล้างตัวกรองนี้','✕ Clear this filter'],
 ['ล้างตัวกรองทั้งหมด','Clear all filters'],
 ['อัปโหลดไฟล์ RSM','Upload RSM file'],
 ['RSM ที่รับผิดชอบ','RSM responsibility'],
-['RO ค้างทั้งร้าน','Store pending RO'],
+['RO ค้างทั้งศูนย์','PS pending RO'],
 ['RO ค้างทั้งหมด','Total pending RO'],
 ['ติดที่ / Remark','Stuck at / Remark'],
 ['ข้อมูลตัวอย่าง','sample data'],
@@ -2339,7 +2515,7 @@ const I18N_PAIRS = [
 ['ออกจากระบบ','Sign out'],
 ['กำลังตรวจสอบ…','Checking…'],
 ['รหัสผ่าน','Password'],
-['จำนวน Store','Stores'],
+['จำนวน PS','PS'],
 ['จำนวน RO','ROs'],
 ['ราย Partner','By Partner'],
 ['ราย RSM','By RSM'],
@@ -2361,7 +2537,7 @@ const I18N_PAIRS = [
 ['ของ Sheet','of sheet'],
 ['เพิ่มคอลัมน์','Added columns'],
 ['RSM ยึดตามไฟล์','RSM from'],
-['ร้านที่เพิ่ม','added stores'],
+['PS ที่เพิ่ม','added PS'],
 ['RO ในไฟล์','ROs in file'],
 ['แยกได้ครบ','split complete'],
 ['(ไม่นับซ้ำ)','(no double counting)'],
@@ -2420,7 +2596,7 @@ const I18N_PAIRS = [
 ['พบ','Found'],
 ['เกิน','over'],
 ['จาก','of'],
-['ร้าน','stores'],
+['ศูนย์บริการ','service center'],['ศูนย์','PS'],
 ['รายการ','items'],
 ['วัน','days'],
 ['ไม่กรอก','No Remark'],
@@ -2461,6 +2637,7 @@ function setLang(l){
     if (trObs) trObs.takeRecords();
     trBusy = false;
   } else translateTree(document.body);
+  try { if (state && state.recs) renderDash(); if (!$('deptPanel').hidden) renderDeptPanel(); } catch(e){}
 }
 var trObs = null;
 trObs = new MutationObserver(ms => {
