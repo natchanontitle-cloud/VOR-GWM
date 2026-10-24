@@ -579,7 +579,7 @@ function analyse(sheetName, forceCol){
   let last = header.length - 1;
   while (last > 0 && !txt((rows[h.r]||[])[last]) && rows.slice(h.r+1).every(r => !r[last])) last--;
   const hdr = header.slice(0, last+1);
-  const data = rows.slice(h.r+1).map(r => Object.assign(r.slice(0, last+1), {excelRow: r.excelRow})).filter(r => r.some(Boolean));
+  const data = rows.slice(h.r+1).map(r => Object.assign(r.slice(0, last+1), {excelRow: r.excelRow})).filter(r => r.some(Boolean) && !isFooterRow(r, h.c));
   let rsmCol = hdr.findIndex(x => norm(x) === 'rsm');
   const ageCol = hdr.findIndex(x => /pendingday|pendingdays|aging|ageday/.test(norm(x)));
   const remarkCol = hdr.findIndex(x => norm(x) === 'remark');
@@ -863,6 +863,12 @@ function readBook(buf, opt){
   const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
   if (isZipOrXls(u8)) return XLSX.read(u8, Object.assign({type:'array'}, opt || {}));
   const book = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet(parseCsv(decodeText(u8))), 'Sheet1'); return book;
+}
+// Power BI adds an "Applied filters: …" note under the exported table; it is not an RO
+function isFooterRow(r, sc){
+  if (sc >= 0 && txt(r[sc])) return false;
+  const vals = r.map(c => txt(c)).filter(Boolean);
+  return vals.length <= 1 || /^(applied filters|filters applied|ตัวกรองที่ใช้)/i.test(vals[0]);
 }
 function parseRsmFile(buf){
   const book = readBook(buf);
@@ -1783,7 +1789,7 @@ function recsFromBook(book){
     const cAge = hdr.findIndex(x => /pendingday/.test(x)), cSp = col('repairorder'), cRem = col('remark'), cSt = col('repairstatus');
     const out = [];
     for (const r of rows.slice(h.r + 1)){
-      if (!r.some(Boolean)) continue;
+      if (!r.some(Boolean) || isFooterRow(r, h.c)) continue;
       const store = txt(r[h.c]) || '(ไม่ระบุ Store)', rem = cRem >= 0 && r[cRem] ? String(r[cRem].v) : '', ex = extrasOf(rem);
       const sp = cSp >= 0 ? txt(r[cSp]) : '', st = cSt >= 0 ? txt(r[cSt]) : '';
       const av = cAge >= 0 && r[cAge] ? Number(r[cAge].v) : NaN;
