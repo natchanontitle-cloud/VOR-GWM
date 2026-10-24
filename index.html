@@ -361,7 +361,7 @@ table.rank td{vertical-align:top}
 
   <section class="card rsmpanel rsmonly" id="rsmPanel">
     <div class="rankhead"><h3>RSM ที่รับผิดชอบ</h3><span class="sub" id="rsmSrc"></span>
-      <div class="rankf"><label class="btn" for="rsmFile">อัปโหลดไฟล์ RSM</label><input type="file" id="rsmFile" class="vh" accept=".xlsx,.xls,.csv"><button id="rsmReset" hidden>กลับไปใช้ไฟล์ค่าเริ่มต้น</button></div></div>
+      <div class="rankf"><button id="rsmDl" type="button">ดาวน์โหลดไฟล์ RSM</button><label class="btn" for="rsmFile">อัปโหลดไฟล์ RSM</label><input type="file" id="rsmFile" class="vh" accept=".xlsx,.xls,.csv"><button id="rsmReset" hidden>กลับไปใช้ไฟล์ค่าเริ่มต้น</button></div></div>
     <div class="banner" id="rsmWarn" hidden></div>
     <div class="rsmgrid" id="rsmGrid"></div>
   </section>
@@ -836,8 +836,36 @@ function rsmIndex(){ if (!rsmIdx){ rsmIdx = new Map(); for (const [code, store, 
 function similar(a, b){ a = nkey(a); b = nkey(b); if (!a || !b) return 0; const grams = s => { const m = new Map(); for (let i = 0; i < s.length-1; i++){ const g = s.slice(i,i+2); m.set(g,(m.get(g)||0)+1); } return m; };
   const A = grams(a), B = grams(b); let hit = 0; for (const [g,n] of A) hit += Math.min(n, B.get(g)||0); return 2*hit / Math.max(1, a.length-1 + b.length-1); }
 function closest(name){ let best = null, sc = 0; for (const [code, store] of rsmBook.list){ const s = similar(name, store); if (s > sc){ sc = s; best = store; } } return sc >= 0.55 ? best : null; }
+// CSV exports from Power BI / GCIP keep line breaks inside quoted Remarks; parse them ourselves (RFC 4180) so one RO stays one row
+function isZipOrXls(u8){ return u8.length > 3 && ((u8[0] === 0x50 && u8[1] === 0x4B) || (u8[0] === 0xD0 && u8[1] === 0xCF)); }
+function decodeText(u8){
+  let t = new TextDecoder('utf-8').decode(u8);
+  if ((t.match(/\uFFFD/g) || []).length > 5){ try { t = new TextDecoder('windows-874').decode(u8); } catch(e){} }
+  return t.replace(/^﻿/, '');
+}
+function parseCsv(t){
+  const first = t.slice(0, t.search(/\r?\n/) >>> 0 || 2000);
+  const cnt = ch => first.split(ch).length - 1, d = [',', ';', '\t'].sort((a, b) => cnt(b) - cnt(a))[0];
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < t.length; i++){
+    const c = t[i];
+    if (q){ if (c === '"'){ if (t[i+1] === '"'){ f += '"'; i++; } else q = false; } else f += c; continue; }
+    if (c === '"' && f === '') q = true;
+    else if (c === d){ row.push(f); f = ''; }
+    else if (c === '\n' || c === '\r'){ if (c === '\r' && t[i+1] === '\n') i++; row.push(f); f = ''; if (row.some(x => x !== '')) rows.push(row); row = []; }
+    else f += c;
+  }
+  row.push(f); if (row.some(x => x !== '')) rows.push(row);
+  // numbers stay numbers (Pending day etc.); everything else stays text exactly as exported
+  return rows.map((r, ri) => ri === 0 ? r : r.map(v => /^-?\d+(\.\d+)?$/.test(v.trim()) && !/^0\d/.test(v.trim()) && v.trim().length < 12 ? Number(v) : v));
+}
+function readBook(buf, opt){
+  const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  if (isZipOrXls(u8)) return XLSX.read(u8, Object.assign({type:'array'}, opt || {}));
+  const book = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet(parseCsv(decodeText(u8))), 'Sheet1'); return book;
+}
 function parseRsmFile(buf){
-  const book = XLSX.read(buf, {type:'array'});
+  const book = readBook(buf);
   for (const n of book.SheetNames){
     const rows = XLSX.utils.sheet_to_json(book.Sheets[n], {header:1, defval:null, raw:false});
     for (let r = 0; r < Math.min(rows.length, 30); r++){
@@ -879,7 +907,7 @@ function renderRsmPanel(){
   w.innerHTML = `<b>พบ ${miss.length} ชื่อ Partner ที่ไม่ตรงกับไฟล์ RSM</b><ul class="miss">${miss.map(g => {
     const sug = closest(g.name), used = [...g.rsm][0];
     return `<li><span class="pn">${esc(g.name)}</span> <span class="sub">${g.rows.length} RO</span> → ${used ? `ใช้ RSM <b>${esc(used)}</b> <span class="sub">(${g.src === 'extra' ? 'กำหนดไว้ในระบบ' : g.src === 'tab' ? 'จากแท็บในไฟล์ Pending' : 'จากคอลัมน์ RSM ในไฟล์'})</span>` : '<b class="late">ไม่ระบุ RSM</b>'}${sug ? ` · ชื่อใกล้เคียงในไฟล์ RSM: “${esc(sug)}”` : ''}</li>`; }).join('')}</ul>
-    <span class="sub">แก้ชื่อในไฟล์ RSM ให้ตรง แล้วอัปโหลดใหม่ได้เลย</span>${extraNote}`;
+    <span class="sub">กด <b>ดาวน์โหลดไฟล์ RSM</b> · PS ที่ยังไม่มี RSM อยู่บนสุดของไฟล์ · กรอกชื่อ RSM แล้วกด <b>อัปโหลดไฟล์ RSM</b> กลับเข้ามา</span>${extraNote}`;
 }
 async function handleRsmFile(f){
   if (!f) return;
@@ -1086,7 +1114,7 @@ $('colSel').addEventListener('change', e => analyse(state.sheetName, +e.target.v
 async function loadBuffer(buf, name, quiet){
   tpl = await prepareTemplate(buf);
   try{
-    wb = XLSX.read(buf, {type:'array', cellNF:true, cellText:true});
+    wb = readBook(buf, {cellNF:true, cellText:true});
   } catch(err){ toast('อ่านไฟล์ไม่ได้ ตรวจสอบว่าเป็นไฟล์ Excel ที่ถูกต้อง'); return; }
   fileBase = name.replace(/\.[^.]+$/,'');
   // pick the sheet that has a Store column; fall back to the first sheet
@@ -2103,7 +2131,7 @@ document.querySelectorAll('input[name="pptSort"]').forEach(r => r.addEventListen
 document.querySelectorAll('input[name="pptMode"]').forEach(r => r.addEventListener('change', () => { pptMode = document.querySelector('input[name="pptMode"]:checked').value; $('pptPrevRow').hidden = pptMode !== 'compare'; }));
 $('pptPrev').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-  try { const book = XLSX.read(new Uint8Array(await f.arrayBuffer()), {type:'array', cellNF:true, cellText:true});
+  try { const book = readBook(new Uint8Array(await f.arrayBuffer()), {cellNF:true, cellText:true});
     const recs = recsFromBook(book); if (!recs){ toast('ไม่พบคอลัมน์ Store_Name ในไฟล์อาทิตย์ที่แล้ว'); return; }
     pptPrev = {name: f.name.replace(/\.[^.]+$/, ''), recs};
     $('pptPrevName').textContent = `${f.name} · ${recs.length.toLocaleString()} RO`; $('pptPrevClear').hidden = false;
@@ -2317,6 +2345,32 @@ $('pdfBtn').addEventListener('click', exportPdf);
 $('batchAll').addEventListener('click', () => batchPdf('all'));
 $('batchRsm').addEventListener('click', () => batchPdf('rsm'));
 $('batchStop').addEventListener('click', () => { batchCancel = true; $('batchTxt').textContent = 'กำลังยกเลิก…'; });
+
+// RSM file out: the list in use + every PS in the Pending file that has no RSM yet (on top, RSM blank) — edit and upload back
+function downloadRsmFile(){
+  if (typeof XLSX === 'undefined'){ toast('ยังโหลดเครื่องมือ Excel ไม่เสร็จ ลองอีกครั้ง'); return; }
+  const idx = rsmIndex(), seen = new Set(), pend = new Map();
+  if (state) for (const g of state.list) pend.set(nkey(g.name), g.rows.length);
+  const head = ['PS Code', 'Partner Store', 'Region', 'RSM', 'Pending RO (ไฟล์ปัจจุบัน)', 'หมายเหตุ', 'ชื่อใกล้เคียงในรายชื่อ RSM'];
+  const top = [], body = [];
+  if (state) for (const g of state.list){
+    const k = nkey(g.name); if (idx.has(k)) continue; seen.add(k);
+    const used = [...g.rsm].filter(x => x && x !== 'ไม่ระบุ RSM')[0] || EXTRA_RSM[g.name] || '';
+    if (used) body.push(['', g.name, '', used, g.rows.length, 'ไม่อยู่ในไฟล์ RSM · ใช้ RSM ที่กำหนดในระบบ', '']);
+    else top.push(['', g.name, '', '', g.rows.length, '⚠ ยังไม่มี RSM — กรอกชื่อ RSM แล้วอัปโหลดกลับ', closest(g.name) || '']);
+  }
+  for (const [store, rsm] of Object.entries(EXTRA_RSM)){ const k = nkey(store); if (idx.has(k) || seen.has(k)) continue; seen.add(k); body.push(['', store, '', rsm, pend.get(k) || 0, 'เพิ่มจากระบบ', '']); }
+  for (const [code, store, region, rsm] of rsmBook.list) body.push([code, store, region, rsm, state ? (pend.get(nkey(store)) || 0) : '', '', '']);
+  body.sort((a, b) => String(a[3]).localeCompare(String(b[3])) || String(a[1]).localeCompare(String(b[1])));
+  const ws = XLSX.utils.aoa_to_sheet([head, ...top, ...body]);
+  ws['!cols'] = [{wch:10}, {wch:38}, {wch:14}, {wch:14}, {wch:14}, {wch:44}, {wch:36}];
+  ws['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:0, c:0}, e:{r:top.length + body.length, c:head.length - 1}})};
+  const wbk = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wbk, ws, 'RSM');
+  const d = new Date(), stamp = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  saveFile(`RSM_and_PS_${stamp}.xlsx`, new Blob([XLSX.write(wbk, {bookType:'xlsx', type:'array'})], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+  if (top.length) toast(`ไฟล์ RSM มี ${top.length} PS ที่ยังไม่มี RSM อยู่บนสุด — กรอกแล้วอัปโหลดกลับ`);
+}
+$('rsmDl').addEventListener('click', downloadRsmFile);
 $('rsmFile').addEventListener('change', e => { handleRsmFile(e.target.files[0]); e.target.value = ''; });
 $('rsmReset').addEventListener('click', () => { rsmBook = DEFAULT_RSM; rsmIdx = null; try { localStorage.removeItem('rsmBook'); } catch(e){} if (state) analyse(state.sheetName); else renderRsmPanel(); toast('กลับมาใช้ไฟล์ RSM ค่าเริ่มต้นแล้ว'); });
 
@@ -2391,6 +2445,7 @@ $('lockOut').addEventListener('click', () => { try { localStorage.removeItem('ro
 })();
 /* ---------- EN / TH switch: UI text only; Remark text written by dealers is never translated ---------- */
 const I18N_PAIRS = [
+['ดาวน์โหลดไฟล์ RSM','Download RSM file'],['ยังไม่มี RSM — กรอกชื่อ RSM แล้วอัปโหลดกลับ','No RSM yet — fill in the RSM and upload back'],
 ['ประวัติ VIN · ทุก RO ที่ค้างในไฟล์','VIN history · every pending RO in the file'],['ผลการค้นหา VIN / RO','VIN / RO search results'],['ค้นหา VIN / RO (SP, BP)…','Search VIN / RO (SP, BP)…'],['ไม่พบ VIN หรือเลข RO นี้ในไฟล์','No such VIN or RO in this file'],['แสดง 100 รายการแรก','showing the first 100'],['ดูประวัติ VIN นี้','View this VIN history'],['RO ค้างในไฟล์ · ดูประวัติ','pending ROs in this file · view history'],['ค้างนานสุด','oldest'],['ค้นหา','Search'],
 ['__unused_แต่ละฝ่ายได้รายการ SP ที่ค้างอยู่ที่ตัวเอง เรียงจากค้างนานสุด พร้อมหน้าที่ที่ต้องทำและช่องเขียนติดตาม · งานที่มีเลข JS / YS / PO / BO อยู่ในหมวด GWM เพื่อติดตามกับ GWM · ใช้ GR/BP ตามที่เลือก ไม่ใช้ตัวกรองจาก Pie','Each team gets the SPs held with it, oldest first, with its duties and a follow-up column · Items with a JS / YS / PO / BO number go under GWM, to follow up with GWM · Uses the GR/BP selection, not the Pie filters'],
 ['ดาวน์โหลด Partner Report ทั้งชุด (PDF)','Download full Partner Report (PDF)'],['Partner Report แยกฝ่าย (PDF)','Partner Report by team (PDF)'],['Partner Report · ติดตามงานแยกตามฝ่าย','Partner Report · follow-up by team'],['ติดตามกับ GWM (หน้าสุดท้าย)','Follow up with GWM (last page)'],
