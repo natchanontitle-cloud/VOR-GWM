@@ -345,8 +345,8 @@ table.rank td{vertical-align:top}
 
   <label class="drop" id="drop" for="file">
     <div class="ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div>
-    <div class="txt"><strong>ลากไฟล์ .xlsx มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</strong><span>รองรับ .xlsx / .xls / .csv · ระบบหาคอลัมน์ Store_Name ให้อัตโนมัติ</span></div>
-    <input type="file" id="file" accept=".xlsx,.xls,.xlsm,.csv">
+    <div class="txt"><strong>ลากไฟล์ .xlsx มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</strong><span>รองรับ .xlsx / .xls / .csv / .json · ระบบหาคอลัมน์ Store_Name ให้อัตโนมัติ</span></div>
+    <input type="file" id="file" accept=".xlsx,.xls,.xlsm,.csv,.json">
   </label>
 
   <div class="banner" id="sampleBanner" hidden>กำลังแสดง <b>ข้อมูลตัวอย่าง</b> (ศูนย์บริการสมมติ) — อัปโหลดไฟล์จริงด้านบนเพื่อแทนที่</div>
@@ -364,8 +364,15 @@ table.rank td{vertical-align:top}
   <section class="card rsmonly pubpanel" id="pubPanel" hidden>
     <div class="rankhead"><h3>เผยแพร่ข้อมูลให้ RSM ทุกคน</h3><span class="sub" id="pubFile"></span><div class="rankf"><button id="pubClose" class="linkbtn" type="button">✕ ปิด</button></div></div>
     <div class="pptrow"><label class="field">ชื่อผู้เผยแพร่<input id="pubBy" list="pubNames" placeholder="เลือกหรือพิมพ์ชื่อ" autocomplete="off"></label><datalist id="pubNames"></datalist>
-      <button id="pubGo" class="primary" type="button">สร้างไฟล์ pending_data.json</button></div>
-    <ol class="sub pubsteps"><li>กดสร้างไฟล์ ระบบเข้ารหัสด้วยรหัส RSM (PS เปิดไม่ได้)</li><li>อัปโหลดไฟล์ <b>pending_data.json</b> ขึ้น GitHub repo <b>VOR-GWM</b> ที่เดียวกับ index.html (ทับไฟล์เดิม ชื่อต้องตรง)</li><li>รอ 1–2 นาที RSM ทุกคนที่เปิดเว็บจะเห็นข้อมูลชุดนี้ทันที</li></ol>
+      <label class="field">GitHub token <span class="sub">(เก็บไว้ในเครื่องนี้เท่านั้น)</span><input id="pubTok" type="password" placeholder="github_pat_…" autocomplete="off"></label>
+      <button id="pubGh" class="primary" type="button">เผยแพร่ขึ้น GitHub ทันที</button>
+      <button id="pubGo" type="button">หรือดาวน์โหลด pending_data.json</button></div>
+    <div class="sub" id="pubMsg"></div>
+    <details class="sub"><summary>วิธีขอ GitHub token (ทำครั้งเดียว)</summary><ol class="pubsteps">
+      <li>เข้า github.com ด้วยบัญชีที่มีสิทธิ์ repo <b>VOR-GWM</b> → รูปโปรไฟล์ → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b> → Generate new token</li>
+      <li>Repository access: <b>Only select repositories → VOR-GWM</b> · Permissions → Repository permissions → <b>Contents: Read and write</b> · ตั้งวันหมดอายุ</li>
+      <li>คัดลอก token มาใส่ช่องด้านบน — ระบบจำไว้ในเบราว์เซอร์นี้ ไม่ถูกส่งไปที่อื่นนอกจาก GitHub</li></ol></details>
+    <ol class="sub pubsteps"><li>ไฟล์ถูกเข้ารหัสด้วยรหัส RSM ก่อนส่ง (PS เปิดไม่ได้)</li><li>หลังเผยแพร่ รอ 1–2 นาที RSM ทุกคนที่เปิดเว็บจะเห็นข้อมูลชุดนี้</li></ol>
   </section>
   <section class="card rsmpanel rsmonly" id="rsmPanel">
     <div class="rankhead"><h3>RSM ที่รับผิดชอบ</h3><span class="sub" id="rsmSrc"></span>
@@ -867,9 +874,22 @@ function parseCsv(t){
   // numbers stay numbers (Pending day etc.); everything else stays text exactly as exported
   return rows.map((r, ri) => ri === 0 ? r : r.map(v => /^-?\d+(\.\d+)?$/.test(v.trim()) && !/^0\d/.test(v.trim()) && v.trim().length < 12 ? Number(v) : v));
 }
+function jsonRows(j){
+  const pick = x => Array.isArray(x) && x.length && typeof x[0] === 'object' && !Array.isArray(x[0]) ? x : null;
+  return pick(j) || (j && j.results && j.results[0] && j.results[0].tables && pick(j.results[0].tables[0].rows)) || pick(j && j.firstTableRows) || pick(j && j.body && j.body.firstTableRows)
+    || pick(j && j.value) || pick(j && j.rows) || null;
+}
 function readBook(buf, opt){
   const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
   if (isZipOrXls(u8)) return XLSX.read(u8, Object.assign({type:'array'}, opt || {}));
+  const t = decodeText(u8).trim();
+  if (t[0] === '{' || t[0] === '['){
+    let j; try { j = JSON.parse(t); } catch(e){ j = null; }
+    const rows = j && jsonRows(j);
+    if (rows){ const keys = [...new Set(rows.flatMap(r => Object.keys(r)))];
+      const book = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet([keys, ...rows.map(r => keys.map(k => r[k] ?? ''))]), 'Sheet1'); return book; }
+    if (j) throw new Error('jsonshape');
+  }
   const book = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet(parseCsv(decodeText(u8))), 'Sheet1'); return book;
 }
 // Power BI adds an "Applied filters: …" note under the exported table; it is not an RO
@@ -1138,7 +1158,16 @@ async function loadBuffer(buf, name, quiet){
   analyse(pick);
   if (!quiet) toast(`โหลด ${name} แล้ว`);
 }
-function handleFile(f){ if (!f) return; const r = new FileReader(); r.onload = () => loadBuffer(new Uint8Array(r.result), f.name); r.readAsArrayBuffer(f); }
+function handleFile(f){ if (!f) return; const r = new FileReader(); r.onload = async () => {
+  const u8 = new Uint8Array(r.result);
+  if (/\.json$/i.test(f.name)){ let j = null; try { j = JSON.parse(decodeText(u8)); } catch(e){}
+    if (j && j.kind === 'pending-ro-shared'){
+      if (ROLE !== 'rsm'){ toast('ไฟล์ข้อมูลกลางเปิดได้เฉพาะรหัส RSM'); return; }
+      try { const d = await decryptShared(UNLOCK_PW, j); await loadBuffer(b64bytes(d.file), d.name || f.name, true); toast(`โหลดข้อมูลกลาง (${d.name || ''}) แล้ว`); }
+      catch(e){ toast('เปิดไฟล์ข้อมูลกลางไม่ได้ — รหัส RSM ไม่ตรงกับตอนสร้างไฟล์'); }
+      return; }
+    if (j && !jsonRows(j)){ toast('ไฟล์ JSON นี้ไม่มีตารางข้อมูล RO'); return; } }
+  loadBuffer(u8, f.name); }; r.readAsArrayBuffer(f); }
 $('file').addEventListener('change', e => { handleFile(e.target.files[0]); e.target.value = ''; });
 const drop = $('drop');
 ['dragenter','dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
@@ -2414,7 +2443,7 @@ function openPub(){
   if (!lastFile){ toast('อัปโหลดไฟล์ Pending RO ก่อน แล้วค่อยเผยแพร่'); return; }
   const names = [...new Set(rsmBook.list.map(x => x[3]).filter(Boolean))].sort();
   $('pubNames').innerHTML = names.map(n => `<option value="${esc(n)}">`).join('');
-  try { $('pubBy').value = localStorage.getItem('roPubBy') || ''; } catch(e){}
+  try { $('pubBy').value = localStorage.getItem('roPubBy') || ''; $('pubTok').value = localStorage.getItem('roGhTok') || ''; } catch(e){}
   $('pubFile').textContent = `ไฟล์: ${lastFile.name} · ${state ? state.recs.length.toLocaleString() + ' RO' : ''}`;
   $('pubPanel').hidden = false; $('pubPanel').scrollIntoView({behavior:'smooth', block:'nearest'}); $('pubBy').focus();
 }
@@ -2433,6 +2462,34 @@ async function doPublish(){
 $('pubBtn').addEventListener('click', openPub);
 $('pubClose').addEventListener('click', () => { $('pubPanel').hidden = true; });
 $('pubGo').addEventListener('click', doPublish);
+// publish straight to the GitHub repo that hosts the page (Contents API) — the token stays in this browser only
+const GH = {owner:'natchanontitle-cloud', repo:'VOR-GWM', path: SHARED_FILE};
+async function publishToGitHub(){
+  const by = $('pubBy').value.trim(); if (!by){ toast('ใส่ชื่อผู้เผยแพร่ก่อน'); $('pubBy').focus(); return; }
+  const tok = $('pubTok').value.trim(); if (!tok){ toast('ใส่ GitHub token ก่อน (ดูวิธีขอด้านล่าง)'); $('pubTok').focus(); return; }
+  if (ROLE !== 'rsm' || !UNLOCK_PW || !lastFile){ toast('ต้องเข้าด้วยรหัส RSM และอัปโหลดไฟล์ก่อน'); return; }
+  const btn = $('pubGh'), label = btn.textContent; btn.disabled = true; btn.textContent = 'กำลังเผยแพร่…'; $('pubMsg').textContent = '';
+  try {
+    try { localStorage.setItem('roPubBy', by); localStorage.setItem('roGhTok', tok); } catch(e){}
+    const out = await encryptShared(UNLOCK_PW, {ok:'pending-ro', by, at: new Date().toISOString(), name: lastFile.name, file: u8b64(lastFile.bytes)});
+    const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}`, H = {'Authorization': 'Bearer ' + tok, 'Accept': 'application/vnd.github+json'};
+    let sha; { const r = await fetch(url + '?t=' + Date.now(), {headers: H, cache:'no-store'}); if (r.status === 401 || r.status === 403) throw new Error('auth'); if (r.ok) sha = (await r.json()).sha; }
+    const body = {message: `Pending RO data · ${lastFile.name} · by ${by}`, content: u8b64(new TextEncoder().encode(JSON.stringify(out))), ...(sha ? {sha} : {})};
+    const r = await fetch(url, {method:'PUT', headers: {...H, 'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    if (r.status === 401 || r.status === 403) throw new Error('auth');
+    if (r.status === 404) throw new Error('repo');
+    if (!r.ok) throw new Error('http ' + r.status);
+    $('pubMsg').textContent = `เผยแพร่แล้ว ${new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})} · RSM ทุกคนจะเห็นข้อมูลนี้ภายใน 1–2 นาที`;
+    toast('เผยแพร่ขึ้น GitHub แล้ว');
+  } catch(e){ console.error(e);
+    const m = e && e.message === 'auth' ? 'token ไม่ถูกต้อง หมดอายุ หรือไม่มีสิทธิ์ Contents: Read and write บน VOR-GWM'
+      : e && e.message === 'repo' ? 'ไม่พบ repo VOR-GWM หรือ token ไม่ได้เลือก repo นี้' : e && e.message === 'nocrypto' ? 'เบราว์เซอร์นี้เข้ารหัสไม่ได้ ลองใช้ Chrome บนคอม'
+      : 'เผยแพร่ไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วลองใหม่ หรือใช้ปุ่มดาวน์โหลดแทน';
+    $('pubMsg').textContent = m; toast(m); }
+  finally { btn.disabled = false; btn.textContent = label; }
+}
+$('pubGh').addEventListener('click', publishToGitHub);
+
 
 $('rsmFile').addEventListener('change', e => { handleRsmFile(e.target.files[0]); e.target.value = ''; });
 $('rsmReset').addEventListener('click', () => { rsmBook = DEFAULT_RSM; rsmIdx = null; try { localStorage.removeItem('rsmBook'); } catch(e){} if (state) analyse(state.sheetName); else renderRsmPanel(); toast('กลับมาใช้ไฟล์ RSM ค่าเริ่มต้นแล้ว'); });
@@ -2500,7 +2557,7 @@ $('lockForm').addEventListener('submit', async e => {
   btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ';
   if (!ok){ $('lockErr').hidden = false; $('lockPw').select(); }
 });
-$('lockOut').addEventListener('click', () => { try { localStorage.removeItem('roPw'); sessionStorage.removeItem('roPw'); } catch(e){} location.reload(); });
+$('lockOut').addEventListener('click', () => { try { localStorage.removeItem('roGhTok'); localStorage.removeItem('roPw'); sessionStorage.removeItem('roPw'); } catch(e){} location.reload(); });
 (async function autoUnlock(){
   let saved = null; try { saved = sessionStorage.getItem('roPw') || localStorage.getItem('roPw'); } catch(e){}
   if (saved && await unlock(saved, !!(function(){ try { return localStorage.getItem('roPw'); } catch(e){ return null; } })())) return;
@@ -2508,6 +2565,7 @@ $('lockOut').addEventListener('click', () => { try { localStorage.removeItem('ro
 })();
 /* ---------- EN / TH switch: UI text only; Remark text written by dealers is never translated ---------- */
 const I18N_PAIRS = [
+['เผยแพร่ขึ้น GitHub ทันที','Publish to GitHub now'],['หรือดาวน์โหลด pending_data.json','or download pending_data.json'],['เก็บไว้ในเครื่องนี้เท่านั้น','kept on this device only'],['วิธีขอ GitHub token (ทำครั้งเดียว)','How to get a GitHub token (one time)'],
 ['เผยแพร่ให้ RSM','Publish to RSMs'],['เผยแพร่ข้อมูลให้ RSM ทุกคน','Publish data to all RSMs'],['ชื่อผู้เผยแพร่','Published by'],['เลือกหรือพิมพ์ชื่อ','Pick or type a name'],['สร้างไฟล์ pending_data.json','Create pending_data.json'],['ข้อมูลกลางของ RSM','Shared RSM data'],['อัปเดตโดย','updated by'],['อัปโหลดไฟล์เองได้ เห็นเฉพาะเครื่องนี้ ไม่กระทบคนอื่น','you can still upload your own file; it stays on this device only'],
 ['ดาวน์โหลดไฟล์ RSM','Download RSM file'],['ยังไม่มี RSM — กรอกชื่อ RSM แล้วอัปโหลดกลับ','No RSM yet — fill in the RSM and upload back'],
 ['ประวัติ VIN · ทุก RO ที่ค้างในไฟล์','VIN history · every pending RO in the file'],['ผลการค้นหา VIN / RO','VIN / RO search results'],['ค้นหา VIN / RO (SP, BP)…','Search VIN / RO (SP, BP)…'],['ไม่พบ VIN หรือเลข RO นี้ในไฟล์','No such VIN or RO in this file'],['แสดง 100 รายการแรก','showing the first 100'],['ดูประวัติ VIN นี้','View this VIN history'],['RO ค้างในไฟล์ · ดูประวัติ','pending ROs in this file · view history'],['ค้างนานสุด','oldest'],['ค้นหา','Search'],
@@ -2528,7 +2586,7 @@ const I18N_PAIRS = [
 ['แก้ชื่อในไฟล์ RSM ให้ตรง แล้วอัปโหลดใหม่ได้เลย','Fix the names in the RSM file and upload it again'],
 ['ใส่รหัสผ่านเพื่อเปิด Dashboard และข้อมูล Pending RO','Enter the password to open the Dashboard and Pending RO data'],
 ['ลากไฟล์ .xlsx มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์','Drop an .xlsx file here or click to choose one'],
-['รองรับ .xlsx / .xls / .csv · ระบบหาคอลัมน์ Store_Name ให้อัตโนมัติ','Supports .xlsx / .xls / .csv · finds the Store_Name column automatically'],
+['รองรับ .xlsx / .xls / .csv / .json · ระบบหาคอลัมน์ Store_Name ให้อัตโนมัติ','Supports .xlsx / .xls / .csv · finds the Store_Name column automatically'],
 ['ทุก Partner ในไฟล์ Pending มี RSM ครบทั้ง','Every Partner in the Pending file has an RSM —'],
 ['ไม่มีในไฟล์ RSM แต่กำหนดไว้ในระบบแล้ว','Not in the RSM file but set in the tool'],
 ['ชื่อ Partner ที่ไม่ตรงกับไฟล์ RSM','Partner names that do not match the RSM file'],
