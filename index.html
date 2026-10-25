@@ -230,6 +230,7 @@ tr.click:hover td{background:var(--bg)}
 
 body[data-role="ps"] .rsmonly{display:none!important}
 body[data-role="ps"] #tabs{display:none!important}
+.pubpanel{gap:8px}.pubpanel .field input{min-width:220px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);font:inherit}.pubsteps{margin:0;padding-left:18px}
 .deptlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
 .deptopt{display:flex;flex-direction:column;gap:4px;background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--dc,var(--c2));border-radius:9px;padding:9px 12px}
 .deptopt .dtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -356,9 +357,16 @@ table.rank td{vertical-align:top}
     <div class="stat"><span class="k">จำนวน PS</span><span class="v" id="sStores">0</span></div>
     <label class="field">Sheet<select id="sheetSel"></select></label>
     <label class="field">แยกตามคอลัมน์<select id="colSel"></select></label>
-    <button id="fullBtn" class="primary rsmonly" style="margin-left:auto">ดาวน์โหลด Excel ทั้งไฟล์ (กรอก RSM แล้ว)</button>
+    <button id="pubBtn" class="rsmonly" style="margin-left:auto">เผยแพร่ให้ RSM</button>
+    <button id="fullBtn" class="primary rsmonly">ดาวน์โหลด Excel ทั้งไฟล์ (กรอก RSM แล้ว)</button>
   </section>
 
+  <section class="card rsmonly pubpanel" id="pubPanel" hidden>
+    <div class="rankhead"><h3>เผยแพร่ข้อมูลให้ RSM ทุกคน</h3><span class="sub" id="pubFile"></span><div class="rankf"><button id="pubClose" class="linkbtn" type="button">✕ ปิด</button></div></div>
+    <div class="pptrow"><label class="field">ชื่อผู้เผยแพร่<input id="pubBy" list="pubNames" placeholder="เลือกหรือพิมพ์ชื่อ" autocomplete="off"></label><datalist id="pubNames"></datalist>
+      <button id="pubGo" class="primary" type="button">สร้างไฟล์ pending_data.json</button></div>
+    <ol class="sub pubsteps"><li>กดสร้างไฟล์ ระบบเข้ารหัสด้วยรหัส RSM (PS เปิดไม่ได้)</li><li>อัปโหลดไฟล์ <b>pending_data.json</b> ขึ้น GitHub repo <b>VOR-GWM</b> ที่เดียวกับ index.html (ทับไฟล์เดิม ชื่อต้องตรง)</li><li>รอ 1–2 นาที RSM ทุกคนที่เปิดเว็บจะเห็นข้อมูลชุดนี้ทันที</li></ol>
+  </section>
   <section class="card rsmpanel rsmonly" id="rsmPanel">
     <div class="rankhead"><h3>RSM ที่รับผิดชอบ</h3><span class="sub" id="rsmSrc"></span>
       <div class="rankf"><button id="rsmDl" type="button">ดาวน์โหลดไฟล์ RSM</button><label class="btn" for="rsmFile">อัปโหลดไฟล์ RSM</label><input type="file" id="rsmFile" class="vh" accept=".xlsx,.xls,.csv"><button id="rsmReset" hidden>กลับไปใช้ไฟล์ค่าเริ่มต้น</button></div></div>
@@ -831,7 +839,7 @@ const DEFAULT_RSM = {source:'RSM_and_PS_20261020.xlsx + 3 PS ที่เพิ�
 const nkey = s => String(s ?? '').toLowerCase().replace(/^\s*gwm\s+/,'').replace(/[\s_\-.,&'()\/]+/g,'');
 let rsmBook = DEFAULT_RSM;
 try { const saved = JSON.parse(localStorage.getItem('rsmBook') || 'null'); if (saved && Array.isArray(saved.list) && saved.list.length) rsmBook = saved; } catch(e){}
-let rsmIdx = null, isSample = false;
+let rsmIdx = null, isSample = false, lastFile = null, UNLOCK_PW = '';
 function rsmIndex(){ if (!rsmIdx){ rsmIdx = new Map(); for (const [code, store, region, rsm] of rsmBook.list) rsmIdx.set(nkey(store), {code, store, region, rsm}); } return rsmIdx; }
 function similar(a, b){ a = nkey(a); b = nkey(b); if (!a || !b) return 0; const grams = s => { const m = new Map(); for (let i = 0; i < s.length-1; i++){ const g = s.slice(i,i+2); m.set(g,(m.get(g)||0)+1); } return m; };
   const A = grams(a), B = grams(b); let hit = 0; for (const [g,n] of A) hit += Math.min(n, B.get(g)||0); return 2*hit / Math.max(1, a.length-1 + b.length-1); }
@@ -1126,7 +1134,7 @@ async function loadBuffer(buf, name, quiet){
   // pick the sheet that has a Store column; fall back to the first sheet
   let pick = wb.SheetNames[0];
   for (const n of wb.SheetNames){ const rows = sheetCells(wb.Sheets[n]); const h = findHeader(rows); if (h.c >= 0 && rows.length > h.r + 1){ pick = n; break; } }
-  $('sampleBanner').hidden = true; isSample = false;
+  $('sampleBanner').hidden = true; isSample = false; lastFile = {bytes: buf instanceof Uint8Array ? buf : new Uint8Array(buf), name};
   analyse(pick);
   if (!quiet) toast(`โหลด ${name} แล้ว`);
 }
@@ -2377,6 +2385,55 @@ function downloadRsmFile(){
   if (top.length) toast(`ไฟล์ RSM มี ${top.length} PS ที่ยังไม่มี RSM อยู่บนสุด — กรอกแล้วอัปโหลดกลับ`);
 }
 $('rsmDl').addEventListener('click', downloadRsmFile);
+/* ---------- shared data: an RSM publishes the current file, encrypted with the RSM password, as pending_data.json next to index.html ---------- */
+const SHARED_FILE = 'pending_data.json', SHARED_IT = 150000;
+const u8b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
+async function encryptShared(pw, obj){
+  if (!(window.crypto && crypto.subtle)) throw new Error('nocrypto');
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(16));
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations: SHARED_IT, hash:'SHA-256'}, base, {name:'AES-CBC', length:256}, false, ['encrypt']);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name:'AES-CBC', iv}, key, new TextEncoder().encode(JSON.stringify(obj))));
+  return {v:1, kind:'pending-ro-shared', s: u8b64(salt), i: u8b64(iv), it: SHARED_IT, c: u8b64(ct)};
+}
+async function decryptShared(pw, V){
+  const v = await openVaultOne(pw, V);   // same AES-CBC + PBKDF2 path (WebCrypto, CryptoJS fallback on phones)
+  return v;
+}
+async function loadShared(){
+  let V; try { const r = await fetch(SHARED_FILE + '?t=' + Date.now(), {cache:'no-store'}); if (!r.ok) return false; V = await r.json(); } catch(e){ return false; }
+  if (!V || V.kind !== 'pending-ro-shared') return false;
+  let d; try { d = await decryptShared(UNLOCK_PW, V); } catch(e){ return false; }
+  await loadBuffer(b64bytes(d.file), d.name || 'pending_data.xlsx', true);
+  const at = new Date(d.at), when = isNaN(at) ? '' : at.toLocaleDateString(isEn() ? 'en-GB' : 'th-TH', {day:'numeric', month:'short', year:'numeric'}) + ' ' + at.toLocaleTimeString(isEn() ? 'en-GB' : 'th-TH', {hour:'2-digit', minute:'2-digit'});
+  const b = $('sampleBanner'); b.className = 'banner ok'; b.hidden = false;
+  b.innerHTML = `ข้อมูลกลางของ RSM · ณ <b>${esc(when)}</b> · อัปเดตโดย <b>${esc(d.by || '–')}</b> · ไฟล์ ${esc(d.name || '')} <span class="sub">— อัปโหลดไฟล์เองได้ เห็นเฉพาะเครื่องนี้ ไม่กระทบคนอื่น</span>`;
+  return true;
+}
+function openPub(){
+  if (!lastFile){ toast('อัปโหลดไฟล์ Pending RO ก่อน แล้วค่อยเผยแพร่'); return; }
+  const names = [...new Set(rsmBook.list.map(x => x[3]).filter(Boolean))].sort();
+  $('pubNames').innerHTML = names.map(n => `<option value="${esc(n)}">`).join('');
+  try { $('pubBy').value = localStorage.getItem('roPubBy') || ''; } catch(e){}
+  $('pubFile').textContent = `ไฟล์: ${lastFile.name} · ${state ? state.recs.length.toLocaleString() + ' RO' : ''}`;
+  $('pubPanel').hidden = false; $('pubPanel').scrollIntoView({behavior:'smooth', block:'nearest'}); $('pubBy').focus();
+}
+async function doPublish(){
+  const by = $('pubBy').value.trim(); if (!by){ toast('ใส่ชื่อผู้เผยแพร่ก่อน'); $('pubBy').focus(); return; }
+  if (ROLE !== 'rsm' || !UNLOCK_PW){ toast('ต้องเข้าด้วยรหัส RSM'); return; }
+  const btn = $('pubGo'); btn.disabled = true; const label = btn.textContent; btn.textContent = 'กำลังเข้ารหัส…';
+  try {
+    try { localStorage.setItem('roPubBy', by); } catch(e){}
+    const out = await encryptShared(UNLOCK_PW, {ok:'pending-ro', by, at: new Date().toISOString(), name: lastFile.name, file: u8b64(lastFile.bytes)});
+    await saveFile(SHARED_FILE, new Blob([JSON.stringify(out)], {type:'application/json'}));
+    toast('สร้าง pending_data.json แล้ว — อัปโหลดขึ้น GitHub repo VOR-GWM');
+  } catch(e){ console.error(e); toast(e && e.message === 'nocrypto' ? 'เบราว์เซอร์นี้เข้ารหัสไม่ได้ ลองใช้ Chrome บนคอม' : 'สร้างไฟล์ไม่สำเร็จ'); }
+  finally { btn.disabled = false; btn.textContent = label; }
+}
+$('pubBtn').addEventListener('click', openPub);
+$('pubClose').addEventListener('click', () => { $('pubPanel').hidden = true; });
+$('pubGo').addEventListener('click', doPublish);
+
 $('rsmFile').addEventListener('change', e => { handleRsmFile(e.target.files[0]); e.target.value = ''; });
 $('rsmReset').addEventListener('click', () => { rsmBook = DEFAULT_RSM; rsmIdx = null; try { localStorage.removeItem('rsmBook'); } catch(e){} if (state) analyse(state.sheetName); else renderRsmPanel(); toast('กลับมาใช้ไฟล์ RSM ค่าเริ่มต้นแล้ว'); });
 
@@ -2426,14 +2483,14 @@ async function unlock(pw, remember){
   const tries = [...new Set([pw, pw.trim(), pw.trim().toLowerCase()])].filter(Boolean);
   for (const t of tries.slice(0, -1)){ try { v = await openVault(t); used = t; break; } catch(e){} }
   if (!v) try { used = tries[tries.length-1]; v = await openVault(used); } catch(e){ if (e && e.message === 'nocrypto'){ $('lockErr').textContent = 'โหลดตัวถอดรหัสไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่'; } else $('lockErr').textContent = 'รหัสผ่านไม่ถูกต้อง ลองอีกครั้ง'; return false; }
-  DEFAULT_RSM.list = v.r; rsmIdx = null; applyRole(v.role);
+  DEFAULT_RSM.list = v.r; rsmIdx = null; applyRole(v.role); UNLOCK_PW = used;
   try { if (remember) localStorage.setItem('roPw', used); else localStorage.removeItem('roPw'); sessionStorage.setItem('roPw', used); } catch(e){}
   $('lock').hidden = true;
   renderRsmPanel();
   if (typeof XLSX === 'undefined' || typeof JSZip === 'undefined'){ toast('โหลดไลบรารี Excel ไม่สำเร็จ ลองรีเฟรชหน้า'); return true; }
   // no default data: the page opens empty and waits for the user's own Pending RO file
   if (v.d) await loadBuffer(b64bytes(v.d), DEFAULT_DATA_NAME, true);
-  else { $('sampleBanner').innerHTML = 'ยังไม่มีข้อมูล — ลากไฟล์ Pending RO มาวางด้านบน หรือคลิกเพื่อเลือกไฟล์'; $('sampleBanner').hidden = false; }
+  else if (!(ROLE === 'rsm' && await loadShared())){ $('sampleBanner').innerHTML = 'ยังไม่มีข้อมูล — ลากไฟล์ Pending RO มาวางด้านบน หรือคลิกเพื่อเลือกไฟล์'; $('sampleBanner').hidden = false; }
   return true;
 }
 $('lockForm').addEventListener('submit', async e => {
@@ -2451,6 +2508,7 @@ $('lockOut').addEventListener('click', () => { try { localStorage.removeItem('ro
 })();
 /* ---------- EN / TH switch: UI text only; Remark text written by dealers is never translated ---------- */
 const I18N_PAIRS = [
+['เผยแพร่ให้ RSM','Publish to RSMs'],['เผยแพร่ข้อมูลให้ RSM ทุกคน','Publish data to all RSMs'],['ชื่อผู้เผยแพร่','Published by'],['เลือกหรือพิมพ์ชื่อ','Pick or type a name'],['สร้างไฟล์ pending_data.json','Create pending_data.json'],['ข้อมูลกลางของ RSM','Shared RSM data'],['อัปเดตโดย','updated by'],['อัปโหลดไฟล์เองได้ เห็นเฉพาะเครื่องนี้ ไม่กระทบคนอื่น','you can still upload your own file; it stays on this device only'],
 ['ดาวน์โหลดไฟล์ RSM','Download RSM file'],['ยังไม่มี RSM — กรอกชื่อ RSM แล้วอัปโหลดกลับ','No RSM yet — fill in the RSM and upload back'],
 ['ประวัติ VIN · ทุก RO ที่ค้างในไฟล์','VIN history · every pending RO in the file'],['ผลการค้นหา VIN / RO','VIN / RO search results'],['ค้นหา VIN / RO (SP, BP)…','Search VIN / RO (SP, BP)…'],['ไม่พบ VIN หรือเลข RO นี้ในไฟล์','No such VIN or RO in this file'],['แสดง 100 รายการแรก','showing the first 100'],['ดูประวัติ VIN นี้','View this VIN history'],['RO ค้างในไฟล์ · ดูประวัติ','pending ROs in this file · view history'],['ค้างนานสุด','oldest'],['ค้นหา','Search'],
 ['__unused_แต่ละฝ่ายได้รายการ SP ที่ค้างอยู่ที่ตัวเอง เรียงจากค้างนานสุด พร้อมหน้าที่ที่ต้องทำและช่องเขียนติดตาม · งานที่มีเลข JS / YS / PO / BO อยู่ในหมวด GWM เพื่อติดตามกับ GWM · ใช้ GR/BP ตามที่เลือก ไม่ใช้ตัวกรองจาก Pie','Each team gets the SPs held with it, oldest first, with its duties and a follow-up column · Items with a JS / YS / PO / BO number go under GWM, to follow up with GWM · Uses the GR/BP selection, not the Pie filters'],
