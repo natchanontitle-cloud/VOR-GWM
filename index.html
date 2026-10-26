@@ -230,6 +230,85 @@ tr.click:hover td{background:var(--bg)}
 
 body[data-role="ps"] .rsmonly{display:none!important}
 body[data-role="ps"] #tabs{display:none!important}
+.pkseg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pkseg button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);text-align:left;cursor:pointer;font:inherit}
+.pkseg button b{font-size:1.5rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.pkseg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.pkgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pkcol{border:1px solid var(--line);border-top:4px solid var(--kc);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.pkcol .pkh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer;background:none;border:none;padding:0;color:var(--fg);font:inherit;text-align:left}
+.pkcol .pkh b.n{font-size:1.8rem;line-height:1;font-variant-numeric:tabular-nums}
+.pkown{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}
+.pkown button{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:flex-start;min-width:0;white-space:normal;height:auto;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:6px 9px;text-align:left;cursor:pointer;color:var(--fg);font:inherit;font-size:.82rem;line-height:1.3}
+.pkown button .sub{font-size:.74rem}
+.pkown button b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.pkown .g{border-left:3px solid var(--c1)} .pkown .p{border-left:3px solid var(--c2)}
+.pkps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.pkps li button{display:flex;justify-content:space-between;gap:8px;width:100%;border:none;background:none;padding:4px 2px;border-bottom:1px dashed var(--line);cursor:pointer;color:var(--fg);font:inherit;font-size:.86rem;text-align:left}
+.pkps li button:hover{color:var(--accent)} .pkps .c{font-variant-numeric:tabular-nums;white-space:nowrap}
+.pkall{align-self:flex-start}
+/* sticky view + parking filter strip */
+.dsticky{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line)}
+.pkps li button .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;flex-direction:column}
+.pkps li button .nm small{font-size:.72rem;color:var(--muted)}
+.pkps li button{align-items:center}.pkps .c{flex-shrink:0}
+.pkcol{min-width:0}.pkcol .pkh > span{min-width:0}.pkcol .pkh b.n{flex-shrink:0}
+.mobonly{display:none}@media (max-width:760px){.mobonly{display:inline-block}}
+.pkmore{align-self:flex-start;border:none;background:none;color:var(--accent);font-weight:600;cursor:pointer;padding:2px 0;font:inherit}
+.pkdetail{display:flex;flex-direction:column;gap:10px}
+@media (max-width:760px){
+  .dsticky{margin:0 -16px;padding:8px 16px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+  .dsticky .seg{flex:1 1 100%}
+  .dsticky .seg button{flex:1;padding:8px 6px}
+  .dsticky .pkscope{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%}
+  .dsticky .pkscope > :not(button){display:none}
+  .dsticky .pkscope button{white-space:nowrap;padding:6px 8px;justify-content:center;min-width:0;overflow:hidden}
+  /* after a file is loaded, shrink the intro so the dashboard starts near the top */
+  body.loaded header > p{display:none}
+  body.loaded .drop{padding:10px 14px;gap:10px}
+  body.loaded .drop .ico{width:34px;height:34px}
+  body.loaded .drop .txt span{display:none}
+  body.loaded .drop .txt strong{font-size:.9rem}
+  .summary{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px;padding:12px}
+  .summary .stat .v{font-size:1.15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .summary .field{grid-column:span 3;min-width:0}.summary .field select{width:100%}
+  .summary button{grid-column:span 3;margin-left:0!important;width:100%}
+  #rsmPanel:not(.open) > :not(.rankhead){display:none}
+  #rsmPanel:not(.open) .rankhead .rankf{display:none}
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .kpi{padding:8px 9px}.kpi .k{font-size:.68rem;line-height:1.25}.kpi .v{font-size:1.1rem}
+  .pkseg button{padding:8px 10px}.pkseg button b{font-size:1.2rem}
+  .pkgrid4{grid-template-columns:minmax(0,1fr)}
+  .pkdetail .pkcol{padding:10px 12px}
+  #parkCard .rankhead .rankf{width:100%;flex-wrap:wrap}
+  /* phones: charts come right after the numbers, the long parked details after them */
+  #dash > .dbar{order:1}#dash > #dKpi{order:2}#dash > .kpinote{order:3}#dash > .grid2{order:4}#dash > #parkCard{order:5}#dash > #cancelCard{order:6}#dash > #fPanel{order:7}#dash > #remCard{order:8}#dash > #rankCard{order:9}#dash > .dsticky{order:0}
+}
+.pkscope{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pkscope button{border:1px solid var(--line);border-radius:999px;background:var(--surface);padding:4px 12px;cursor:pointer;color:var(--fg);font:inherit;font-size:.86rem}
+.pkscope button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pkscope button[aria-pressed="true"] .sub{color:inherit;opacity:.85}
+.pkseg .pct{font-size:.9rem;font-weight:600;color:var(--muted)}
+.pkdrill{border:1px solid var(--accent);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.pkdgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pkdbox{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pkdbox.wide{grid-column:1/-1}.pkdbox h4{margin:0;font-size:.95rem}
+.pkagerow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.pkagerow button{display:flex;flex-direction:column;align-items:flex-start;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:6px 9px;cursor:pointer;color:var(--fg);font:inherit;min-width:0}
+.pkagerow button b{font-size:1.2rem;font-variant-numeric:tabular-nums}
+table.pkrank{width:100%;border-collapse:collapse;font-size:.85rem}table.pkrank td{padding:4px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+table.pkrank tr.click{cursor:pointer}table.pkrank tr.click:hover td{background:var(--bg)}
+.pkdbox .pie{transform:scale(.85);transform-origin:left top}
+@media (max-width:760px){.pkdgrid{grid-template-columns:minmax(0,1fr)}.pkagerow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.pkgrid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.pkdbox .legend{display:none}.pkdbox .pie{transform:none;justify-content:center}
+.pkgrid4 .pkh{gap:10px}.pkgrid4 .pkh b:first-child{line-height:1.25}
+.pkgrid4 .pkcol{gap:6px;padding:10px 12px}
+.pkgrid4 .pkcol .pkh b.n{font-size:1.4rem}
+.pksum{background:var(--bg);border-radius:8px;padding:8px 12px;font-size:.9rem;font-variant-numeric:tabular-nums}
+.pksum .ok{color:var(--accent);font-weight:700}
+@media (max-width:760px){.pkgrid4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.pkseg{grid-template-columns:repeat(2,minmax(0,1fr))}.pkgrid{grid-template-columns:minmax(0,1fr)}}
 .pubpanel{gap:8px}.pubpanel .field input{min-width:220px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);font:inherit}.pubsteps{margin:0;padding-left:18px}
 .deptlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
 .deptopt{display:flex;flex-direction:column;gap:4px;background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--dc,var(--c2));border-radius:9px;padding:9px 12px}
@@ -261,6 +340,9 @@ body[data-role="ps"] #tabs{display:none!important}
 .pdfroot table.dtab .fu{width:120px;border-left:1px dashed #b9c4c0}
 .pdfroot table.dsum td,.pdfroot table.dsum th{padding:7px 10px}
 
+:root,.pdfroot{--k-cancel:#7c3aed}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--k-cancel:#a78bfa}}
+:root[data-theme="dark"]{--k-cancel:#a78bfa}
 :root{--c1:#2a78d6;--c2:#eb6834;--k-part:#2a78d6;--k-part0:#9ec5f4;--k-war:#eb6834;--k-war0:#f6b89c;--k-tech:#1baf7a;--k-tech0:#9fe0c6;--k-cust:#eda100;--k-repair:#6250d6;--k-other:#e87ba4;--k-none:#b9bdb9;
   --age0:#86b6ef;--age1:#6da7ec;--age2:#3987e5;--age3:#256abf;--age4:#184f95;--age5:#0d366b;--grid:#e6ebe9;--ink2:#52514e}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#3987e5;--c2:#d95926;--k-part:#3987e5;--k-part0:#1c4f8a;--k-war:#d95926;--k-war0:#7f3518;--k-tech:#199e70;--k-tech0:#0f5c42;--k-cust:#c98500;--k-repair:#9085e9;--k-other:#d55181;--k-none:#4c5452;
@@ -375,7 +457,7 @@ table.rank td{vertical-align:top}
     <ol class="sub pubsteps"><li>ไฟล์ถูกเข้ารหัสด้วยรหัส RSM ก่อนส่ง (PS เปิดไม่ได้)</li><li>หลังเผยแพร่ รอ 1–2 นาที RSM ทุกคนที่เปิดเว็บจะเห็นข้อมูลชุดนี้</li></ol>
   </section>
   <section class="card rsmpanel rsmonly" id="rsmPanel">
-    <div class="rankhead"><h3>RSM ที่รับผิดชอบ</h3><span class="sub" id="rsmSrc"></span>
+    <div class="rankhead"><h3>RSM ที่รับผิดชอบ</h3><button type="button" class="linkbtn mobonly" id="rsmFold" aria-expanded="false">แสดง ▾</button><span class="sub" id="rsmSrc"></span>
       <div class="rankf"><button id="rsmDl" type="button">ดาวน์โหลดไฟล์ RSM</button><label class="btn" for="rsmFile">อัปโหลดไฟล์ RSM</label><input type="file" id="rsmFile" class="vh" accept=".xlsx,.xls,.csv"><button id="rsmReset" hidden>กลับไปใช้ไฟล์ค่าเริ่มต้น</button></div></div>
     <div class="banner" id="rsmWarn" hidden></div>
     <div class="rsmgrid" id="rsmGrid"></div>
@@ -387,12 +469,15 @@ table.rank td{vertical-align:top}
   </nav>
 
   <section id="dash" hidden class="dash">
-    <div class="dbar">
+    <div class="dsticky" id="dSticky">
       <div class="seg" id="dView" role="group" aria-label="มุมมอง">
         <button data-v="overview" aria-pressed="true" class="rsmonly">Overview</button>
         <button data-v="rsm" aria-pressed="false" class="rsmonly">ราย RSM</button>
         <button data-v="store" aria-pressed="false">ราย Partner</button>
       </div>
+      <div class="pkscope" id="dParkScope" role="group" aria-label="สถานะรถ"></div>
+    </div>
+    <div class="dbar">
       <label class="field rsmonly" id="dRsmWrap" hidden>RSM<select id="dRsm"></select></label>
       <label class="field" id="dStoreWrap" hidden>Partner<select id="dStore"></select></label>
       <div class="types" id="dTypes" role="group" aria-label="ประเภทงาน"><span class="sub">ประเภทงาน</span>
@@ -429,6 +514,25 @@ table.rank td{vertical-align:top}
         <button id="batchRsm">เฉพาะ RSM นี้ (ZIP ราย PS)</button></div>
     </div>
     <div class="kpis" id="dKpi"></div>
+    <div class="card" id="parkCard">
+      <div class="rankhead"><h3>จอด / ไม่จอด · ติดที่ Tech / Warranty / Spare part</h3><span class="sub">กดสถานะรถเพื่อกรองทั้ง Dashboard · คลิกตัวเลขเพื่อดูราย PS และรายเคส</span>
+        <div class="rankf"><button id="pkToggle" type="button">สรุป % ราย ฝ่าย / สาเหตุ</button><button id="pkXlsx" type="button">Excel จอด / ไม่จอด</button><button id="pkPptx" type="button">PPTX รายเคส</button></div></div>
+      <div class="pkseg" id="pkSeg" role="group" aria-label="จอด / ไม่จอด"></div>
+      <div class="pksum" id="pkSegSum"></div>
+      <button type="button" class="pkmore" id="pkMore" aria-expanded="true"></button>
+      <div class="pkdrill" id="pkDrill" hidden></div>
+      <div class="pkdetail" id="pkDetail">
+      <div class="pkgrid" id="pkGrid"></div>
+      <div class="pkgrid4" id="pkGrid2"></div>
+      <div class="pksum" id="pkOther"></div>
+      </div>
+    </div>
+    <div class="card" id="cancelCard" hidden>
+      <div class="rankhead"><h3>แนะนำให้ PS Cancel Job · SVM ดำเนินการ</h3><span class="sub" id="cancelCount"></span></div>
+      <p class="sub" style="margin:0">Remark เขียนว่า ยกเลิก Job / ยกเลิกจ๊อบ / ไม่มีอะไหล่ในคลัง หรือ Repair Status เป็นยกเลิก (Void / Reverse settlement) · ปิด Job ในระบบแล้วเปิดใหม่เมื่อพร้อม งานค้างและอายุงานจะตรงกับความจริง</p>
+      <div class="tablebox flat"><table class="rank cards"><thead><tr><th class="num">#</th><th>SP / VIN</th><th>PS</th><th class="num">วันค้าง</th><th>เหตุผล</th></tr></thead><tbody id="cancelBody"></tbody></table></div>
+      <button id="cancelMore" type="button" hidden style="align-self:center"></button>
+    </div>
     <div class="grid2">
       <div class="card wide"><h3 id="dBar1T">RO ค้างแยกตาม RSM</h3><div id="dBar1" class="chart"></div></div>
       <div class="card"><h3>ติดที่อะไร</h3><div id="dCause"></div></div>
@@ -646,10 +750,26 @@ function normDate(d, mo, y){
   y = +y; if (y < 100) y = y >= 60 ? y + 2500 - 543 : 2000 + y; else if (y > 2400) y -= 543;
   return String(d).padStart(2,'0') + '/' + String(mo).padStart(2,'0') + '/' + y;
 }
+// dates in any common form: 1/1/2026 · 1-1-26 · 1.1.2569 · 1/1/69 · 1 Jan 2026 · 1 January 26 · 1 ม.ค. 69 · 1 มกราคม 2569 (ค.ศ. or พ.ศ.)
+const MONTHS = [['jan','january','ม.ค','มกรา','มกราคม'],['feb','february','ก.พ','กุมภา','กุมภาพันธ์'],['mar','march','มี.ค','มีนา','มีนาคม'],['apr','april','เม.ย','เมษา','เมษายน'],
+  ['may','may','พ.ค','พฤษภา','พฤษภาคม'],['jun','june','มิ.ย','มิถุนา','มิถุนายน'],['jul','july','ก.ค','กรกฎา','กรกฎาคม'],['aug','august','ส.ค','สิงหา','สิงหาคม'],
+  ['sep','september','ก.ย','กันยา','กันยายน','sept'],['oct','october','ต.ค','ตุลา','ตุลาคม'],['nov','november','พ.ย','พฤศจิกา','พฤศจิกายน'],['dec','december','ธ.ค','ธันวา','ธันวาคม']];
+const MON_IDX = new Map(MONTHS.flatMap((names, i) => names.map(n => [n.toLowerCase().replace(/\./g, ''), i + 1])));
+const MON_RE = MONTHS.flat().sort((a, b) => b.length - a.length).map(n => n.replace(/\./g, '\\.?')).join('|');
+const DATE_RE = new RegExp(`(\\d{1,2})\\s*[./-]\\s*(\\d{1,2})(?:\\s*[./-]\\s*(\\d{2,4}))?|(\\d{1,2})\\s*(${MON_RE})\\.?\\s*,?\\s*(\\d{2,4})?`, 'gi');
+function datesIn(t){ const out = []; DATE_RE.lastIndex = 0; let m;
+  while ((m = DATE_RE.exec(t || ''))){ const v = m[1] ? normDate(m[1], m[2], m[3]) : normDate(m[4], MON_IDX.get(m[5].toLowerCase().replace(/\./g, '')), m[6]); if (v) out.push(v); }
+  return out; }
 function etaOf(text){
-  // takes the last date written after "ETA" (dealers often update it, e.g. "ETA 22.09.2026 --> 24.09.2026")
-  let last = ''; const re = /ETA[^0-9\n]{0,6}(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?(?:\s*-*>\s*(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?)?/gi; let m;
-  while ((m = re.exec(text))) last = m[4] ? normDate(m[4], m[5], m[6] ?? m[3]) : normDate(m[1], m[2], m[3]);
+  // the last date written after "ETA" (dealers update it, e.g. "ETA 22.09.2026 --> 24.09.2026")
+  let last = ''; const re = /ETA\b\s*[:：-]?([^\n]{0,48})/gi; let m;
+  while ((m = re.exec(text || ''))){ const d = datesIn(m[1]); if (d.length) last = d[d.length - 1]; }
+  return last;
+}
+function delivOf(text){
+  // the estimated delivery date the dealer wrote (วันประมาณการที่จะส่งมอบ / คาดว่าจะเสร็จ / กำหนดส่งมอบ …)
+  const re = /(?:ประมาณการ(?:ที่จะ|การ)?\s*ส่งมอบ|คาดการณ์\s*ส่งมอบ|คาดว่า(?:จะ)?\s*(?:เสร็จ|ส่งมอบ)(?:\s*ส่งมอบ)?|กำหนด\s*ส่งมอบ|นัด\s*ส่งมอบ|วัน\s*(?:ที่\s*)?ส่งมอบ|ส่งมอบ\s*(?:รถ)?\s*(?:ได้)?\s*วันที่)\s*[:：]?\s*([\s\S]{0,34})/g;
+  let last = '', m; while ((m = re.exec(text || ''))){ const d = datesIn(m[1]); if (d.length) last = d[0]; }
   return last;
 }
 function parkOf(text){
@@ -660,7 +780,7 @@ function parkOf(text){
 }
 function extrasOf(text){
   text = text || '';
-  return {tech: codes(text,'JS'), war: codes(text,'YS'), part: codes(text,'PO|BO'), eta: etaOf(text), park: parkOf(text)};
+  return {tech: codes(text,'JS'), war: codes(text,'YS'), part: codes(text,'PO|BO'), eta: etaOf(text), deliv: delivOf(text), park: parkOf(text)};
 }
 
 /* ---------- writing ---------- */
@@ -958,6 +1078,14 @@ async function handleRsmFile(f){
 /* ---------- standard output file: always the full 18-column layout with every dropdown,
    whatever columns the uploaded file has ---------- */
 const STD_TEMPLATE_B64 = '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';
+const CAT_XL = {none:'ไม่กรอกข้อมูล (ไม่มี Remark)', tech:'ติดเทคนิค (JS)', tech0:'รอเทคนิค · ยังไม่มี JS', war:'ติด Warranty (YS)', war0:'รออนุมัติ · ยังไม่มี YS',
+  part:'ติด Spare part (PO/BO)', part0:'รออะไหล่ · ยังไม่มี PO/BO', cust:'รอลูกค้า / CR', repair:'กำลังซ่อม / เปลี่ยนอะไหล่', cancel:'แนะนำ Cancel Job (SVM)', other:'อื่นๆ (มี Remark)'};
+// dropdown lists in the standard file (Sheet2): reason (col B) and pending status (col D, copy in G)
+const DD_REASON = ['PS Investigation','Require Technical Support','Parts order process','On Process of Repairing','Warranty Approval','Waiting customer appointment','Waiting collect claim data.','Partner internal Problem','อื่น','ยกเลิก Job'];
+const DD_STATUS = ['Delivery Completed','Customers use','On Repairing','รอ Tech','รอ Warranty','รออะไหล่'];
+// filled only when the dealer left the cell empty, from what the system read in the remark / status
+const REASON_OF = {tech:'Require Technical Support', tech0:'Require Technical Support', war:'Warranty Approval', war0:'Warranty Approval', part:'Parts order process', part0:'Parts order process', cust:'Waiting customer appointment', repair:'On Process of Repairing', other:'อื่น', cancel:'ยกเลิก Job'};
+const PSTATUS_OF = {tech:'รอ Tech', tech0:'รอ Tech', war:'รอ Warranty', war0:'รอ Warranty', part:'รออะไหล่', part0:'รออะไหล่', repair:'On Repairing'};
 const STD_COLS = [['Pending day','num',1],['Repair_Order'],['VIN_Code'],['Basic_Model'],['Repair_Status'],['Remark'],['Create on','date',2],['Store_Name'],
   ['RSM',null,0,'rsm'],['ประเภทงาน',null,0,'jobtype'],['สถานะรถ',null,0,'park'],['สาเหตุงานค้าง'],['สถานะงานค้าง'],['Date of Delivery Completed','date',2],
   ['Tech (JS)',null,0,'tech'],['Warranty (YS)',null,0,'war'],['Part (PO/BO)',null,0,'part'],['ETA',null,0,'eta']];
@@ -966,7 +1094,7 @@ async function loadStd(){ if (!stdTpl) stdTpl = await prepareTemplate(Uint8Array
 const isDateFmt = z => !!z && /[dmy]/i.test(z) && !/general/i.test(z);
 function srcCell(ref, c, def){
   if (!c || c.v === undefined || c.v === null || c.v === '') return '';
-  if (c.t === 'n') return `<c r="${ref}"${(def[1] === 'date' || isDateFmt(c.z)) ? ' s="2"' : def[2] ? ` s="${def[2]}"` : ''}><v>${c.v}</v></c>`;
+  if (c.t === 'n') return `<c r="${ref}"${def[1] === 'num' ? (def[2] ? ` s="${def[2]}"` : '') : (def[1] === 'date' || isDateFmt(c.z)) ? ' s="2"' : def[2] ? ` s="${def[2]}"` : ''}><v>${c.v}</v></c>`;
   if (c.t === 'b') return `<c r="${ref}" t="b"><v>${c.v ? 1 : 0}</v></c>`;
   if (c.t === 'e') return '';
   if (def[1] === 'date'){ const m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ]\d{2}:\d{2}(?::\d{2})?)?/.exec(String(c.v).trim());
@@ -987,12 +1115,15 @@ async function buildStandard(groups){
   const sp = splitSheet(T.get(path)), HR = 3;
   const src = STD_COLS.map(d => state.hdr.findIndex(h => norm(h) === norm(d[0])));
   const extras = state.hdr.map((h,i) => i).filter(i => !src.includes(i) && !/^Column \d+$/.test(state.hdr[i]));
-  const lastCol = STD_COLS.length - 1 + extras.length, L = colLetter(lastCol);
+  const recOf = new Map((state.recs || []).map(x => [x.row, x]));
+  const CALC = [['ติดที่ (Category)', x => CAT_XL[x.cause] || ''], ['ค้างที่ (GWM / PS)', x => x.ownGrp ? x.ownGrp + ' · ' + (OWNER_TH[x.ownDept] || x.ownDept) : '']];
+  const nX = extras.length + CALC.length;
+  const lastCol = STD_COLS.length - 1 + nX, L = colLetter(lastCol);
   const keyed = {tech:'tech', war:'war', part:'part', eta:'eta', park:'park'};
   let header = sp.rows.find(r => +attr(r.slice(0, r.indexOf('>')+1), 'r') === HR);
   const used = new Set(STD_COLS.map(d => d[0].toLowerCase()));
-  const extraNames = extras.map(i => { let n = state.hdr[i], k = 2; while (used.has(n.toLowerCase())) n = state.hdr[i] + ' (' + (k++) + ')'; used.add(n.toLowerCase()); return n; });
-  if (extras.length) header = withCells(header, HR, extraNames.map((n, j) => ({col: STD_COLS.length + j, text: n, style: '4'})), lastCol);
+  const extraNames = extras.map(i => { let n = state.hdr[i], k = 2; while (used.has(n.toLowerCase())) n = state.hdr[i] + ' (' + (k++) + ')'; used.add(n.toLowerCase()); return n; }).concat(CALC.map(c => c[0]));
+  if (nX) header = withCells(header, HR, extraNames.map((n, j) => ({col: STD_COLS.length + j, text: n, style: '4'})), lastCol);
   const out = [header]; let n = 0;
   for (const g of groups) for (const r of g.rows){
     const rn = HR + (++n), ex = r.extra || {};
@@ -1002,27 +1133,32 @@ async function buildStandard(groups){
       if (fill === 'jobtype'){ const ro = src[1] >= 0 ? txt(r[src[1]]) : ''; const v = (c && c.t !== 'e' && txt(c)) || (/^BP/i.test(ro) ? 'BP' : /^SP/i.test(ro) ? 'GR' : ''); if (v) cells += inlineCell(ref, null, v); }
       else if (fill === 'rsm'){ const v = state.rsmMap.get(g.name) || (c && c.t !== 'e' ? txt(c) : ''); if (v) cells += inlineCell(ref, null, v); }
       else if (fill){ const v = (c && c.t !== 'e' && txt(c)) || ex[keyed[fill]] || ''; if (v) cells += inlineCell(ref, null, v); }
+      else if ((d[0] === 'สาเหตุงานค้าง' || d[0] === 'สถานะงานค้าง') && !(c && c.t !== 'e' && txt(c))){ const x = recOf.get(r); if (x){
+          const v = d[0] === 'สาเหตุงานค้าง' ? REASON_OF[x.cause] : PSTATUS_OF[x.cause];
+          if (v) cells += inlineCell(ref, null, v); } }
       else cells += srcCell(ref, c, d);
     });
     extras.forEach((i, j) => { cells += srcCell(colLetter(STD_COLS.length + j) + rn, r[i], []); });
+    { const x = recOf.get(r); if (x) CALC.forEach((c, j) => { const v = c[1](x); if (v) cells += inlineCell(colLetter(STD_COLS.length + extras.length + j) + rn, null, v); }); }
     out.push(`<row r="${rn}" spans="1:${lastCol+1}">${cells}</row>`);
   }
   const lastRow = HR + Math.max(n, 1);
   let prefix = sp.prefix.replace(/<dimension ref="[^"]*"/, `<dimension ref="A${HR}:${L}${lastRow}"`);
-  if (extras.length) prefix = prefix.replace('</cols>', extras.map((i,j) => `<col min="${STD_COLS.length+j+1}" max="${STD_COLS.length+j+1}" width="18" customWidth="1"/>`).join('') + '</cols>');
+  if (nX) prefix = prefix.replace('</cols>', extraNames.map((nm,j) => `<col min="${STD_COLS.length+j+1}" max="${STD_COLS.length+j+1}" width="18" customWidth="1"/>`).join('') + '</cols>');
   const rsmNames = [...new Set(rsmBook.list.map(x => x[3]))].sort();
   const suffix = sp.suffix.replace(/(<xm:sqref>)([^<]*)/g, (m, p, v) => p + clampRefs(v, HR, lastRow))
                           .replace(/(sqref=")([^"]*)"/g, (m, p, v) => p + clampRefs(v, HR, lastRow) + '"')
-                          .replace(/Sheet2!\$E\$2:\$E\$\d+/, `Sheet2!$E$2:$E$${1 + Math.max(rsmNames.length, 1)}`);
+                          .replace(/Sheet2!\$E\$2:\$E\$\d+/, `Sheet2!$E$2:$E$${1 + Math.max(rsmNames.length, 1)}`)
+                          .replace(/Sheet2!\$B\$2:\$B\$\d+/, `Sheet2!$B$2:$B$${1 + DD_REASON.length}`).replace(/Sheet2!\$D\$2:\$D\$\d+/, `Sheet2!$D$2:$D$${1 + DD_STATUS.length}`);
   const xmlOut = {};
   xmlOut[path] = prefix + out.join('') + suffix;
   const tpath = 'xl/tables/table1.xml';
   xmlOut[tpath] = T.get(tpath).replace(/(<(?:table|autoFilter)\b[^>]*\sref=")([^"]*)"/g, (m, p) => `${p}A${HR}:${L}${lastRow}"`)
-    .replace(/<tableColumns count="(\d+)">([\s\S]*?)<\/tableColumns>/, (m, c, inner) => !extras.length ? m :
-      `<tableColumns count="${+c + extras.length}">${inner}${extraNames.map((nm, j) => `<tableColumn id="${+c + j + 1}" name="${xmlEsc(nm)}"/>`).join('')}</tableColumns>`);
+    .replace(/<tableColumns count="(\d+)">([\s\S]*?)<\/tableColumns>/, (m, c, inner) => !nX ? m :
+      `<tableColumns count="${+c + nX}">${inner}${extraNames.map((nm, j) => `<tableColumn id="${+c + j + 1}" name="${xmlEsc(nm)}"/>`).join('')}</tableColumns>`);
   // dropdown list of RSM names (Sheet2 column E) and the Store → Region → RSM reference (Sheet4)
   const s2 = T.sheets['Sheet2'], s4 = T.sheets['Sheet4'];
-  if (s2){ let x = T.get(s2); x = setColumn(x, 0, ['GR','BP'], 2, 6); x = setColumn(x, 4, rsmNames.concat(Array(Math.max(0, 4 - rsmNames.length)).fill('')), 2, 6); xmlOut[s2] = x; }
+  if (s2){ let x = T.get(s2); x = setColumn(x, 0, ['GR','BP'], 2, 6); x = setColumn(x, 1, DD_REASON, 2, 6); x = setColumn(x, 3, DD_STATUS, 2, 6); x = setColumn(x, 6, DD_STATUS, 2, 6); x = setColumn(x, 4, rsmNames.concat(Array(Math.max(0, 4 - rsmNames.length)).fill('')), 2, 6); xmlOut[s2] = x; }
   if (s4){ let x = T.get(s4); const L4 = rsmBook.list;
     x = setColumn(x, 0, L4.map(e => e[1]), 2, 2); x = setColumn(x, 1, L4.map(e => e[2]), 2, 2); x = setColumn(x, 2, L4.map(e => e[3]), 2, 2);
     xmlOut[s4] = x.replace(/<dimension ref="[^"]*"/, `<dimension ref="A1:C${L4.length + 1}"`); }
@@ -1082,6 +1218,7 @@ function visible(){
 }
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function render(){
+  document.body.classList.add('loaded');
   $('summary').hidden = false; $('tabs').hidden = false; $('gSearch').hidden = false; renderRsmPanel();
   state.recs = buildRecords();
   state.vinN = new Map(); for (const r of state.recs) if (r.vin) state.vinN.set(r.vin, (state.vinN.get(r.vin) || 0) + 1);
@@ -1183,16 +1320,17 @@ const CAUSES = [
   {k:'part',   label:'Spare Part (PO/BO)'},
   {k:'part0',  label:'รออะไหล่ · ยังไม่มี PO/BO'},
   {k:'cust',   label:'ลูกค้า / CR'},
-  {k:'repair', label:'กำลังซ่อม'},
+  {k:'repair', label:'กำลังซ่อม / เปลี่ยนอะไหล่'},
+  {k:'cancel', label:'แนะนำ Cancel Job'},
   {k:'other',  label:'อื่นๆ (มี Remark)'},
   {k:'none',   label:'ไม่มี Remark'}
 ];
 const PART_KEYS = ['part','part0'];
 const CAUSE_FROM_DROPDOWN = {'parts order process':'part0','warranty approval':'war0','waiting collect claim data.':'war0','waiting collect claim data':'war0',
   'require technical support':'tech0','ps investigation':'tech0','waiting customer appointment':'cust','on process of repairing':'repair','partner internal problem':'other'};
-const AGE_BUCKETS = [[0,7,'0–7'],[8,15,'8–15'],[16,30,'16–30'],[31,60,'31–60'],[61,90,'61–90'],[91,Infinity,'90+']];
+const AGE_BUCKETS = [[0,7,'≤7'],[8,15,'8–15'],[16,21,'16–21'],[22,30,'22–30'],[31,Infinity,'>30']];
 const PARK_LABEL = {'Parking':'จอด (Parking)', 'Not Parking':'ไม่จอด (Not Parking)', 'none':'ไม่ระบุ'};
-let dash = {view:'overview', rsm:'', store:'', showAll:false, q:'', fCause:'', fPark:'', fAge:'', fOwner:'', fStatus:'', fEta:'', types:{GR:true, BP:false}};
+let dash = {view:'overview', rsm:'', store:'', showAll:false, q:'', fCause:'', fPark:'', fAge:'', fOwner:'', fStatus:'', fEta:'', fStage:'', fStore:'', pk:'Parking', parkScope:'', types:{GR:true, BP:false}};
 
 function colByName(re){ return state.hdr.findIndex(h => re.test(norm(h))); }
 function detailOf(rem){
@@ -1203,18 +1341,43 @@ function detailOf(rem){
 }
 // Pipeline Tech (JS) → Warranty (YS) → Spare Part (PO/BO): one SP shows only its current stage = the furthest code found.
 // Codes in the Remark win; the dealer's dropdown is used when there is no code; keywords come last.
-function causeOf(rem, ex, dd, etaLate){
-  const arrived = /อะไหล่\s*(?:เข้า|มา|ถึง|ครบ|พร้อม)(?:\s*แล้ว)?|ได้รับอะไหล่/.test(rem);
+// parts arrived: being fitted at the PS = in repair; waiting for the customer to bring the car = customer / CR
+const FIT_KW = /รอ\s*เปลี่ยน|เปลี่ยนอะไหล่|กำลังเปลี่ยน|รอ\s*ติดตั้ง|ติดตั้ง|รอ\s*ช่าง|เข้า\s*ซ่อม|รอ\s*ซ่อม|กำลังซ่อม|ดำเนินการ(?:เปลี่ยน|ซ่อม)|รอ\s*ประกอบ|ประกอบ/;
+const CUST_WAIT = /รอ\s*ลูกค้า|นัด\s*ลูกค้า|ลูกค้า\s*(?:นำ|เอา)?\s*รถ\s*(?:เข้า|มา)|ติดต่อลูกค้า|แจ้งลูกค้า|ลูกค้า\s*ยัง\s*ไม่|ลูกค้าไม่สะดวก|นัดหมาย|\bCR\b/i;
+function afterArrival(rem, park){
+  if (CUST_WAIT.test(rem) && !/ลูกค้า\s*(?:นำ|เอา)?\s*รถ\s*(?:เข้า|มา)\s*แล้ว/.test(rem)) return FIT_KW.test(rem) && park === 'Parking' ? 'repair' : 'cust';
+  if (FIT_KW.test(rem)) return 'repair';
+  return park === 'Parking' ? 'repair' : 'cust';
+}
+// cancel candidates: the PS should close the job (SVM) — written in the remark, or Repair_Status already Void / Reverse settlement
+const CANCEL_KW = /ยกเลิก\s*(?:job|จ๊อบ|จ็อบ|จ๊อป|จอบ|งาน|ใบงาน|ro)\b|ยกเลิก\s*(?:job|จ๊อบ|จ็อบ|งาน)|cancel\s*(?:job|ro)|ไม่มีอะไหล่\s*(?:ใน|ที่)?\s*(?:คลัง|สต็อก|สต๊อก|สต๊อค|stock)/i;
+// the job is being worked on right now (not just "the customer reported …")
+const ACTIVE_FIX = /กำลัง\s*(?:ซ่อม|เปลี่ยน|ดำเนินการซ่อม|ประกอบ|ติดตั้ง|รื้อ|เคาะ|พ่นสี|ทำสี)|ช่าง\s*กำลัง|อยู่\s*ระหว่าง\s*(?:การ)?\s*(?:ซ่อม|เปลี่ยน|ประกอบ)|ระหว่าง\s*ซ่อม|นำรถเข้าซ่อม|รถเข้าซ่อมแล้ว/;
+const CUST_NOFIX = /ลูกค้า\s*(?:ไม่\s*(?:ซ่อม|ประสงค์(?:จะ)?ซ่อม|ต้องการ(?:จะ)?ซ่อม|สะดวก)|ปฏิเสธ|ขอ\s*(?:ยกเลิก|รับรถคืน))/;
+const WAIT_PARTS = /รอ\s*(?:สั่ง\s*)?อะไหล่|อะไหล่ติด|back\s*order|b\/o|สั่งอะไหล่|รอตัดอะไหล่/i;
+const isBO = ex => /\bBO-/.test(ex.part || '');
+function causeOf(rem, ex, dd, etaLate, park, status){
+  park = park || ex.park || '';
+  const st = stNorm(status || '');
+  if (st === 'Void' || st === 'Reverse settlement' || CANCEL_KW.test(rem)) return 'cancel';
+  // "parts arrived" — but not "waiting for parts to arrive" (รออะไหล่เข้ามา…) or "parts not in yet"
+  const arrived = /อะไหล่\s*(?:เข้า|มา|ถึง|ครบ|พร้อม)(?:\s*แล้ว)?|ได้รับอะไหล่/.test(rem.replace(/รอ\s*(?:ตัว)?อะไหล่\s*(?:เข้า|มา|ถึง)\S*/g, '').replace(/อะไหล่\s*(?:ยัง)?\s*(?:ไม่|ยังไม่)\s*(?:เข้า|มา|ถึง|ครบ)\S*/g, ''));
   const custKw = /ลูกค้า|นัดหมาย|นัด\s|\bCR\b/i.test(rem);
-  if (ex.part) return (arrived || (etaLate && custKw)) ? 'cust' : 'part';
-  if (ex.war) return 'war';
-  if (ex.tech) return 'tech';
+  // a PO / BO number: waiting for parts until they arrive; then fitting (repair) or waiting for the customer
+  if (ex.part) return arrived ? afterArrival(rem, park) : (etaLate && custKw && !ACTIVE_FIX.test(rem)) ? 'cust' : 'part';
+  // YS / JS raised and the PS is already repairing → the job is back with the PS
+  if (ex.war) return ACTIVE_FIX.test(rem) && !WAIT_PARTS.test(rem) ? 'repair' : 'war';
+  if (ex.tech) return ACTIVE_FIX.test(rem) && !WAIT_PARTS.test(rem) ? 'repair' : 'tech';
   const fromDd = dd && CAUSE_FROM_DROPDOWN[dd.trim().toLowerCase()];
   if (fromDd) return fromDd;
   if (!rem.trim()) return 'none';
-  if (/รอ\s*อะไหล่|อะไหล่ติด|back\s*order|b\/o|สั่งอะไหล่|รอตัดอะไหล่/i.test(rem)) return arrived ? 'cust' : 'part0';
-  if (/เคลม|warrant|waranty|รับประกัน|รออนุมัติ/i.test(rem)) return 'war0';
-  if (/เทคนิค|technical/i.test(rem)) return 'tech0';
+  // waiting for parts beats "in repair" (the missing part is what holds the job) — unless the parts have arrived
+  if (WAIT_PARTS.test(rem)) return arrived ? afterArrival(rem, park) : 'part0';
+  if (/เคลม|warrant|waranty|รับประกัน|รออนุมัติ/i.test(rem)) return ACTIVE_FIX.test(rem) ? 'repair' : 'war0';
+  if (/เทคนิค|technical/i.test(rem) && !ACTIVE_FIX.test(rem)) return 'tech0';
+  if (CUST_NOFIX.test(rem)) return 'cust';
+  if (ACTIVE_FIX.test(rem)) return 'repair';
+  if (arrived) return afterArrival(rem, park);
   if (custKw) return 'cust';
   if (/ซ่อม|พ่นสี|เคาะ|รื้อ|ขัดสี|ประกอบ|ดำเนินการ|ตรวจเช็ค|ตรวจสอบ/.test(rem)) return 'repair';
   return 'other';
@@ -1226,10 +1389,16 @@ const STATUS_OWNER = {'reserved':'SA','unconfirmed':'SA','to be dispatched':'For
 const OWNER_DEPTS = {GWM:['Tech','Warranty','Spare part','Customer'], PS:['SVM','CR','SA','Tech','Foreman','Warranty','Spare part','Cashier','Customer','ไม่ระบุ','N/A']};
 const OWNER_TH = {'Tech':'Tech', 'Warranty':'Warranty', 'Spare part':'Spare part', 'Customer':'Customer', 'SVM':'SVM', 'CR':'CR', 'SA':'SA', 'Foreman':'Foreman', 'Cashier':'Cashier', 'ไม่ระบุ':'ไม่ระบุ', 'N/A':'N/A'};
 function ownerOf(rem, ex, status, cause){
-  if (ex.part || ex.war || ex.tech){
-    const d = cause === 'cust' ? 'Customer' : ex.part ? 'Spare part' : ex.war ? 'Warranty' : 'Tech';
-    return ['GWM', d];
-  }
+  if (cause === 'cancel') return ['PS', 'SVM'];
+  // in repair: YS raised → the PS follows the warranty approval; otherwise the PS technicians
+  if (cause === 'repair') return ['PS', ex.war ? 'Warranty' : 'Tech'];
+  if (cause === 'cust' && (ex.part || ex.war || ex.tech)) return [ex.part && !isBO(ex) && !ex.war && !ex.tech ? 'PS' : 'GWM', 'Customer'];
+  // BO = back order at GWM; a PO only = the PS ordered and follows it up; YS → GWM Warranty; JS → GWM Technical
+  if (ex.part) return isBO(ex) ? ['GWM', 'Spare part'] : ['PS', 'Spare part'];
+  if (ex.war) return ['GWM', 'Warranty'];
+  if (ex.tech) return ['GWM', 'Tech'];
+  if (cause === 'cust') return ['PS', /\bCR\b|ร้องเรียน|complain/i.test(rem) ? 'CR' : 'Customer'];
+  if (cause === 'part0') return ['PS', 'Spare part'];
   if (/\bSVM\b|service\s*manager|ผู้จัดการ\s*(?:ศูนย์|บริการ|ฝ่ายบริการ)|good\s*will/i.test(rem)) return ['PS','SVM'];
   if (/\bCR\b|ร้องเรียน|complain/i.test(rem)) return ['PS','CR'];
   if (/รอ\s*อะไหล่|อะไหล่ติด|back\s*order|b\/o|สั่งอะไหล่|รอตัดอะไหล่/i.test(rem) && !/อะไหล่\s*(?:เข้า|มา|ถึง|ครบ|พร้อม)/.test(rem)) return ['PS','Spare part'];
@@ -1261,20 +1430,23 @@ function buildRecords(){
     const etaD = parseDMY(ex.eta);
     const sp = c.sp>=0 ? txt(r[c.sp]) : '', etaLate = !!(etaD && etaD < today);
     recs.push({store:g.name, rsm:[...g.rsm][0] || 'ไม่ระบุ RSM', age, sp, jt: /^BP/i.test(sp) ? 'BP' : 'GR', model: c.model>=0 ? txt(r[c.model]) : '',
-      status: c.status>=0 ? stNorm(txt(r[c.status])) : '', park, cause: causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate), detail: detailOf(rem), ...(() => { const st = c.status>=0 ? txt(r[c.status]) : ''; const [g2, d2] = ownerOf(rem, ex, st, causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate)); return {ownGrp:g2, ownDept:d2, ownKey:g2 + ':' + d2}; })(),
-      tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', etaLate: !!(etaD && etaD < today), remark: rem, vin: c.vin>=0 ? txt(r[c.vin]) : '', row: r, idx: recs.length});
+      status: c.status>=0 ? stNorm(txt(r[c.status])) : '', park, cause: causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate, park, c.status>=0 ? txt(r[c.status]) : ''), detail: detailOf(rem), ...(() => { const st = c.status>=0 ? txt(r[c.status]) : ''; const [g2, d2] = ownerOf(rem, ex, st, causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate, park, st)); return {ownGrp:g2, ownDept:d2, ownKey:g2 + ':' + d2}; })(),
+      tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', deliv: ex.deliv||'', etaLate: !!(etaD && etaD < today), remark: rem, vin: c.vin>=0 ? txt(r[c.vin]) : '', row: r, idx: recs.length});
   }
   return recs;
 }
-function baseRecs(){ return state.recs.filter(r => dash.types[r.jt]); }
+function baseRecs(){ return state.recs.filter(r => dash.types[r.jt] && (!dash.parkScope || parkKey(r) === dash.parkScope)); }
+// the same scope without the parking choice (for the parked / not parked counts themselves)
+function scopeAllPark(){ const k = dash.parkScope; dash.parkScope = ''; try { return scopeRecs(); } finally { dash.parkScope = k; } }
+const PK_NAME = k => ({'Parking': T2('จอด','Parked'), 'Not Parking': T2('ไม่จอด','Not parked'), 'none': T2('ไม่ระบุ','Unspecified')})[k] || T2('ทั้งหมด','All');
 const parkKey = r => r.park || 'none';
 const vinCount = recs => new Set(recs.map(r => r.vin).filter(Boolean)).size;
 const vinTag = r => { const n = r.vin && state.vinN ? state.vinN.get(r.vin) : 0; return n > 1 ? ` <span class="pill warn vinrep" title="รถคันนี้มี ${n} RO ค้าง">${n} RO</span>` : ''; };
-const anyFilter = () => !!(dash.fCause || dash.fPark || dash.fAge || dash.fOwner || dash.fStatus || dash.fEta);
+const anyFilter = () => !!(dash.fCause || dash.fPark || dash.fAge || dash.fOwner || dash.fStatus || dash.fEta || dash.fStage || dash.fStore);
 const ageIn = (r, f) => { if (!f) return true; const [a,b] = f.split('-').map(x => x === '' ? Infinity : +x); return r.age != null && r.age >= a && r.age <= b; };
 const etaIn = (r, f) => !f || (f === 'parked' ? r.park === 'Parking' : PART_KEYS.includes(r.cause) && (f === 'noeta' ? !r.eta : f === 'late' ? r.etaLate : true));
 const ownerIn = (r, f) => !f || (f.includes(':') ? r.ownKey === f : r.ownGrp === f);
-function filtered(recs){ return recs.filter(r => (!dash.fCause || r.cause === dash.fCause) && (!dash.fPark || parkKey(r) === dash.fPark) && ageIn(r, dash.fAge) && ownerIn(r, dash.fOwner) && (!dash.fStatus || (r.status || 'ไม่ระบุ') === dash.fStatus) && etaIn(r, dash.fEta)); }
+function filtered(recs){ return recs.filter(r => (!dash.fCause || r.cause === dash.fCause) && (!dash.fPark || parkKey(r) === dash.fPark) && ageIn(r, dash.fAge) && ownerIn(r, dash.fOwner) && (!dash.fStatus || (r.status || 'ไม่ระบุ') === dash.fStatus) && etaIn(r, dash.fEta) && (!dash.fStage || r.cause === dash.fStage || r.cause === dash.fStage + '0') && (!dash.fStore || r.store === dash.fStore)); }
 function scopeRecs(){
   const all = baseRecs();
   if (dash.view === 'rsm' && dash.rsm) return all.filter(r => r.rsm === dash.rsm);
@@ -1368,7 +1540,10 @@ function renderDash(){
   $('batchWrap').hidden = dash.view !== 'store'; $('deptBtn').hidden = dash.view !== 'store' || !dash.store; if (dash.view !== 'store') $('deptPanel').hidden = true; else if (!$('deptPanel').hidden) renderDeptPanel(); $('batchRsm').textContent = `เฉพาะ RSM ${dash.rsm || ''} (ZIP ราย PS)`;
   const recs = scopeRecs();
   const scopeName = dash.view === 'overview' ? 'ทุก Partner' : dash.view === 'rsm' ? 'RSM ' + dash.rsm : dash.store;
-  $('dScope').textContent = scopeName;
+  $('dScope').textContent = scopeName + (dash.parkScope ? ' · ' + T2('รถ','') + PK_NAME(dash.parkScope) : '');
+  { const all = scopeAllPark(), n = all.length;
+    $('dParkScope').innerHTML = `<span class="sub">${T2('สถานะรถ','Parking')}</span>` + ['', 'Parking', 'Not Parking', 'none'].map(k => { const c = k ? all.filter(r => parkKey(r) === k).length : n;
+      return `<button type="button" data-ps="${k}" aria-pressed="${dash.parkScope === k}">${PK_NAME(k)} <b>${c.toLocaleString()}</b>${k ? ` <span class="sub">${n ? Math.round(c / n * 100) : 0}%</span>` : ''}</button>`; }).join(''); }
 
   // KPIs
   const ages = recs.map(r => r.age).filter(v => v != null);
@@ -1377,10 +1552,11 @@ function renderDash(){
   const band = (a,b) => recs.filter(r => r.age != null && r.age >= a && r.age <= b).length;
   const k = [
     ['RO ค้างทั้งหมด', recs.length.toLocaleString(), 'total', '0-'],
-    ['0–7 วัน', band(0,7).toLocaleString(), '', '0-7'],
-    ['8–30 วัน', band(8,30).toLocaleString(), '', '8-30'],
-    ['31–90 วัน', band(31,90).toLocaleString(), 'warn', '31-90'],
-    ['เกิน 90 วัน', band(91,Infinity).toLocaleString(), 'crit', '91-'],
+    ['≤7 วัน', band(0,7).toLocaleString(), '', '0-7'],
+    ['8–15 วัน', band(8,15).toLocaleString(), '', '8-15'],
+    ['16–21 วัน', band(16,21).toLocaleString(), '', '16-21'],
+    ['22–30 วัน', band(22,30).toLocaleString(), 'warn', '22-30'],
+    ['เกิน 30 วัน', band(31,Infinity).toLocaleString(), 'crit', '31-'],
     ['ค้างเฉลี่ย', Math.round(avg) + ' วัน', ''],
     ['จำนวนรถ (VIN ไม่ซ้ำ)', vinCount(recs).toLocaleString(), ''],
     ['รถจอดอยู่ที่ศูนย์', recs.filter(r => r.park === 'Parking').length.toLocaleString(), '', null, 'parked'],
@@ -1389,7 +1565,7 @@ function renderDash(){
   $('dKpi').innerHTML = k.map(([l,v,c,f,e]) => f ? `<button class="kpi click ${c}${dash.fAge === f ? ' on' : ''}" data-age="${f}"><span class="k">${l} ▸</span><span class="v">${v}</span></button>`
     : e ? `<div class="kpi click ${c}${dash.fEta === e ? ' on' : ''}" role="button" tabindex="0" data-eta="${e}"><span class="k">${l} ▸</span><span class="v">${v}</span></div>`
     : `<div class="kpi ${c}"><span class="k">${l}</span><span class="v">${v}</span></div>`).join('')
-    + `<div class="kpinote sub">0–7 + 8–30 + 31–90 + เกิน 90 = ${recs.length.toLocaleString()} RO (ไม่นับซ้ำ)</div>`;
+    + `<div class="kpinote sub">${sumLine(AGE_BUCKETS.map(([a, b, l]) => [l + ' ' + T2('วัน','days'), band(a, b)]).concat(recs.some(r => r.age == null) ? [[T2('ไม่มีวันค้าง','no pending day'), recs.filter(r => r.age == null).length]] : []), recs.length)}</div>`;
   const all = state.recs.filter(r => dash.view === 'overview' || (dash.view === 'rsm' ? r.rsm === dash.rsm : r.store === dash.store));
   $('nGR').textContent = all.filter(r => r.jt === 'GR').length.toLocaleString(); $('nBP').textContent = all.filter(r => r.jt === 'BP').length.toLocaleString();
   document.querySelectorAll('#dTypes input').forEach(i => i.checked = !!dash.types[i.dataset.t]);
@@ -1428,8 +1604,8 @@ function renderDash(){
   vbar($('dAge'), ageItems, {sortId:'age', defaultSort:'natural', title:'อายุงานค้าง', onClick: it => { dash.fAge = dash.fAge === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); }});
   // who holds the job: GWM vs PS (pie) and by department (vertical bars)
   pie($('dOwnGrp'), [
-    {key:'GWM', label:'GWM (มีเลข JS / YS / PO / BO)', value: recs.filter(r => r.ownGrp === 'GWM').length, color:'var(--c1)'},
-    {key:'PS',  label:'PS (ยังไม่มีเลข)', value: recs.filter(r => r.ownGrp === 'PS').length, color:'var(--c2)'}], 'ค้างที่ GWM / PS',
+    {key:'GWM', label:'GWM (JS / YS / BO)', value: recs.filter(r => r.ownGrp === 'GWM').length, color:'var(--c1)'},
+    {key:'PS',  label:'PS (รวม PO, ยังไม่มีเลข, กำลังซ่อม)', value: recs.filter(r => r.ownGrp === 'PS').length, color:'var(--c2)'}], 'ค้างที่ GWM / PS',
     key => { dash.fOwner = dash.fOwner === key ? '' : key; dash.showAll = false; renderDash(); revealFilter(); }, dash.fOwner.includes(':') ? '' : dash.fOwner);
   const ownItems = [];
   for (const g of ['GWM','PS']) for (const d of OWNER_DEPTS[g]){ const n = recs.filter(r => r.ownKey === g + ':' + d).length; if (n) ownItems.push({key: g + ':' + d, label: g + ' · ' + OWNER_TH[d], value: n, color: g === 'GWM' ? 'var(--c1)' : 'var(--c2)'}); }
@@ -1447,6 +1623,7 @@ function renderDash(){
   const causeAvg = CAUSES.map(c => { const a = recs.filter(r => r.cause === c.k && r.age != null).map(r => r.age); return {key:c.k, label:c.label, value: a.length ? Math.round(a.reduce((x,y)=>x+y,0)/a.length) : 0, color: causeColor(c.k), note: a.length + ' RO'}; });
   vbar($('dCauseAge'), causeAvg, {sortId:'causeAge', defaultSort:'natural', title:'ค้างเฉลี่ย (วัน) ตามสาเหตุ', rotate:true, height:250, onClick: it => { dash.fCause = dash.fCause === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); }});
 
+  renderPark();
   renderFilter();
   renderRemark();
   renderRank();
@@ -1457,7 +1634,7 @@ function revealFilter(){
   if (isDesk()) { $('fPanel').scrollTop = 0; $('fClose').focus({preventScroll:true}); }
   else $('fPanel').scrollIntoView({behavior:'smooth', block:'start'});
 }
-function closeFilter(){ dash.fCause = ''; dash.fPark = ''; dash.fAge = ''; dash.fOwner = ''; dash.fStatus = ''; dash.fEta = ''; renderDash(); }
+function closeFilter(){ dash.fCause = ''; dash.fPark = ''; dash.fAge = ''; dash.fOwner = ''; dash.fStatus = ''; dash.fEta = ''; dash.fStage = ''; dash.fStore = ''; renderDash(); }
 function parkPill(r){ return r.park === 'Parking' ? '<span class="pill">จอด</span>' : r.park === 'Not Parking' ? '<span class="pill muted">ไม่จอด</span>' : '<span class="pill warn">ไม่ระบุ</span>'; }
 function renderFilter(){
   const on = anyFilter();
@@ -1471,6 +1648,8 @@ function renderFilter(){
     + (dash.fAge ? `<button class="fchip" data-f="age">${dash.fAge === '0-' ? 'RO ค้างทั้งหมด' : 'วันค้าง: ' + esc(dash.fAge.endsWith('-') ? 'เกิน ' + (+dash.fAge.slice(0,-1) - 1) : dash.fAge.replace('-', '–')) + ' วัน'} ✕</button>` : '')
     + (dash.fStatus ? `<button class="fchip" data-f="status">Repair Status: ${esc(stLabel(dash.fStatus))} ✕</button>` : '')
     + (dash.fEta ? `<button class="fchip" data-f="eta">${({noeta:'รออะไหล่ · ไม่มี ETA', late:'รออะไหล่ · เลย ETA', parts:'รออะไหล่ทั้งหมด', parked:'รถจอดอยู่ที่ศูนย์'})[dash.fEta]} ✕</button>` : '')
+    + (dash.fStage ? `<button class="fchip" data-f="stage">ติดที่: ${esc(STAGE[dash.fStage].th)} (ทั้ง GWM และ PS) ✕</button>` : '')
+    + (dash.fStore ? `<button class="fchip" data-f="store">PS: ${esc(dash.fStore.replace(/^GWM\s+/, ''))} ✕</button>` : '')
     + (dash.fOwner ? `<button class="fchip" data-f="owner">ค้างที่: ${esc(dash.fOwner.includes(':') ? dash.fOwner.replace(':', ' · ') : dash.fOwner)} ✕</button>` : '');
   $('dCauseF').value = dash.fCause; $('dParkF').value = dash.fPark;
   if (!on) return;
@@ -1481,7 +1660,7 @@ function renderFilter(){
   for (const r of hit){ const g = m.get(r.store); g.hit++; if (r.vin) g.vins.add(r.vin); if (r.age != null) g.oldest = Math.max(g.oldest ?? 0, r.age); }
   const rows = [...m.values()].filter(g => g.hit).sort((a,b) => b.hit - a.hit || b.hit/b.n - a.hit/a.n);
   $('fSumTitle').textContent = `สรุปราย PS · ${rows.length} ศูนย์`;
-  $('fSumBody').innerHTML = rows.map((g,i) => `<tr><td class="num" data-l="อันดับ">${i+1}</td><td data-l="PS"><b>${esc(g.store.replace(/^GWM\s+/,''))}</b></td><td data-l="RSM">${esc(g.rsm)}</td>
+  $('fSumBody').innerHTML = rows.map((g,i) => `<tr class="click${dash.fStore === g.store ? ' hl' : ''}" data-ps="${esc(g.store)}" title="คลิกเพื่อดูรายเคสของ PS นี้"><td class="num" data-l="อันดับ">${i+1}</td><td data-l="PS"><b>${esc(g.store.replace(/^GWM\s+/,''))}</b></td><td data-l="RSM">${esc(g.rsm)}</td>
     <td class="num" data-l="SP ในกลุ่มนี้"><b>${g.hit}</b></td><td class="num" data-l="VIN">${g.vins.size}</td><td class="num" data-l="RO ค้างทั้งศูนย์">${g.n}</td><td class="num" data-l="%">${Math.round(g.hit/g.n*100)}%</td><td class="num" data-l="ค้างนานสุด">${g.oldest != null ? g.oldest + ' วัน' : '–'}</td></tr>`).join('')
     || `<tr><td colspan="8" class="empty">ไม่พบรายการ</td></tr>`;
   const list = hit.slice().sort((a,b) => (b.age ?? -1) - (a.age ?? -1));
@@ -1559,7 +1738,7 @@ function initDash(){
   $('dParkF').addEventListener('change', e => { dash.fPark = e.target.value; dash.showAll = false; renderDash(); });
   $('dKpi').addEventListener('click', e => { const t = e.target.closest('[data-eta]'); if (t){ dash.fEta = dash.fEta === t.dataset.eta ? '' : t.dataset.eta; dash.showAll = false; renderDash(); revealFilter(); return; }
     const b = e.target.closest('[data-age]'); if (!b) return; dash.fAge = dash.fAge === b.dataset.age ? '' : b.dataset.age; dash.showAll = false; renderDash(); revealFilter(); });
-  $('fChips').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; ({cause:() => dash.fCause = '', park:() => dash.fPark = '', age:() => dash.fAge = '', owner:() => dash.fOwner = '', status:() => dash.fStatus = '', eta:() => dash.fEta = ''})[b.dataset.f](); renderDash(); });
+  $('fChips').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; ({cause:() => dash.fCause = '', park:() => dash.fPark = '', age:() => dash.fAge = '', owner:() => dash.fOwner = '', status:() => dash.fStatus = '', eta:() => dash.fEta = '', stage:() => dash.fStage = '', store:() => dash.fStore = ''})[b.dataset.f](); renderDash(); });
   $('fClose').addEventListener('click', closeFilter);
   $('fBackdrop').addEventListener('click', closeFilter);
   $('fPdf').addEventListener('click', () => exportPdf());
@@ -1605,7 +1784,7 @@ async function renderPdfBlob(opt = {}){
     const pdf = new jsPDF({unit:'mm', format:'a4', orientation:'portrait', compress:true});
     const M = 10, PW = 210 - 2*M; let y = M;
     const bg = getComputedStyle(root).backgroundColor;
-    const blocks = [root.querySelector('.pdfhead'), dashEl.querySelector('.kpis'), dashEl.querySelector('.grid2'), $('fPanel'), $('remCard'), $('rankCard')];
+    const blocks = [root.querySelector('.pdfhead'), dashEl.querySelector('.kpis'), $('parkCard'), $('cancelCard'), dashEl.querySelector('.grid2'), $('fPanel'), $('remCard'), $('rankCard')];
     const place = async (el, light) => {
       const sc = light ? Math.min(scale, 1.15) : scale, q = light ? Math.min(quality, 0.62) : quality;
       const canvas = await html2canvas(el, {scale: sc, backgroundColor: bg, useCORS:true, logging:false});
@@ -1672,7 +1851,7 @@ async function batchPdf(mode){
   document.querySelectorAll('#batchWrap button, #pdfBtn').forEach(b => b.disabled = true);
   const zip = new JSZip(); let done = 0;
   try{
-    dash.fCause = ''; dash.fPark = ''; dash.fAge = ''; dash.fOwner = ''; dash.fStatus = ''; dash.fEta = ''; dash.view = 'store'; dash.showAll = false;
+    dash.fCause = ''; dash.fPark = ''; dash.fAge = ''; dash.fOwner = ''; dash.fStatus = ''; dash.fEta = ''; dash.fStage = ''; dash.fStore = ''; dash.view = 'store'; dash.showAll = false;
     for (const s of stores){
       if (batchCancel) break;
       $('batchTxt').textContent = `กำลังสร้าง PDF ${done + 1} / ${stores.length} · ${s.name.replace(/^GWM\s+/,'')}`;
@@ -1709,6 +1888,7 @@ function openSp(i){
   $('spGrid').innerHTML = [
     f('Partner (PS)', esc(r.store)), f('RSM', esc(r.rsm)), f('รุ่นรถ', esc(r.model)), f('Repair Status', esc(stLabel(r.status))),
     f('Tech (JS)', esc(r.tech)), f('Warranty (YS)', esc(r.war)), f('Part (PO/BO)', esc(r.part)),
+    f('วันคาดว่าส่งมอบ', esc(r.deliv || '')),
     f('ETA', r.eta ? esc(r.eta) + (r.etaLate ? ' <span class="late">(เลย ETA)</span>' : '') : (PART_KEYS.includes(r.cause) ? '<span class="late">ไม่มี ETA</span>' : ''))
   ].join('');
   $('spRemark').textContent = r.remark.trim() || '';
@@ -1775,7 +1955,7 @@ $('spBack').addEventListener('click', closeSp);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('spDlg').hidden){ e.stopImmediatePropagation(); closeSp(); } }, true);
 
 /* ---------- Weekly executive report (PowerPoint, English) ---------- */
-const CAUSE_EN = {tech:'Tech (JS)', tech0:'Waiting tech (no JS)', war:'Warranty (YS)', war0:'Waiting approval (no YS)', part:'Spare part (PO/BO)', part0:'Waiting parts (no PO/BO)', cust:'Customer / CR', repair:'In repair', other:'Other (has remark)', none:'No remark'};
+const CAUSE_EN = {cancel:'Suggest cancel job (SVM)', tech:'Tech (JS)', tech0:'Waiting tech (no JS)', war:'Warranty (YS)', war0:'Waiting approval (no YS)', part:'Spare part (PO/BO)', part0:'Waiting parts (no PO/BO)', cust:'Customer / CR', repair:'In repair / fitting parts', other:'Other (has remark)', none:'No remark'};
 const enOwn = d => d === 'ไม่ระบุ' ? 'Unspecified' : d;
 const enRsm = r => r === 'ไม่ระบุ RSM' ? 'No RSM' : r;
 const fmtN = n => Number(n || 0).toLocaleString('en-US');
@@ -1804,9 +1984,9 @@ function psRanking(recs){
   return out.sort((x, y) => y.score - x.score || y.n - x.n);
 }
 function metricsOf(recs){
-  const m = {total: recs.length, b0:0, b1:0, b2:0, b3:0, sum:0, n:0, gwm:0, noRem:0, parts:0, noEta:0, late:0, byRsm:{}, byStore:{}, byCause:{}, byOwn:{}, sps: new Set()};
+  const m = {total: recs.length, b0:0, b1:0, b2:0, b3:0, b4:0, sum:0, n:0, gwm:0, noRem:0, parts:0, noEta:0, late:0, byRsm:{}, byStore:{}, byCause:{}, byOwn:{}, sps: new Set()};
   for (const r of recs){
-    if (r.age != null){ m.sum += r.age; m.n++; if (r.age <= 7) m.b0++; else if (r.age <= 30) m.b1++; else if (r.age <= 90) m.b2++; else m.b3++; }
+    if (r.age != null){ m.sum += r.age; m.n++; if (r.age <= 7) m.b0++; else if (r.age <= 15) m.b1++; else if (r.age <= 21) m.b2++; else if (r.age <= 30) m.b3++; else m.b4++; }
     if (r.ownGrp === 'GWM') m.gwm++;
     if (!r.remark.trim()) m.noRem++;
     if (PART_KEYS.includes(r.cause)){ m.parts++; if (!r.eta) m.noEta++; if (r.etaLate) m.late++; }
@@ -1832,7 +2012,7 @@ function recsFromBook(book){
       const av = cAge >= 0 && r[cAge] ? Number(r[cAge].v) : NaN;
       const b = rsmIndex().get(nkey(store));
       const etaD = parseDMY(ex.eta), today0 = new Date(); today0.setHours(0,0,0,0); const late = !!(etaD && etaD < today0);
-      const cause = causeOf(rem, ex, '', late), own = ownerOf(rem, ex, st, cause);
+      const cause = causeOf(rem, ex, '', late, '', st), own = ownerOf(rem, ex, st, cause);
       out.push({store, sp, rsm: (b && b.rsm) || EXTRA_RSM[store] || 'ไม่ระบุ RSM', age: Number.isFinite(av) ? av : null, jt: /^BP/i.test(sp) ? 'BP' : 'GR',
         remark: rem, cause, ownGrp: own[0], ownKey: own[0] + ':' + own[1], eta: ex.eta, etaLate: late});
     }
@@ -1848,6 +2028,8 @@ function scopeKey(){ return [dash.view, dash.view === 'rsm' ? dash.rsm : dash.vi
 function loadSnaps(){ try { return JSON.parse(localStorage.getItem('roSnaps') || '{}'); } catch(e){ return {}; } }
 function saveSnap(key, snap){ try { const all = loadSnaps(); (all[key] = all[key] || {})[snap.week] = snap; localStorage.setItem('roSnaps', JSON.stringify(all)); } catch(e){} }
 
+// pptxgenjs only compresses when it writes the file itself; re-zip its output so big decks stay small
+async function pptxBlob(pres){ const raw = await pres.write('blob'); try { const z = await JSZip.loadAsync(raw); return await z.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}, mimeType:'application/vnd.openxmlformats-officedocument.presentationml.presentation'}); } catch(e){ return raw; } }
 function loadScript(src){ return new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); }); }
 async function ensurePptx(){
   if (window.PptxGenJS) return true;
@@ -1941,7 +2123,7 @@ async function exportPptx(){
     if (pptMode === 'compare' && pptPrev){ const pr = scopeFilter(pptPrev.recs); P = metricsOf(pr); prevLabel = 'last week (' + pptPrev.name + ')';
       closed = [...P.sps].filter(s => !M.sps.has(s)).length; added = [...M.sps].filter(s => !P.sps.has(s)).length; }
 
-    const snapNow = {week:`${wy}-W${String(wk).padStart(2,'0')}`, date: now.toISOString().slice(0,10), total:M.total, b0:M.b0, b1:M.b1, b2:M.b2, b3:M.b3, avg:M.avg, gwm:M.gwm, noRem:M.noRem, parts:M.parts, noEta:M.noEta, late:M.late, byRsm:M.byRsm, byStore:M.byStore, byCause:M.byCause};
+    const snapNow = {week:`${wy}-W${String(wk).padStart(2,'0')}`, date: now.toISOString().slice(0,10), total:M.total, b0:M.b0, b1:M.b1, b2:M.b2, b3:M.b3, b4:M.b4, avg:M.avg, gwm:M.gwm, noRem:M.noRem, parts:M.parts, noEta:M.noEta, late:M.late, byRsm:M.byRsm, byStore:M.byStore, byCause:M.byCause};
     const shortPrev = 'LW';
     // change vs last week: count and % (or percentage points for metrics that are already a %)
     const delta = (cur, prev, goodDown = true, unit) => { if (prev == null || !P) return null; const d = Math.round((cur - prev) * 10) / 10;
@@ -1952,7 +2134,7 @@ async function exportPptx(){
       const sh = unit === 'pts' ? `${a} ${pc}` : `${a} ${fmtN(Math.abs(d))} (${pc})`;
       return {t, s: sh, c: (up === goodDown) ? 'B42318' : '0F6B5C'}; };
 
-    const scopeTxt = dash.view === 'overview' ? 'All Partners' : dash.view === 'rsm' ? 'RSM ' + enRsm(dash.rsm) : dash.store + ' (RSM ' + enRsm(dash.rsm) + ')';
+    const scopeTxt = (dash.view === 'overview' ? 'All Partners' : dash.view === 'rsm' ? 'RSM ' + enRsm(dash.rsm) : dash.store + ' (RSM ' + enRsm(dash.rsm) + ')') + (dash.parkScope ? ' · ' + ({'Parking':'Parked','Not Parking':'Not parked','none':'Parking unspecified'})[dash.parkScope] + ' only' : '');
     const jobTxt = ['GR','BP'].filter(t => dash.types[t]).map(t => t === 'GR' ? 'General Repair' : 'Body & Paint').join(' + ');
     const dateTxt = now.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
 
@@ -1998,35 +2180,35 @@ async function exportPptx(){
       s.addNotes(`Weekly pending RO status for ${scopeTxt} (${jobTxt}), week ${wk}.`); }
 
     // 2. Executive summary
-    { const s = content('Executive summary', `${fmtN(M.total)} ROs pending · ${fmtN(M.b3)} over 90 days`);
+    { const s = content('Executive summary', `${fmtN(M.total)} ROs pending · ${fmtN(M.b4)} over 30 days`);
       const w = 2.05, g = 0.25;
       card(s, 0.5, 1.3, w, 1.35, fmtN(M.total), 'Total pending ROs', P ? delta(M.total, P.total) : null);
-      card(s, 0.5 + (w+g), 1.3, w, 1.35, fmtN(M.b3), 'Pending over 90 days', P ? delta(M.b3, P.b3) : null, RED);
+      card(s, 0.5 + (w+g), 1.3, w, 1.35, fmtN(M.b4), 'Pending over 30 days', P ? delta(M.b4, P.b4) : null, RED);
       card(s, 0.5 + 2*(w+g), 1.3, w, 1.35, Math.round(M.avg) + ' days', 'Average pending age', P ? delta(Math.round(M.avg), Math.round(P.avg)) : null);
       card(s, 0.5 + 3*(w+g), 1.3, w, 1.35, pct(M.noRem, M.total) + '%', 'ROs without remark', P ? delta(pct(M.noRem, M.total), pct(P.noRem, P.total), true, 'pts') : null, AMBER);
       const pts = [];
-      if (P){ const dT = M.total - P.total, dO = M.b3 - P.b3; pts.push(`Backlog ${dT <= 0 ? 'down' : 'up'} ${P.total ? Math.abs(dT / P.total * 100).toFixed(1) : 0}% vs last week (${dT > 0 ? '+' : dT < 0 ? '−' : ''}${fmtN(Math.abs(dT))} ROs); over-90-day ROs ${dO <= 0 ? 'down' : 'up'} ${P.b3 ? Math.abs(dO / P.b3 * 100).toFixed(1) : 0}% (${fmtN(P.b3)} → ${fmtN(M.b3)}).`); }
+      if (P){ const dT = M.total - P.total, dO = M.b4 - P.b4; pts.push(`Backlog ${dT <= 0 ? 'down' : 'up'} ${P.total ? Math.abs(dT / P.total * 100).toFixed(1) : 0}% vs last week (${dT > 0 ? '+' : dT < 0 ? '−' : ''}${fmtN(Math.abs(dT))} ROs); over-30-day ROs ${dO <= 0 ? 'down' : 'up'} ${P.b4 ? Math.abs(dO / P.b4 * 100).toFixed(1) : 0}% (${fmtN(P.b4)} → ${fmtN(M.b4)}).`); }
       if (closed != null) pts.push(`Since last week: ${fmtN(closed)} ROs closed and ${fmtN(added)} new ROs opened (net ${M.total - P.total >= 0 ? '+' : ''}${fmtN(M.total - P.total)}).`);
       if (loads.length && dash.view !== 'store') pts.push(`Largest backlog: ${dash.view === 'overview' ? 'RSM ' + enRsm(loads[0][0]) : short(loads[0][0], 40)} with ${fmtN(loads[0][1])} ROs (${pct(loads[0][1], M.total)}%).`);
       const tc = topCause.find(([k]) => k !== 'none');
       if (tc) pts.push(`Most common blocker: ${CAUSE_EN[tc[0]]} — ${fmtN(tc[1])} ROs (${pct(tc[1], M.total)}%).`);
       { const v = vinCount(recs); pts.unshift(`${fmtN(M.total)} pending ROs on ${fmtN(v)} vehicles (unique VIN)` + (M.total > v ? ` — ${fmtN(M.total - v)} ROs are repeat jobs on the same vehicle.` : '.')); }
-      pts.push(`${pct(M.total - M.gwm, M.total)}% of pending ROs sit with the PS; ${pct(M.gwm, M.total)}% are with GWM (JS / YS / PO / BO raised).`);
+      pts.push(`${pct(M.total - M.gwm, M.total)}% of pending ROs sit with the PS; ${pct(M.gwm, M.total)}% are with GWM (JS / YS raised, or parts on back order).`);
       if (M.parts) pts.push(`${fmtN(M.parts)} ROs are waiting for parts: ${fmtN(M.noEta)} have no ETA and ${fmtN(M.late)} are past ETA.`);
       s.addText('Key points', {x:0.5, y:2.9, w:9, h:0.3, fontSize:14, bold:true, color:NAVY, fontFace:FONT, margin:0, isTextBox:true});
       s.addText(pts.map((t, i) => ({text:t, options:{bullet:true, breakLine: i < pts.length - 1}})), {x:0.5, y:3.22, w:9, h:1.9, fontSize:13, color:INK, fontFace:FONT, paraSpaceAfter:4, valign:'top', margin:0, isTextBox:true});
       s.addNotes(pts.join('\n')); }
 
     // 3. Aging
-    { const s = content('Aging profile', `${pct(M.b2 + M.b3, M.total)}% of the backlog is older than 30 days`);
-      const labels = ['0–7 days','8–30 days','31–90 days','Over 90 days'], vals = [M.b0, M.b1, M.b2, M.b3];
-      addBar(s, 'Pending ROs', labels, vals, barOpts({x:0.4, y:1.2, w:5.6, h:3.85, chartColors:[NAVY]}));
-      const prevV = P ? [P.b0, P.b1, P.b2, P.b3] : null;
+    { const s = content('Aging profile', `${pct(M.b4, M.total)}% of the backlog is older than 30 days`);
+      const labels = ['≤7 days','8–15 days','16–21 days','22–30 days','Over 30 days'], vals = [M.b0, M.b1, M.b2, M.b3, M.b4];
+      s.addChart(pres.charts.BAR, [{name:'Pending ROs', labels, values: vals}], barOpts({x:0.4, y:1.2, w:5.6, h:3.85, chartColors:[NAVY]}));   // age bands keep their natural order
+      const prevV = P ? [P.b0, P.b1, P.b2, P.b3, P.b4] : null;
       const rows = [['Age band','ROs','Share', P ? 'vs ' + shortPrev : 'Change']].concat(labels.map((l, i) => { const d = prevV ? delta(vals[i], prevV[i]) : null;
         return [l, fmtN(vals[i]), pct(vals[i], M.total) + '%', d ? {text:d.s, options:{color:d.c, bold:true}} : '–']; }));
       rows.push([{text:'Total', options:{bold:true}}, {text:fmtN(M.total), options:{bold:true}}, '100%', P ? {text:delta(M.total, P.total).s, options:{bold:true, color:delta(M.total, P.total).c}} : '–']);
       const [t, o] = tbl(rows, {x:6.15, y:1.35, w:3.35, colW:[1.05, 0.55, 0.6, 1.15]}); s.addTable(t, o);
-      s.addText('Bands do not overlap: 0–7 + 8–30 + 31–90 + over 90 = total.', {x:6.25, y:3.85, w:3.25, h:0.5, fontSize:10, color:MUTED, italic:true, fontFace:FONT, margin:0, isTextBox:true});
+      s.addText(`Bands do not overlap: ${vals.map(fmtN).join(' + ')} = ${fmtN(vals.reduce((a, b) => a + b, 0))}` + (vals.reduce((a, b) => a + b, 0) === M.total ? ' ✓' : ` (${fmtN(M.total - vals.reduce((a, b) => a + b, 0))} without a pending day)`), {x:6.25, y:3.85, w:3.25, h:0.5, fontSize:10, color:MUTED, italic:true, fontFace:FONT, margin:0, isTextBox:true});
       s.addNotes(labels.map((l, i) => `${l}: ${vals[i]}`).join('; ')); }
 
     // 4. Load: by RSM / by Partner / by Repair Status
@@ -2047,7 +2229,7 @@ async function exportPptx(){
       s.addNotes(top.map(([k, v]) => `${k}: ${v}`).join('; ')); }
 
     // 5. Stuck at (pipeline)
-    { const order = ['tech','tech0','war','war0','part','part0','cust','repair','other','none'];
+    { const order = ['tech','tech0','war','war0','part','part0','cust','repair','cancel','other','none'];
       const s = content('Where it is stuck', `Top blocker: ${tc0()}`);
       function tc0(){ const t = topCause.find(([k]) => k !== 'none'); return t ? `${CAUSE_EN[t[0]]} (${fmtN(t[1])} ROs)` : 'n/a'; }
       addBar(s, 'ROs', order.map(k => CAUSE_EN[k]), order.map(k => M.byCause[k] || 0),
@@ -2058,7 +2240,7 @@ async function exportPptx(){
 
     // 6. Ownership: GWM vs PS, then each side ranked by department (bars high → low + pie), then one detail slide per department
     { const s = content('Ownership', `${pct(M.total - M.gwm, M.total)}% of pending ROs are held at the PS · ${pct(M.gwm, M.total)}% at GWM`);
-      s.addChart(pres.charts.PIE, [{name:'GWM vs PS', labels:['GWM (JS/YS/PO/BO raised)','PS (no number yet)'], values:[M.gwm, M.total - M.gwm]}],
+      s.addChart(pres.charts.PIE, [{name:'GWM vs PS', labels:['GWM (JS / YS / BO)','PS (PO, no number, in repair)'], values:[M.gwm, M.total - M.gwm]}],
         {x:0.4, y:1.2, w:3.7, h:3.85, chartColors:[BLUE, ORANGE], showPercent:true, showValue:false, showLegend:true, legendPos:'b', legendFontSize:10, legendFontFace:FONT, legendColor:INK,
          dataLabelColor:'FFFFFF', dataLabelFontSize:12, dataLabelFontFace:FONT, dataLabelFontBold:true});
       const rows = [['Held at','Department','ROs','Share', P ? 'vs ' + shortPrev : '>90 d']];
@@ -2084,7 +2266,7 @@ async function exportPptx(){
           x.sub.length ? fmtN(Math.max(...x.sub.map(r => r.age || 0))) : '–', d ? {text:d.s, options:{color:d.c, bold:true}} : '']); });
       const cw = P ? [0.3, 1.0, 0.45, 0.45, 0.4, 0.4, 0.4, 0.45, 0.85] : [0.3, 1.1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.6], rws = P ? rows : rows.map(r => r.slice(0, -1));
       const [t, o] = tbl(rws, {x:5.0, y:1.25, w:4.5, colW: cw.map(w => w * 4.5 / cw.reduce((p, q) => p + q, 0)), rowH:0.3}); t.forEach((row, ri) => row.forEach(c => { if (ri) c.options.fontSize = 9.5; })); s.addTable(t, o);
-      s.addText(side === 'GWM' ? 'GWM = a JS / YS / PO / BO number exists. Tech = GWM Technical (JS) · Warranty = YS approval · Spare part = PO/BO + ETA · CRM = parts arrived, waiting for the customer.'
+      s.addText(side === 'GWM' ? 'GWM = JS / YS raised or parts on back order (BO). Tech = GWM Technical (JS) · Warranty = YS approval · Spare part = BO + ETA · CRM = parts arrived, waiting for the customer.'
         : 'PS = no GWM number yet. Department from the remark, else from Repair status. SVM includes unassigned ROs · SA includes Cashier · Tech includes Foreman · CR = customer follow-up.',
         {x:5.0, y:4.45, w:4.5, h:0.65, fontSize:9, color:MUTED, fontFace:FONT, margin:0, isTextBox:true, valign:'top'});
       s.addNotes(rank.map(x => `${x.g.k}: ${x.sub.length}`).join('; '));
@@ -2159,7 +2341,7 @@ async function exportPptx(){
       s.addText('Without a remark the stage and owner can only be read from the Repair Status, so these ROs are the least visible in this report.', {x:0.5, y:4.75, w:9, h:0.35, fontSize:10, color:MUTED, italic:true, fontFace:FONT, margin:0, isTextBox:true});
       s.addNotes(top.map(([k, v]) => `${k}: ${v.e}/${v.n}`).join('; ')); }
 
-    const blob = pptFmt === 'pdf' ? await slidesToPdf(pres) : await pres.write({outputType:'blob'});
+    const blob = pptFmt === 'pdf' ? await slidesToPdf(pres) : await pptxBlob(pres);
     const tag = dash.view === 'overview' ? 'Overall' : dash.view === 'rsm' ? 'RSM_' + dash.rsm : 'PS_' + dash.store.replace(/^GWM\s+/, '');
     await saveFile(safeFile(`Pending_RO_Weekly_${tag}_W${wk}_${wy}${P ? '_vs_LW' : ''}`) + (pptFmt === 'pdf' ? '.pdf' : '.pptx'), blob);
     $('pptPanel').hidden = true;
@@ -2207,7 +2389,7 @@ const DEPT_EN = [
  ['RO ค้างทั้งหมด','Total pending ROs'],['ค้างที่ GWM','At GWM'],['ค้างที่ PS','At PS'],['RO ค้าง','Pending ROs'],['ค้างเฉลี่ย','Average age'],['ไม่มี Remark','No remark'],
  ['เกิน 30 วัน','Over 30 days'],['เกิน 90 วัน','Over 90 days'],['เลย ETA','Past ETA'],['ไม่มี ETA','No ETA'],['ไฟล์:','File:'],['ประเภทงาน:','Job type:'],
  ['GWM แผนก','GWM department'],['วันค้าง','Days'],['ติดที่','Stuck at'],['เฉลี่ย','Avg'],['รอ GWM','Waiting GWM'],['ลูกค้า','Customer'],['ช่าง','Technician'],
- ['งานภายใน','Internal'],['หน้านี้','this page'],['ฝ่ายนี้','this team'],['คัน','vehicles'],['วัน','days'],['ฝ่าย','Team'],['รถ','Model'],['จอด','Parked'],['ไม่จอด','Not parked']
+ ['งานภายใน','Internal'],['แนะนำ Cancel Job (SVM)','Suggest cancel job (SVM)'],['SVM ตรวจและยกเลิก Job ในระบบ (Remark เขียนยกเลิก Job / ไม่มีอะไหล่ในคลัง หรือสถานะยกเลิกแล้ว) · เปิด Job ใหม่เมื่ออะไหล่หรือลูกค้าพร้อม เพื่อให้งานค้างและอายุงานตรงกับความจริง','SVM reviews and cancels the job in the system (remark says cancel / no parts in stock, or already cancelled) · reopen when parts or the customer are ready so the backlog and ageing stay true'],['หน้านี้','this page'],['ฝ่ายนี้','this team'],['คัน','vehicles'],['วัน','days'],['ฝ่าย','Team'],['รถ','Model'],['จอด','Parked'],['ไม่จอด','Not parked']
 ].sort((a, b) => b[0].length - a[0].length);
 function trDept(root){
   if (!isEn()) return;
@@ -2228,6 +2410,8 @@ const DEPT_REPORT = [
    duty:'เก็บข้อมูลเคลมให้ครบและส่งขออนุมัติให้ได้เลข YS · ติดตามผลอนุมัติกับ GWM Warranty ใน DingTalk'},
   {k:'SVM',      th:'SVM (Service Manager)', from:['PS:SVM','PS:ไม่ระบุ','PS:N/A'], color:'#6250d6',
    duty:'ตัดสินใจงานที่รอผู้จัดการ · ตรวจงานที่ยังไม่ระบุฝ่ายแล้วมอบหมายผู้รับผิดชอบ · ติดตามทุกฝ่ายให้ปิดงานตามเป้า'},
+  {k:'Cancel',   th:'แนะนำ Cancel Job (SVM)', from: [], pick: r => r.cause === 'cancel', color:'#7c3aed',
+   duty:'SVM ตรวจและยกเลิก Job ในระบบ (Remark เขียนยกเลิก Job / ไม่มีอะไหล่ในคลัง หรือสถานะยกเลิกแล้ว) · เปิด Job ใหม่เมื่ออะไหล่หรือลูกค้าพร้อม เพื่อให้งานค้างและอายุงานตรงกับความจริง'},
   {k:'CR',       th:'CR (ติดตามลูกค้า)', from:['PS:Customer','PS:CR','GWM:Customer'], color:'#eda100',
    duty:'ติดต่อลูกค้าให้มารับรถ / นัดเข้าซ่อม / ตอบเรื่องร้องเรียน · งานที่อะไหล่เข้าแล้วให้นัดลูกค้าทันที · บันทึกวันนัดใน Remark'}
 ];
@@ -2235,14 +2419,14 @@ const DEPT_REPORT = [
 const GWM_FOLLOW = [
   {k:'GWM:Tech',       th:'GWM Technical', ref:'JS',    team:'Tech',       color:'#1baf7a'},
   {k:'GWM:Warranty',   th:'GWM Warranty',  ref:'YS',    team:'Warranty',   color:'#c2410c'},
-  {k:'GWM:Spare part', th:'GWM Parts',     ref:'PO/BO', team:'Spare part', color:'#2a78d6'}
+  {k:'GWM:Spare part', th:'GWM Parts',     ref:'BO', team:'Spare part', color:'#2a78d6'}
 ];
 const GWM_CARD = {k:'GWM', th:'ติดตามกับ GWM (หน้าสุดท้าย)', color:'#0d366b'};
 const DEPT_SUB = {'PS:SA':'SA','PS:CR':'CR','PS:Cashier':'Cashier','PS:Tech':'ช่าง','PS:Foreman':'Foreman','PS:Spare part':'Spare part','PS:Warranty':'Warranty','PS:SVM':'SVM','PS:ไม่ระบุ':'ไม่ระบุฝ่าย','PS:N/A':'N/A (ยกเลิก / ยกเลิกการชำระเงิน)','PS:Customer':'ลูกค้า',
-  'GWM:Tech':'GWM Technical (JS)','GWM:Warranty':'GWM Warranty (YS)','GWM:Spare part':'GWM Parts (PO/BO)','GWM:Customer':'อะไหล่เข้าแล้ว · นัดลูกค้า'};
+  'GWM:Tech':'GWM Technical (JS)','GWM:Warranty':'GWM Warranty (YS)','GWM:Spare part':'GWM Parts (BO)','PS:Spare part':'Spare part (PO / ยังไม่มีเลข)','GWM:Customer':'อะไหล่เข้าแล้ว · นัดลูกค้า'};
 const byAge = (a,b) => (b.age ?? -1) - (a.age ?? -1);
 const waitsGwm = r => GWM_FOLLOW.some(g => g.k === r.ownKey);
-function deptRecs(d){ return d.k === 'GWM' ? gwmRecs() : scopeRecs().filter(r => d.from.includes(r.ownKey)).sort(byAge); }
+function deptRecs(d){ return d.k === 'GWM' ? gwmRecs() : scopeRecs().filter(r => d.pick ? d.pick(r) : d.from.includes(r.ownKey) && r.cause !== 'cancel').sort(byAge); }
 function gwmRecs(){ const rs = scopeRecs(); return GWM_FOLLOW.flatMap(g => rs.filter(r => r.ownKey === g.k).sort(byAge)); }
 function renderDeptPanel(){
   $('deptScope').textContent = dash.store + ' · ' + ['GR','BP'].filter(t => dash.types[t]).join(' + ');
@@ -2274,7 +2458,7 @@ function coverHtml(stamp){
   const gw = all.filter(waitsGwm), late = gw.filter(r => r.etaLate).length, noRem = all.filter(r => r.cause === 'none').length;
   const teams = DEPT_REPORT.map(d => { const rs = deptRecs(d); return {d, rs, g: rs.filter(waitsGwm).length}; }).filter(t => t.rs.length).sort((a,b) => b.rs.length - a.rs.length);
   const bars = teams.map(t => ({label: t.d.k + '\n' + (t.rs.length ? `${Math.round(t.rs.length / n * 100)}%` : ''), a: t.rs.length - t.g, b: t.g, color: t.d.color}));
-  const bk = [['0–7',0,7],['8–15',8,15],['16–30',16,30],['31–60',31,60],['61–90',61,90],['>90',91,1e9]].map(([l,a,b], i) => ({label: l + ' วัน', a: all.filter(r => (r.age || 0) >= a && (r.age || 0) <= b).length, color: ['#86b6ef','#6da7ec','#3987e5','#256abf','#a86400','#b3261e'][i]}));
+  const bk = AGE_BUCKETS.map(([a, b, l], i) => ({label: l + ' วัน', a: all.filter(r => (r.age || 0) >= a && (r.age || 0) <= b).length, color: ['#86b6ef','#6da7ec','#3987e5','#a86400','#b3261e'][i]}));
   const kpi = (k, v, s, c) => `<div class="ckpi"><span class="sub">${k}</span><b style="${c ? 'color:' + c : ''}">${v}</b>${s ? `<span class="sub">${s}</span>` : ''}</div>`;
   const pts = [];
   if (teams[0]) pts.push(`แผนกที่ต้องตามมากสุด: <b>${esc(teams[0].d.th)}</b> ${teams[0].rs.length} RO (${Math.round(teams[0].rs.length / n * 100)}%)`);
@@ -2459,6 +2643,187 @@ async function doPublish(){
   } catch(e){ console.error(e); toast(e && e.message === 'nocrypto' ? 'เบราว์เซอร์นี้เข้ารหัสไม่ได้ ลองใช้ Chrome บนคอม' : 'สร้างไฟล์ไม่สำเร็จ'); }
   finally { btn.disabled = false; btn.textContent = label; }
 }
+
+/* ---------- Parked / not parked → stuck at Tech / Warranty / Spare part → GWM or PS → which PS → each case ---------- */
+const STAGE = {tech:{th:'Tech', g:['มีเลข JS','JS raised'], p:['ยังไม่มีเลข JS','no JS yet']}, war:{th:'Warranty', g:['มีเลข YS','YS raised'], p:['ยังไม่มีเลข YS','no YS yet']},
+  part:{th:'Spare part', g:['BO (back order ที่ GWM)','BO (back order at GWM)'], p:['PO / ยังไม่มีเลข (PS ตาม)','PO / no number (PS follows)']}};
+['tech','war','part'].forEach(k => STAGE[k].color = `var(--k-${k})`);
+const T2 = (th, en) => isEn() ? en : th;
+const ownLabel = key => { const [g, d] = key.split(':'); return g + ' · ' + (d === 'Customer' ? (g === 'GWM' ? 'CRM' : 'CR') : d === 'ไม่ระบุ' ? T2('ไม่ระบุฝ่าย','Unassigned') : (OWNER_TH[d] || d)); };
+// "a + b + … = total ✓" under every breakdown, so nothing goes missing silently
+function sumLine(parts, total){ const s = parts.reduce((a, x) => a + x[1], 0);
+  return `${T2('รวม','Total')}: ${parts.filter(x => x[1]).map(([l, n]) => `${esc(l)} <b>${n.toLocaleString()}</b>`).join(' + ') || '0'} = <b>${s.toLocaleString()}</b> ${s === total ? `<span class="ok">✓ ${T2('ครบ','matches')} ${total.toLocaleString()} RO</span>` : `<span class="late">≠ ${total.toLocaleString()} · ${T2('ขาด','missing')} ${(total - s).toLocaleString()}</span>`}`; }
+function rankTable(items, total, attr){
+  const rows = items.filter(x => x.value).sort((a, b) => b.value - a.value);
+  return `<table class="pkrank"><tbody>${rows.map((x, i) => `<tr class="click" ${attr}="${esc(x.key)}"><td class="num">${i + 1}</td><td><span class="sw" style="background:${x.color}"></span>${esc(x.label)}</td><td class="num"><b>${x.value.toLocaleString()}</b></td><td class="num">${total ? Math.round(x.value / total * 100) : 0}%</td></tr>`).join('')}</tbody></table>
+    <div class="pksum">${sumLine(rows.map(x => [x.label, x.value]), total)}</div>`;
+}
+function renderPark(){
+  const all = scopeAllPark(), pk = dash.parkScope || '';
+  const segs = [['Parking', T2('จอด','Parked')], ['Not Parking', T2('ไม่จอด','Not parked')], ['none', T2('ไม่ระบุ','Unspecified')], ['', T2('ทั้งหมด','All')]];
+  $('pkSeg').innerHTML = segs.map(([k, l]) => { const rs = k ? all.filter(r => parkKey(r) === k) : all;
+    return `<button type="button" data-pk="${k}" aria-pressed="${k === pk}" aria-expanded="${k === pk && !!dash.pkOpen}"><span class="sub">${l}${k === dash.parkScope && k ? ' · ' + T2('กรองทั้งหน้าอยู่','filtering the page') : ''}</span><b>${rs.length.toLocaleString()} <span class="pct">${all.length ? Math.round(rs.length / all.length * 100) : 0}%</span></b><span class="sub">RO · ${vinCount(rs).toLocaleString()} ${T2('คัน','vehicles')}</span></button>`; }).join('');
+  $('pkSegSum').innerHTML = sumLine(segs.slice(0, 3).map(([k, l]) => [l, all.filter(r => parkKey(r) === k).length]), all.length);
+  const recs = pk ? all.filter(r => parkKey(r) === pk) : all;
+  $('pkGrid').innerHTML = Object.entries(STAGE).map(([k, st]) => {
+    const rs = recs.filter(r => r.cause === k || r.cause === k + '0'), g = rs.filter(r => r.ownGrp === 'GWM').length, p = rs.length - g;
+    const by = new Map(); rs.forEach(r => { const x = by.get(r.store) || {n:0, g:0}; x.n++; if (r.ownGrp === 'GWM') x.g++; by.set(r.store, x); });
+    const top = [...by].sort((a, b) => b[1].n - a[1].n).slice(0, 5);
+    return `<div class="pkcol" style="--kc:${st.color}">
+      <button type="button" class="pkh" data-stage="${k}"><span><b>${st.th}</b><div class="sub">${vinCount(rs)} ${T2('คัน','vehicles')} · ${by.size} PS</div></span><b class="n">${rs.length.toLocaleString()}</b></button>
+      <div class="pkown"><button type="button" class="g" data-stage="${k}" data-own="GWM">${T2('ค้างที่ GWM','At GWM')}<span class="sub">${T2(st.g[0], st.g[1])}</span><b>${g.toLocaleString()}</b></button>
+        <button type="button" class="p" data-stage="${k}" data-own="PS">${T2('ค้างที่ PS','At PS')}<span class="sub">${T2(st.p[0], st.p[1])}</span><b>${p.toLocaleString()}</b></button></div>
+      <div class="sub">${T2('ที่ไหน','Where')} · ${top.length ? T2('PS ที่มีมากสุด','PS with the most') : T2('ไม่มีเคส','no cases')}</div>
+      <ul class="pkps">${top.map(([s, x]) => `<li><button type="button" data-stage="${k}" data-store="${esc(s)}"><span class="nm">${esc(s.replace(/^GWM\s+/, ''))}<small>GWM ${x.g} · PS ${x.n - x.g}</small></span><span class="c"><b>${x.n}</b></span></button></li>`).join('')}</ul>
+      ${by.size > 5 ? `<button type="button" class="linkbtn pkall" data-stage="${k}">${T2('ดูทุก PS','See all PS')} (${by.size}) →</button>` : ''}</div>`; }).join('');
+  // the rest of the backlog, so every RO of the selected group is counted somewhere
+  const REST = [['cust', T2('รอลูกค้า / CR','Waiting customer / CR')], ['repair', T2('กำลังซ่อม / เปลี่ยนอะไหล่','In repair / fitting parts')], ['cancel', T2('แนะนำ Cancel Job (SVM)','Suggest cancel job (SVM)')],
+    ['other', T2('อื่นๆ (มี Remark)','Other (has remark)')], ['none', T2('ไม่กรอกข้อมูล (ไม่มี Remark)','No remark')]];
+  $('pkGrid2').innerHTML = REST.map(([k, label]) => { const rs = recs.filter(r => r.cause === k), by = new Map(); rs.forEach(r => by.set(r.store, (by.get(r.store) || 0) + 1));
+    const top = [...by].sort((a, b) => b[1] - a[1]).slice(0, 3);
+    return `<div class="pkcol" style="--kc:${causeColor(k)}"><button type="button" class="pkh" data-cause="${k}"><span><b>${label}</b><div class="sub">${vinCount(rs)} ${T2('คัน','vehicles')} · ${by.size} PS</div></span><b class="n">${rs.length.toLocaleString()}</b></button>
+      ${k === 'cust' && rs.length ? `<div class="sub">${T2('อะไหล่เข้าแล้ว (GWM)','Parts arrived (GWM)')} ${rs.filter(r => r.ownGrp === 'GWM').length} · ${T2('รอลูกค้าที่ PS','Waiting at PS')} ${rs.filter(r => r.ownGrp !== 'GWM').length}</div>` : ''}
+      <ul class="pkps">${top.map(([st, n]) => `<li><button type="button" data-cause="${k}" data-store="${esc(st)}"><span class="nm">${esc(st.replace(/^GWM\s+/, ''))}</span><span class="c"><b>${n}</b></span></button></li>`).join('')}</ul></div>`; }).join('');
+  $('pkOther').innerHTML = sumLine([['tech','Tech'], ['war','Warranty'], ['part','Spare part']].map(([k, l]) => [l, recs.filter(r => r.cause === k || r.cause === k + '0').length])
+    .concat(REST.map(([k, l]) => [l, recs.filter(r => r.cause === k).length])), recs.length);
+  const more = dash.pkMore ?? !matchMedia('(max-width: 760px)').matches;
+  $('pkDetail').hidden = !more; $('pkMore').setAttribute('aria-expanded', more); $('pkMore').textContent = more ? T2('ซ่อนรายละเอียด ▴','Hide details ▴') : T2('ดูรายละเอียด Tech / Warranty / Spare part ▾','Show Tech / Warranty / Spare part details ▾');
+  renderParkDrill(recs, pk);
+  renderCancel(all);
+}
+// drop-down under the chosen status: age bands, GWM / PS, by department, by blocker — each ranked high → low with its own completeness check
+function renderParkDrill(recs, pk){
+  const box = $('pkDrill'); box.hidden = !dash.pkOpen; if (!dash.pkOpen) return;
+  const n = recs.length, lab = Object.fromEntries(CAUSES.map(c => [c.k, isEn() ? CAUSE_EN[c.k] : c.label]));
+  const name = ({'Parking': T2('จอด','Parked'), 'Not Parking': T2('ไม่จอด','Not parked'), 'none': T2('ไม่ระบุ','Unspecified')})[pk] || T2('ทั้งหมด','All');
+  const ageItems = AGE_BUCKETS.map(([a, b, l], i) => { const rs = recs.filter(r => r.age != null && r.age >= a && r.age <= b); return {label: l + ' ' + T2('วัน','days'), value: rs.length, veh: vinCount(rs), key: a + '-' + (b === Infinity ? '' : b), color: `var(--age${i})`}; });
+  const noAge = recs.filter(r => r.age == null).length;
+  const own = ['GWM','PS'].map(g => ({key:g, label:g, value: recs.filter(r => r.ownGrp === g).length, color: g === 'GWM' ? 'var(--c1)' : 'var(--c2)'}));
+  const deptKeys = [...new Set(recs.map(r => r.ownKey))];
+  const dept = deptKeys.map((k, i) => ({key:k, label: ownLabel(k), value: recs.filter(r => r.ownKey === k).length, color: k.startsWith('GWM') ? ['#1d4ed8','#3b82f6','#60a5fa','#93c5fd'][i % 4] : ['#c2410c','#ea580c','#f97316','#fb923c','#fdba74','#9a3412','#7c2d12','#fed7aa'][i % 8]})).sort((a, b) => b.value - a.value);
+  const cause = CAUSES.map(c => ({key:c.k, label: lab[c.k], value: recs.filter(r => r.cause === c.k).length, color: causeColor(c.k)})).sort((a, b) => b.value - a.value);
+  const old = recs.filter(r => r.age > 30).sort((a, b) => (b.age ?? 0) - (a.age ?? 0));
+  box.innerHTML = `<div class="rankhead"><h3>${T2('เจาะลึก','Drill-down')}: ${esc(name)} · ${n.toLocaleString()} RO · ${vinCount(recs).toLocaleString()} ${T2('คัน','vehicles')}</h3><div class="rankf"><button type="button" class="linkbtn" data-pkclose>✕ ${T2('ปิด','Close')}</button></div></div>
+    <div class="pkdgrid">
+      <div class="pkdbox wide"><h4>${T2('อายุงานค้าง (วัน) · RO / คัน','Pending age (days) · RO / vehicles')}</h4><div id="pkAge" class="chart"></div>
+        <div class="pkagerow">${ageItems.map(x => `<button type="button" data-age="${x.key}"><span class="sub">${esc(x.label)}</span><b>${x.value.toLocaleString()}</b><span class="sub">${x.veh.toLocaleString()} ${T2('คัน','veh.')}</span></button>`).join('')}</div>
+        <div class="pksum">${sumLine(ageItems.map(x => [x.label, x.value]).concat(noAge ? [[T2('ไม่มีวันค้าง','no pending day'), noAge]] : []), n)}</div></div>
+      <div class="pkdbox"><h4>${T2('ค้างที่ GWM / PS','Held at GWM / PS')}</h4><div id="pkOwnPie"></div>${rankTable(own, n, 'data-own')}</div>
+      <div class="pkdbox"><h4>${T2('ค้างที่ฝ่ายไหน (มาก → น้อย)','By department (high → low)')}</h4><div id="pkDeptPie"></div>${rankTable(dept, n, 'data-ownkey')}</div>
+      <div class="pkdbox"><h4>${T2('ติดที่อะไร (มาก → น้อย)','Stuck at (high → low)')}</h4><div id="pkCausePie"></div>${rankTable(cause, n, 'data-cause')}</div>
+      <div class="pkdbox wide"><h4>${esc(name)} ${T2('นานเกิน 30 วัน','over 30 days')} · ${old.length.toLocaleString()} RO</h4>
+        ${old.length ? `<table class="pkrank"><tbody>${old.slice(0, 10).map((r, i) => `<tr><td class="num">${i + 1}</td><td><button class="splink mono" data-rec="${r.idx}">${esc(r.sp)}</button><div class="sub mono">${vinLink(r.vin)}</div></td><td>${esc(r.store.replace(/^GWM\s+/, ''))}</td><td class="num"><span class="pill ${r.age > 90 ? 'crit' : 'warn'}">${r.age}</span></td><td><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])} <span class="own ${r.ownGrp}">${esc(ownLabel(r.ownKey))}</span></td></tr>`).join('')}</tbody></table>
+          ${old.length > 10 ? `<button type="button" class="linkbtn" data-age="31-">${T2('ดูทั้งหมด','See all')} ${old.length.toLocaleString()} RO →</button>` : ''}` : `<div class="sub">${T2('ไม่มี','None')}</div>`}</div>
+    </div>`;
+  vbar($('pkAge'), ageItems.map(x => ({...x, note: `${x.veh} ${T2('คัน','vehicles')}`})), {height: 200, title: 'age', onClick: it => parkDrill({fAge: it.key})});
+  pie($('pkOwnPie'), own, 'GWM / PS', key => parkDrill({fOwner: key}));
+  pie($('pkDeptPie'), dept, 'dept', key => parkDrill({fOwner: key}));
+  pie($('pkCausePie'), cause, 'cause', key => parkDrill({fCause: key}));
+}
+// SVM to-do: jobs the PS should cancel (written in the remark, or already Void / Reverse settlement in the system)
+function renderCancel(all){
+  const rs = all.filter(r => r.cause === 'cancel').sort((a, b) => (b.age ?? -1) - (a.age ?? -1)), box = $('cancelCard');
+  box.hidden = !rs.length; if (!rs.length) return;
+  const why = r => (r.status === 'Void' || r.status === 'Reverse settlement') ? stLabel(r.status) : ((r.remark.match(CANCEL_KW) || [''])[0]);
+  $('cancelBody').innerHTML = rs.slice(0, 15).map((r, i) => `<tr><td class="num" data-l="#">${i + 1}</td><td data-l="SP"><button class="splink mono" data-rec="${r.idx}">${esc(r.sp)}</button><div class="sub mono">VIN ${vinLink(r.vin)}</div></td>
+    <td data-l="PS">${esc(r.store.replace(/^GWM\s+/, ''))}<div class="sub">${esc(r.rsm)}</div></td><td class="num" data-l="วันค้าง"><span class="pill ${r.age > 30 ? 'warn' : ''}">${r.age ?? '–'}</span></td>
+    <td data-l="เหตุผล"><b>${esc(why(r))}</b><div class="sub">${esc(stLabel(r.status))} · ${parkKey(r) === 'Parking' ? T2('จอด','parked') : parkKey(r) === 'Not Parking' ? T2('ไม่จอด','not parked') : T2('ไม่ระบุ','unspecified')}</div></td></tr>`).join('');
+  $('cancelCount').textContent = `${rs.length.toLocaleString()} RO · ${vinCount(rs).toLocaleString()} ${T2('คัน','vehicles')} · ${new Set(rs.map(r => r.store)).size} PS`;
+  $('cancelMore').hidden = rs.length <= 15; $('cancelMore').textContent = `${T2('ดูทั้งหมด','See all')} ${rs.length.toLocaleString()} RO →`;
+}
+function parkDrill(set){
+  dash.fCause = ''; dash.fStage = ''; dash.fStore = ''; dash.fOwner = ''; dash.fAge = ''; dash.fStatus = ''; dash.fEta = '';
+  dash.fPark = ''; Object.assign(dash, set); dash.showAll = false;
+  if (!dash.fPark && !dash.fCause && !dash.fStage && !dash.fStore && !dash.fOwner && !dash.fAge) dash.fAge = '0-';
+  renderDash(); revealFilter();
+}
+function setParkScope(k){ dash.parkScope = dash.parkScope === k ? '' : k; dash.pk = dash.parkScope || dash.pk; dash.showAll = false; renderDash(); toast(dash.parkScope ? T2('ทั้งหน้าแสดงเฉพาะรถ','The whole page now shows ') + PK_NAME(dash.parkScope) + T2(' · กดซ้ำเพื่อดูทั้งหมด',' only · click again for all') : T2('แสดงรถทุกสถานะ','Showing every parking status')); }
+$('pkSeg').addEventListener('click', e => { const b = e.target.closest('[data-pk]'); if (b) setParkScope(b.dataset.pk); });
+$('dParkScope').addEventListener('click', e => { const b = e.target.closest('[data-ps]'); if (b) setParkScope(b.dataset.ps); });
+$('rsmFold').addEventListener('click', () => { const o = $('rsmPanel').classList.toggle('open'); $('rsmFold').setAttribute('aria-expanded', o); $('rsmFold').textContent = o ? T2('ซ่อน ▴','Hide ▴') : T2('แสดง ▾','Show ▾'); });
+$('pkMore').addEventListener('click', () => { dash.pkMore = !(dash.pkMore ?? !matchMedia('(max-width: 760px)').matches); renderPark(); });
+$('pkToggle').addEventListener('click', () => { dash.pkOpen = !dash.pkOpen; renderPark(); if (dash.pkOpen) $('pkDrill').scrollIntoView({behavior:'smooth', block:'nearest'}); });
+$('pkDrill').addEventListener('click', e => { if (e.target.closest('[data-pkclose]')){ dash.pkOpen = false; renderPark(); return; }
+  const t = e.target.closest('[data-age],[data-own],[data-ownkey],[data-cause]'); if (!t || e.target.closest('.splink,.vinlink')) return;
+  if (t.dataset.age) parkDrill({fAge: t.dataset.age}); else if (t.dataset.ownkey) parkDrill({fOwner: t.dataset.ownkey}); else if (t.dataset.own) parkDrill({fOwner: t.dataset.own}); else if (t.dataset.cause) parkDrill({fCause: t.dataset.cause}); });
+$('cancelMore').addEventListener('click', () => parkDrill({fCause:'cancel'}));
+const pkClick = e => { const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.cause) parkDrill({fCause: b.dataset.cause, fStore: b.dataset.store || ''});
+  else if (b.dataset.stage) parkDrill({fStage: b.dataset.stage, fStore: b.dataset.store || '', fOwner: b.dataset.own || ''}); };
+$('pkGrid').addEventListener('click', pkClick);
+/* ---------- Parked / not parked reports: Excel (summary + one sheet per status, filterable) and PPTX by case ---------- */
+const CAT_ORDER = ['tech','tech0','war','war0','part','part0','cust','repair','cancel','other','none'];
+const catName = c => isEn() ? CAUSE_EN[c] : CAT_XL[c];
+const pkName = k => ({'Parking': T2('จอด','Parked'), 'Not Parking': T2('ไม่จอด','Not parked'), 'none': T2('ไม่ระบุ','Unspecified')})[k] || T2('ทั้งหมด','All');
+const heldMix = rs => { const g = rs.filter(r => r.ownGrp === 'GWM').length; return g === rs.length ? 'GWM' : g === 0 ? 'PS' : `GWM ${g} / PS ${rs.length - g}`; };
+const heldAt = r => r.ownGrp ? r.ownGrp + ' · ' + (OWNER_TH[r.ownDept] || r.ownDept) : '';
+const byCase = (a, b) => CAT_ORDER.indexOf(a.cause) - CAT_ORDER.indexOf(b.cause) || (b.age ?? -1) - (a.age ?? -1);
+const stampDay = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const scopeLabel = () => $('dScope').textContent + ' · ' + ['GR','BP'].filter(t => dash.types[t]).join(' + ');
+function parkExcel(){
+  if (!state || typeof XLSX === 'undefined'){ toast('ยังไม่มีข้อมูล หรือยังโหลดเครื่องมือ Excel ไม่เสร็จ'); return; }
+  const all = scopeAllPark(), PK = ['Parking','Not Parking','none'];
+  const head = [T2('หมวด (ติดที่)','Category'), T2('ค้างที่','Held at'), ...PK.map(pkName), T2('รวม','Total')];
+  const sum = [[T2('Pending RO · จอด / ไม่จอด','Pending RO · parked / not parked')], [scopeLabel() + ' · ' + T2('ไฟล์','file') + ' ' + fileBase + ' · ' + stampNow()], [], head];
+  for (const c of CAT_ORDER){ const rs = all.filter(r => r.cause === c); if (!rs.length) continue;
+    sum.push([catName(c), heldMix(rs), ...PK.map(k => rs.filter(r => parkKey(r) === k).length), rs.length]); }
+  sum.push([T2('รวม','Total'), '', ...PK.map(k => all.filter(r => parkKey(r) === k).length), all.length]);
+  sum.push([T2('จำนวนคัน (VIN)','Vehicles (VIN)'), '', ...PK.map(k => vinCount(all.filter(r => parkKey(r) === k))), vinCount(all)]);
+  const wbk = XLSX.utils.book_new(), ws0 = XLSX.utils.aoa_to_sheet(sum); ws0['!cols'] = [{wch:34}, {wch:12}, {wch:12}, {wch:12}, {wch:12}, {wch:10}];
+  XLSX.utils.book_append_sheet(wbk, ws0, T2('สรุป','Summary'));
+  const cols = ['#', T2('สถานะรถ','Parking'), T2('ติดที่ (Category)','Category'), T2('ค้างที่ (GWM / PS)','Held at'), 'PS', 'RSM', 'Repair_Order', 'VIN', T2('รุ่น','Model'), 'Repair_Status', 'Pending day', 'JS', 'YS', 'PO / BO', 'ETA', T2('เลย ETA','Past ETA'), T2('วันคาดว่าส่งมอบ','Est. delivery'), 'Remark'];
+  const sheet = (name, rs) => { const rows = rs.slice().sort(byCase).map((r, i) => [i + 1, pkName(parkKey(r)), catName(r.cause), heldAt(r), r.store, r.rsm, r.sp, r.vin, r.model, stLabel(r.status), r.age ?? '', r.tech, r.war, r.part, r.eta, r.etaLate ? T2('เลย ETA','Past ETA') : '', r.deliv || '', String(r.remark || '').trim()]);
+    const ws = XLSX.utils.aoa_to_sheet([cols, ...rows]);
+    ws['!cols'] = [6, 11, 28, 22, 30, 12, 20, 20, 12, 18, 11, 18, 18, 22, 12, 10, 14, 70].map(w => ({wch:w}));
+    ws['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:0, c:0}, e:{r: Math.max(rows.length, 1), c: cols.length - 1}})};
+    XLSX.utils.book_append_sheet(wbk, ws, name); };
+  for (const k of PK){ const rs = all.filter(r => parkKey(r) === k); if (rs.length) sheet(pkName(k), rs); }
+  sheet(T2('ทุกเคส','All cases'), all);
+  saveFile(safeFile(`Pending_RO_Parking_${fileBase}_${stampDay()}`) + '.xlsx', xlsxBlob(XLSX.write(wbk, {bookType:'xlsx', type:'array', compression:true})));
+}
+async function parkPptx(){
+  if (!state) return;
+  if (!(await ensurePptx())){ toast('PPTX_LIB_FAIL'); return; }
+  const btn = $('pkPptx'), label = btn.textContent; btn.disabled = true; btn.textContent = T2('กำลังสร้าง…','Building…');
+  try {
+    const pk = dash.parkScope || '', all = scopeRecs(), recs = all.slice().sort(byCase);
+    const F = 'Tahoma', NAVY = '1B2A41', TEAL = '0F6B5C', MUTED = '6B7280', LINE = 'E5E7EB', RED = 'B42318';
+    const pres = new PptxGenJS(); pres.layout = 'LAYOUT_16x9'; pres.title = 'Pending RO by case — ' + pkName(pk); pres.author = 'Natchanon C.';
+    let no = 0; const foot = sl => { no++; sl.addText(`Pending RO · ${pkName(pk)} · ${scopeLabel()} · ${stampNow()}`, {x:0.4, y:5.25, w:8, h:0.25, fontSize:8, color:'9CA3AF', fontFace:F});
+      sl.addText(String(no), {x:9, y:5.25, w:0.6, h:0.25, fontSize:8, color:'9CA3AF', align:'right', fontFace:F}); };
+    const title = (sl, k, t) => { sl.addText(k.toUpperCase(), {x:0.4, y:0.25, w:9.2, h:0.25, fontSize:10, bold:true, color:TEAL, fontFace:F, charSpacing:1});
+      sl.addText(t, {x:0.4, y:0.5, w:9.2, h:0.5, fontSize:20, bold:true, color:NAVY, fontFace:F}); };
+    const cell = (t, o) => ({text: String(t ?? ''), options: Object.assign({fontSize:9, fontFace:F, color:'1F2933', valign:'top'}, o || {})});
+    const hcell = t => ({text: t, options:{fontSize:9, fontFace:F, bold:true, color:'FFFFFF', fill:{color:NAVY}}});
+    // 1. summary
+    { const sl = pres.addSlide(); title(sl, T2('สรุปรายเคส','Cases summary'), `${pkName(pk)} · ${recs.length.toLocaleString()} RO · ${vinCount(recs).toLocaleString()} ${T2('คัน','vehicles')}`); foot(sl);
+      const cats = CAT_ORDER.map(c => [c, recs.filter(r => r.cause === c)]).filter(([, rs]) => rs.length);
+      sl.addChart(pres.charts.BAR, [{name:'RO', labels: cats.slice().sort((a, b) => b[1].length - a[1].length).map(([c]) => catName(c)), values: cats.slice().sort((a, b) => b[1].length - a[1].length).map(([, rs]) => rs.length)}],
+        {x:0.3, y:1.1, w:5.2, h:4.0, barDir:'col', chartColors:[TEAL], showValue:true, dataLabelFontSize:9, catAxisLabelFontSize:8, catAxisLabelRotate:-40, valAxisLabelFontSize:8, catAxisLabelFontFace:F, dataLabelFontFace:F, valGridLine:{color:LINE, size:0.5}, showLegend:false});
+      const rows = [[hcell(T2('ติดที่','Category')), hcell('RO'), hcell('VIN'), hcell(T2('>30 วัน','>30 d')), hcell(T2('ค้างที่','Held at'))]]
+        .concat(cats.map(([c, rs]) => [cell(catName(c), {bold:true}), cell(rs.length), cell(vinCount(rs)), cell(rs.filter(r => r.age > 30).length), cell(heldMix(rs))]))
+        .concat([[cell(T2('รวม','Total'), {bold:true}), cell(recs.length, {bold:true}), cell(vinCount(recs), {bold:true}), cell(recs.filter(r => r.age > 30).length, {bold:true}), cell('')]]);
+      sl.addTable(rows, {x:5.6, y:1.15, w:4.0, colW:[1.75, 0.5, 0.5, 0.55, 0.7], border:{type:'solid', pt:0.5, color:LINE}, rowH:0.27}); }
+    // 2. one section per category, 12 cases per slide
+    const PER = 9;
+    for (const c of CAT_ORDER){ const rs = recs.filter(r => r.cause === c); if (!rs.length) continue;
+      const pages = Math.ceil(rs.length / PER);
+      for (let p = 0; p < pages; p++){ const chunk = rs.slice(p * PER, p * PER + PER), sl = pres.addSlide();
+        title(sl, `${pkName(pk)} · ${catName(c)}`, `${catName(c)} · ${rs.length.toLocaleString()} ${T2('เคส','cases')}${pages > 1 ? ` (${p + 1}/${pages})` : ''}`); foot(sl);
+        const rows = [[hcell('#'), hcell('SP / VIN'), hcell('PS'), hcell(T2('วัน','Days')), hcell('Status'), hcell(T2('เลขอ้างอิง / ETA','Ref / ETA')), hcell('Remark')]]
+          .concat(chunk.map((r, i) => { const rem = String(r.remark || '').replace(/\s+/g, ' ').trim();
+            return [cell(p * PER + i + 1), cell(`${r.sp}\n${r.vin || '–'}`, {fontSize:8}), cell(r.store.replace(/^GWM\s+/, ''), {fontSize:8}), cell(r.age ?? '–', {bold:true, color: r.age > 90 ? RED : '1F2933'}),
+              cell(stLabel(r.status), {fontSize:8}), cell([r.tech, r.war, r.part].filter(Boolean).join(' ') + (r.eta ? `\nETA ${r.eta}${r.etaLate ? ' (' + T2('เลย','late') + ')' : ''}` : ''), {fontSize:8}),
+              cell(rem.length > 90 ? rem.slice(0, 88) + '…' : rem || '–', {fontSize:7.5, color: rem ? '374151' : MUTED})]; }));
+        sl.addTable(rows, {x:0.3, y:1.05, w:9.4, colW:[0.42, 1.55, 1.45, 0.45, 1.0, 1.6, 2.93], border:{type:'solid', pt:0.5, color:LINE}, autoPage:false}); } }
+    await saveFile(safeFile(`Pending_RO_by_case_${pk ? pk.replace(/\s+/g, '_') : 'All'}_${fileBase}_${stampDay()}`) + '.pptx', await pptxBlob(pres));
+  } catch(e){ console.error(e); toast(T2('สร้าง PPTX ไม่สำเร็จ','Could not build the PPTX')); }
+  finally { btn.disabled = false; btn.textContent = label; }
+}
+$('pkXlsx').addEventListener('click', parkExcel);
+$('pkPptx').addEventListener('click', parkPptx);
+ $('pkGrid2').addEventListener('click', pkClick);
+$('fSumBody').addEventListener('click', e => { const tr = e.target.closest('tr[data-ps]'); if (!tr) return; dash.fStore = dash.fStore === tr.dataset.ps ? '' : tr.dataset.ps; renderDash(); revealFilter(); });
 $('pubBtn').addEventListener('click', openPub);
 $('pubClose').addEventListener('click', () => { $('pubPanel').hidden = true; });
 $('pubGo').addEventListener('click', doPublish);
@@ -2466,24 +2831,26 @@ $('pubGo').addEventListener('click', doPublish);
 const GH = {owner:'natchanontitle-cloud', repo:'VOR-GWM', path: SHARED_FILE};
 async function publishToGitHub(){
   const by = $('pubBy').value.trim(); if (!by){ toast('ใส่ชื่อผู้เผยแพร่ก่อน'); $('pubBy').focus(); return; }
-  const tok = $('pubTok').value.trim(); if (!tok){ toast('ใส่ GitHub token ก่อน (ดูวิธีขอด้านล่าง)'); $('pubTok').focus(); return; }
+  const tok = $('pubTok').value.replace(/\s+/g, ''); if (!tok){ toast('ใส่ GitHub token ก่อน (ดูวิธีขอด้านล่าง)'); $('pubTok').focus(); return; }
   if (ROLE !== 'rsm' || !UNLOCK_PW || !lastFile){ toast('ต้องเข้าด้วยรหัส RSM และอัปโหลดไฟล์ก่อน'); return; }
   const btn = $('pubGh'), label = btn.textContent; btn.disabled = true; btn.textContent = 'กำลังเผยแพร่…'; $('pubMsg').textContent = '';
   try {
     try { localStorage.setItem('roPubBy', by); localStorage.setItem('roGhTok', tok); } catch(e){}
     const out = await encryptShared(UNLOCK_PW, {ok:'pending-ro', by, at: new Date().toISOString(), name: lastFile.name, file: u8b64(lastFile.bytes)});
     const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}`, H = {'Authorization': 'Bearer ' + tok, 'Accept': 'application/vnd.github+json'};
-    let sha; { const r = await fetch(url + '?t=' + Date.now(), {headers: H, cache:'no-store'}); if (r.status === 401 || r.status === 403) throw new Error('auth'); if (r.ok) sha = (await r.json()).sha; }
+    let sha; { const r = await fetch(url + '?t=' + Date.now(), {headers: H, cache:'no-store'}); if (r.status === 401) throw new Error('auth'); if (r.status === 403) throw new Error('perm'); if (r.ok) sha = (await r.json()).sha; }
     const body = {message: `Pending RO data · ${lastFile.name} · by ${by}`, content: u8b64(new TextEncoder().encode(JSON.stringify(out))), ...(sha ? {sha} : {})};
     const r = await fetch(url, {method:'PUT', headers: {...H, 'Content-Type':'application/json'}, body: JSON.stringify(body)});
-    if (r.status === 401 || r.status === 403) throw new Error('auth');
+    if (r.status === 401) throw new Error('auth');
+    if (r.status === 403) throw new Error('perm');
     if (r.status === 404) throw new Error('repo');
     if (!r.ok) throw new Error('http ' + r.status);
     $('pubMsg').textContent = `เผยแพร่แล้ว ${new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})} · RSM ทุกคนจะเห็นข้อมูลนี้ภายใน 1–2 นาที`;
     toast('เผยแพร่ขึ้น GitHub แล้ว');
   } catch(e){ console.error(e);
-    const m = e && e.message === 'auth' ? 'token ไม่ถูกต้อง หมดอายุ หรือไม่มีสิทธิ์ Contents: Read and write บน VOR-GWM'
-      : e && e.message === 'repo' ? 'ไม่พบ repo VOR-GWM หรือ token ไม่ได้เลือก repo นี้' : e && e.message === 'nocrypto' ? 'เบราว์เซอร์นี้เข้ารหัสไม่ได้ ลองใช้ Chrome บนคอม'
+    const m = e && e.message === 'auth' ? 'GitHub ไม่รู้จัก token นี้ (401) — คัดลอกมาไม่ครบ มีช่องว่าง หรือ token หมดอายุ/ถูกลบ'
+      : e && e.message === 'perm' ? 'token ใช้ได้ แต่ไม่มีสิทธิ์เขียน (403) — แก้ token ให้ Contents เป็น Read and write'
+      : e && e.message === 'repo' ? 'token ไม่ได้เลือก repo VOR-GWM (404) — แก้ Repository access เป็น Only select repositories → VOR-GWM' : e && e.message === 'nocrypto' ? 'เบราว์เซอร์นี้เข้ารหัสไม่ได้ ลองใช้ Chrome บนคอม'
       : 'เผยแพร่ไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วลองใหม่ หรือใช้ปุ่มดาวน์โหลดแทน';
     $('pubMsg').textContent = m; toast(m); }
   finally { btn.disabled = false; btn.textContent = label; }
@@ -2565,6 +2932,14 @@ $('lockOut').addEventListener('click', () => { try { localStorage.removeItem('ro
 })();
 /* ---------- EN / TH switch: UI text only; Remark text written by dealers is never translated ---------- */
 const I18N_PAIRS = [
+['แสดง ▾','Show ▾'],['ซ่อน ▴','Hide ▴'],
+['ดูรายละเอียด Tech / Warranty / Spare part ▾','Show Tech / Warranty / Spare part details ▾'],['ซ่อนรายละเอียด ▴','Hide details ▴'],
+['กดสถานะรถเพื่อกรองทั้ง Dashboard · คลิกตัวเลขเพื่อดูราย PS และรายเคส','Click a parking status to filter the whole dashboard · click a number for each PS and every case'],['สรุป % ราย ฝ่าย / สาเหตุ','% by department / blocker'],
+['แนะนำให้ PS Cancel Job · SVM ดำเนินการ','Suggest the PS cancels the job · SVM to act'],['Remark เขียนว่า ยกเลิก Job / ยกเลิกจ๊อบ / ไม่มีอะไหล่ในคลัง หรือ Repair Status เป็นยกเลิก (Void / Reverse settlement) · ปิด Job ในระบบแล้วเปิดใหม่เมื่อพร้อม งานค้างและอายุงานจะตรงกับความจริง','Remark says cancel job / no parts in stock, or Repair Status is Void / Reverse settlement · close the job and reopen when ready so the backlog and ageing stay true'],['เหตุผล','Reason'],
+['แนะนำ Cancel Job (SVM)','Suggest cancel job (SVM)'],['แนะนำ Cancel Job','Suggest cancel job'],
+['กำลังซ่อม / เปลี่ยนอะไหล่','In repair / fitting parts'],
+['Excel จอด / ไม่จอด','Excel parked / not parked'],['PPTX รายเคส','PPTX by case'],
+['จอด / ไม่จอด · ติดที่ Tech / Warranty / Spare part','Parked / not parked · stuck at Tech / Warranty / Spare part'],['คลิกตัวเลขเพื่อดูราย PS และรายเคส','Click a number to see each PS and every case'],['อื่นๆ ที่ไม่ได้ติด Tech / Warranty / Spare part (ลูกค้า, กำลังซ่อม, อื่นๆ, ไม่มี Remark):','Others not stuck at Tech / Warranty / Spare part (customer, in repair, other, no remark):'],['คลิกเพื่อดูรายเคสของ PS นี้','Click to see this PS’s cases'],['(ทั้ง GWM และ PS)','(GWM and PS)'],
 ['เผยแพร่ขึ้น GitHub ทันที','Publish to GitHub now'],['หรือดาวน์โหลด pending_data.json','or download pending_data.json'],['เก็บไว้ในเครื่องนี้เท่านั้น','kept on this device only'],['วิธีขอ GitHub token (ทำครั้งเดียว)','How to get a GitHub token (one time)'],
 ['เผยแพร่ให้ RSM','Publish to RSMs'],['เผยแพร่ข้อมูลให้ RSM ทุกคน','Publish data to all RSMs'],['ชื่อผู้เผยแพร่','Published by'],['เลือกหรือพิมพ์ชื่อ','Pick or type a name'],['สร้างไฟล์ pending_data.json','Create pending_data.json'],['ข้อมูลกลางของ RSM','Shared RSM data'],['อัปเดตโดย','updated by'],['อัปโหลดไฟล์เองได้ เห็นเฉพาะเครื่องนี้ ไม่กระทบคนอื่น','you can still upload your own file; it stays on this device only'],
 ['ดาวน์โหลดไฟล์ RSM','Download RSM file'],['ยังไม่มี RSM — กรอกชื่อ RSM แล้วอัปโหลดกลับ','No RSM yet — fill in the RSM and upload back'],
@@ -2603,7 +2978,7 @@ const I18N_PAIRS = [
 ['รวม PS ที่เลือกเป็นไฟล์เดียว','Combine selected PS in one file'],
 ['ค้นหา SP / Partner / เลข PO…','Search SP / Partner / PO no.…'],
 ['รออะไหล่ ไม่มี ETA / เลย ETA','Waiting parts: no ETA / past ETA'],
-['GWM (มีเลข JS / YS / PO / BO)','GWM (has JS / YS / PO / BO no.)'],
+['GWM (JS / YS / BO)','GWM (JS / YS / BO)'],['PS (รวม PO, ยังไม่มีเลข, กำลังซ่อม)','PS (incl. PO, no number yet, in repair)'],
 ['รหัสผ่านไม่ถูกต้อง ลองอีกครั้ง','Wrong password, try again'],
 ['จำนวน RO ที่ไม่กรอก Remark','ROs without Remark'],
 ['% RO ที่ไม่กรอก Remark','% of ROs without Remark'],
