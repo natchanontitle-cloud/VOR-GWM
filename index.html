@@ -427,12 +427,13 @@ table.rank td{vertical-align:top}
 
   <label class="drop" id="drop" for="file">
     <div class="ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div>
-    <div class="txt"><strong>ลากไฟล์ .xlsx มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</strong><span>รองรับ .xlsx / .xls / .csv / .json · ระบบหาคอลัมน์ Store_Name ให้อัตโนมัติ</span></div>
+    <div class="txt"><strong>ลากไฟล์ .xlsx มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</strong><span>รองรับไฟล์ Power BI (Pending RO) และ GCIP · .xlsx / .xls / .csv / .json · หาคอลัมน์ให้อัตโนมัติ</span></div>
     <input type="file" id="file" accept=".xlsx,.xls,.xlsm,.csv,.json">
   </label>
 
   <div class="banner" id="sampleBanner" hidden>กำลังแสดง <b>ข้อมูลตัวอย่าง</b> (ศูนย์บริการสมมติ) — อัปโหลดไฟล์จริงด้านบนเพื่อแทนที่</div>
 
+  <div class="banner" id="gcipNote" hidden></div>
   <section class="summary" id="summary" hidden>
     <div class="stat file"><span class="k">ไฟล์</span><span class="v" id="sFile">–</span></div>
     <div class="stat"><span class="k">จำนวน RO</span><span class="v" id="sRows">0</span></div>
@@ -659,7 +660,7 @@ async function saveFile(name, blob){
 }
 let tt; const TOAST_MSG = {PPTX_LIB_FAIL:['โหลดเครื่องมือสร้าง PowerPoint ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่','Could not load the PowerPoint tool. Check the connection and try again.'],
   PPTX_NEED_PREV:['โหมดเทียบกับอาทิตย์ที่แล้ว ต้องแนบไฟล์อาทิตย์ที่แล้วก่อน','Compare mode needs last week\'s file attached first.']};
-function toast(msg){ if (TOAST_MSG[msg]){ let en = false; try { en = lang === 'en'; } catch(e){} msg = TOAST_MSG[msg][en ? 1 : 0]; } const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true,3200); }
+function toast(msg, ms){ if (TOAST_MSG[msg]){ let en = false; try { en = lang === 'en'; } catch(e){} msg = TOAST_MSG[msg][en ? 1 : 0]; } const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true,ms||3200); }
 
 /* ---------- reading ---------- */
 function sheetCells(ws){
@@ -1282,18 +1283,88 @@ $('fullBtn').addEventListener('click', downloadFull);
 $('sheetSel').addEventListener('change', e => analyse(e.target.value));
 $('colSel').addEventListener('change', e => analyse(state.sheetName, +e.target.value));
 
+/* ---------- GCIP export → the same layout as Power BI Pending RO ----------
+   A PS exports its jobs from GCIP: columns come in any order, Thai or English names, and there is no Pending day.
+   Columns are found by name (or by their values), Pending day = upload date − arrival date (เวลาที่มาถึง). */
+const GCIP_MAP = [
+  ['Repair_Order', /^(หมายเลขเอกสาร|เลขที่เอกสาร|เลขที่ใบสั่งซ่อม|หมายเลขใบสั่งซ่อม|เลขใบสั่งซ่อม|documentno|documentnumber|docno|repairorder|repairorderno|rono|orderno|ordernumber)$/, v => /^(SP|BP)-?\d{6,}/i.test(v)],
+  ['VIN_Code', /^(หมายเลขตัวถัง|เลขตัวถัง|vin|vincode|vinno|chassisno|chassisnumber)$/, v => /^[A-HJ-NPR-Z0-9]{17}$/i.test(v)],
+  ['Basic_Model', /^(ชื่อรุ่นรถยนต์|รุ่นรถยนต์|รุ่นรถ|ชื่อรุ่น|carmodel|carmodelname|model|modelname|basicmodel)$/],
+  ['Repair_Status', /^(สถานะ|สถานะใบงาน|สถานะงาน|status|repairstatus|orderstatus)$/, v => ST_IDX.has(String(v).trim()) || ST_IDX.has(String(v).trim().toLowerCase())],
+  ['Remark', /^(รายละเอียดบริการ|หมายเหตุ|รายละเอียด|remark|remarks|customerremark|servicedetail|servicedetails|servicedescription)$/],
+  ['Store_Name', /^(ชื่อสโตร์|สโตร์|ชื่อศูนย์บริการ|ศูนย์บริการ|ชื่อดีลเลอร์|storename|store|dealer|dealername)$/]
+];
+const GCIP_ARRIVE = /^(เวลาที่มาถึง|วันที่มาถึง|เวลามาถึง|วันเวลาที่มาถึง|เวลาเข้ารับบริการ|วันที่เข้ารับบริการ|arrivaltime|arrivalon|arrivedon|arrival|arrivaldate|arrivaldatetime)$/;
+function cellDate(c){
+  if (!c) return null;
+  if (c.v instanceof Date) return new Date(c.v.getFullYear(), c.v.getMonth(), c.v.getDate(), c.v.getHours(), c.v.getMinutes());
+  if (c.t === 'n' && Number.isFinite(+c.v) && +c.v > 20000){ const p = XLSX.SSF.parse_date_code(+c.v); if (p) return new Date(p.y, p.m - 1, p.d, p.H || 0, p.M || 0); }
+  const t = String(c.w ?? c.v ?? '').trim(); if (!t) return null;
+  let m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})(?:[ T]+(\d{1,2}):(\d{2}))?/.exec(t);
+  if (m){ let y = +m[1]; if (y > 2400) y -= 543; return new Date(y, +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0)); }
+  const d = datesIn(t)[0]; if (!d) return null;
+  const [dd, mm, yy] = d.split('/').map(Number), hm = /(\d{1,2}):(\d{2})/.exec(t.replace(d, ''));
+  return new Date(yy, mm - 1, dd, hm ? +hm[1] : 0, hm ? +hm[2] : 0);
+}
+const pad2 = n => String(n).padStart(2, '0');
+const fmtDT = d => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+const toSerial = d => (Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()) - Date.UTC(1899, 11, 30)) / 864e5;
+function gcipToStd(book){
+  for (const n of book.SheetNames){
+    const rows = sheetCells(book.Sheets[n]);
+    for (let r = 0; r < Math.min(rows.length, 15); r++){
+      const h = (rows[r] || []).map(x => norm(cleanHead(txt(x))));
+      if (h.some(x => /pendingday|pendingdays|aging/.test(x))) return null;   // already Power BI layout
+      const ac = h.findIndex(x => GCIP_ARRIVE.test(x)); if (ac < 0) continue;
+      const data = rows.slice(r + 1).filter(row => row.some(Boolean));
+      const used = new Set([ac]), map = {};
+      for (const [name, re, test] of GCIP_MAP){
+        let c = h.findIndex((x, i) => !used.has(i) && re.test(x));
+        if (c < 0 && test){ let best = -1, bn = 0; h.forEach((x, i) => { if (used.has(i)) return; const k = data.filter(row => row[i] && test(txt(row[i]))).length; if (k > bn){ bn = k; best = i; } }); if (bn >= Math.max(1, data.length * 0.5)) c = best; }
+        if (c >= 0){ map[name] = c; used.add(c); }
+      }
+      if (map.Repair_Order == null) continue;
+      h.forEach((x, i) => { if (/อย่าปรับเปลี่ยน|donotmodify|checksum/.test(x)) used.add(i); });
+      const rest = h.map((x, i) => i).filter(i => !used.has(i) && txt((rows[r] || [])[i]));
+      const now = new Date(), day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const head = ['Pending day', 'Repair_Order', 'VIN_Code', 'Basic_Model', 'Repair_Status', 'Remark', 'Create on', 'Store_Name', ...rest.map(i => cleanHead(txt(rows[r][i])))];
+      const ws = {}, put = (R, C, cell) => { if (cell) ws[XLSX.utils.encode_cell({r:R, c:C})] = cell; };
+      head.forEach((v, C) => put(0, C, {t:'s', v, w:v}));
+      let noDate = 0;
+      data.forEach((row, i) => {
+        const R = i + 1, a = cellDate(row[ac]);
+        if (a){ const age = Math.max(0, Math.round((day0 - new Date(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5)); put(R, 0, {t:'n', v:age, w:String(age)}); put(R, 6, {t:'n', v:toSerial(a), z:'dd/mm/yyyy hh:mm', w:fmtDT(a)}); }
+        else noDate++;
+        ['Repair_Order', 'VIN_Code', 'Basic_Model', 'Repair_Status', 'Remark', 'Store_Name'].forEach((k, j) => { const c = map[k] != null ? row[map[k]] : null; if (c) put(R, [1,2,3,4,5,7][j], {t:'s', v:String(c.w ?? c.v), w:String(c.w ?? c.v)}); });
+        rest.forEach((ci, j) => { const c = row[ci]; if (c) put(R, 8 + j, Object.assign({}, c)); });
+      });
+      ws['!ref'] = XLSX.utils.encode_range({s:{r:0, c:0}, e:{r:Math.max(1, data.length), c:head.length - 1}});
+      const out = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(out, ws, 'Export');
+      out.gcip = {rows: data.length, noDate, day: day0, missing: ['Store_Name', 'VIN_Code', 'Repair_Status', 'Remark'].filter(k => map[k] == null)};
+      return out;
+    }
+  }
+  return null;
+}
 async function loadBuffer(buf, name, quiet){
   tpl = await prepareTemplate(buf);
   try{
     wb = readBook(buf, {cellNF:true, cellText:true});
   } catch(err){ toast('อ่านไฟล์ไม่ได้ ตรวจสอบว่าเป็นไฟล์ Excel ที่ถูกต้อง'); return; }
+  let gNote = '';
+  try { const g = gcipToStd(wb); if (g){ wb = g; tpl = null; const d = g.gcip.day;
+    gNote = T2(`ไฟล์ GCIP ${g.gcip.rows} RO · Pending day นับจากเวลาที่มาถึง ถึงวันที่อัปโหลด ${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`, `GCIP file, ${g.gcip.rows} RO · Pending day counted from arrival time to the upload date ${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`)
+      + (g.gcip.noDate ? T2(` · ${g.gcip.noDate} RO ไม่มีเวลาที่มาถึง`, ` · ${g.gcip.noDate} RO without arrival time`) : '')
+      + (g.gcip.missing.length ? T2(' · ไม่พบคอลัมน์ ', ' · column not found: ') + g.gcip.missing.join(', ') : ''); } }
+  catch(e){ console.warn('gcip', e); }
   fileBase = name.replace(/\.[^.]+$/,'');
   // pick the sheet that has a Store column; fall back to the first sheet
   let pick = wb.SheetNames[0];
   for (const n of wb.SheetNames){ const rows = sheetCells(wb.Sheets[n]); const h = findHeader(rows); if (h.c >= 0 && rows.length > h.r + 1){ pick = n; break; } }
   $('sampleBanner').hidden = true; isSample = false; lastFile = {bytes: buf instanceof Uint8Array ? buf : new Uint8Array(buf), name};
   analyse(pick);
-  if (!quiet) toast(`โหลด ${name} แล้ว`);
+  $('gcipNote').hidden = !gNote; $('gcipNote').textContent = gNote;
+  if (gNote) toast(gNote, 7000); else if (!quiet) toast(`โหลด ${name} แล้ว`);
 }
 function handleFile(f){ if (!f) return; const r = new FileReader(); r.onload = async () => {
   const u8 = new Uint8Array(r.result);
@@ -1355,7 +1426,8 @@ const CANCEL_KW = /ยกเลิก\s*(?:job|จ๊อบ|จ็อบ|จ๊�
 const ACTIVE_FIX = /กำลัง\s*(?:ซ่อม|เปลี่ยน|ดำเนินการซ่อม|ประกอบ|ติดตั้ง|รื้อ|เคาะ|พ่นสี|ทำสี)|ช่าง\s*กำลัง|อยู่\s*ระหว่าง\s*(?:การ)?\s*(?:ซ่อม|เปลี่ยน|ประกอบ)|ระหว่าง\s*ซ่อม|นำรถเข้าซ่อม|รถเข้าซ่อมแล้ว/;
 const CUST_NOFIX = /ลูกค้า\s*(?:ไม่\s*(?:ซ่อม|ประสงค์(?:จะ)?ซ่อม|ต้องการ(?:จะ)?ซ่อม|สะดวก)|ปฏิเสธ|ขอ\s*(?:ยกเลิก|รับรถคืน))/;
 const WAIT_PARTS = /รอ\s*(?:สั่ง\s*)?อะไหล่|อะไหล่ติด|back\s*order|b\/o|สั่งอะไหล่|รอตัดอะไหล่/i;
-const isBO = ex => /\bBO-/.test(ex.part || '');
+// BO number, or the remark says back order (B/O) next to a PO number
+const isBO = (ex, rem) => /\bBO-/.test(ex.part || '') || /(?:^|[^A-Za-z])B\s*\/\s*O(?![A-Za-z])|back\s*-?\s*order|แบ็?คออเดอร์/i.test(rem || '');
 function causeOf(rem, ex, dd, etaLate, park, status){
   park = park || ex.park || '';
   const st = stNorm(status || '');
@@ -1392,9 +1464,9 @@ function ownerOf(rem, ex, status, cause){
   if (cause === 'cancel') return ['PS', 'SVM'];
   // in repair: YS raised → the PS follows the warranty approval; otherwise the PS technicians
   if (cause === 'repair') return ['PS', ex.war ? 'Warranty' : 'Tech'];
-  if (cause === 'cust' && (ex.part || ex.war || ex.tech)) return [ex.part && !isBO(ex) && !ex.war && !ex.tech ? 'PS' : 'GWM', 'Customer'];
+  if (cause === 'cust' && (ex.part || ex.war || ex.tech)) return [ex.part && !isBO(ex, rem) && !ex.war && !ex.tech ? 'PS' : 'GWM', 'Customer'];
   // BO = back order at GWM; a PO only = the PS ordered and follows it up; YS → GWM Warranty; JS → GWM Technical
-  if (ex.part) return isBO(ex) ? ['GWM', 'Spare part'] : ['PS', 'Spare part'];
+  if (ex.part) return isBO(ex, rem) ? ['GWM', 'Spare part'] : ['PS', 'Spare part'];
   if (ex.war) return ['GWM', 'Warranty'];
   if (ex.tech) return ['GWM', 'Tech'];
   if (cause === 'cust') return ['PS', /\bCR\b|ร้องเรียน|complain/i.test(rem) ? 'CR' : 'Customer'];
@@ -2961,7 +3033,7 @@ const I18N_PAIRS = [
 ['แก้ชื่อในไฟล์ RSM ให้ตรง แล้วอัปโหลดใหม่ได้เลย','Fix the names in the RSM file and upload it again'],
 ['ใส่รหัสผ่านเพื่อเปิด Dashboard และข้อมูล Pending RO','Enter the password to open the Dashboard and Pending RO data'],
 ['ลากไฟล์ .xlsx มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์','Drop an .xlsx file here or click to choose one'],
-['รองรับ .xlsx / .xls / .csv / .json · ระบบหาคอลัมน์ Store_Name ให้อัตโนมัติ','Supports .xlsx / .xls / .csv · finds the Store_Name column automatically'],
+['รองรับไฟล์ Power BI (Pending RO) และ GCIP · .xlsx / .xls / .csv / .json · หาคอลัมน์ให้อัตโนมัติ','Supports Power BI (Pending RO) and GCIP files · .xlsx / .xls / .csv / .json · columns found automatically'],
 ['ทุก Partner ในไฟล์ Pending มี RSM ครบทั้ง','Every Partner in the Pending file has an RSM —'],
 ['ไม่มีในไฟล์ RSM แต่กำหนดไว้ในระบบแล้ว','Not in the RSM file but set in the tool'],
 ['ชื่อ Partner ที่ไม่ตรงกับไฟล์ RSM','Partner names that do not match the RSM file'],
