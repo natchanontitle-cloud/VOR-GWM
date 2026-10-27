@@ -13,9 +13,9 @@
 <style>
 /* Layout: single working column — upload strip, file summary, store table with per-row export */
 :root{
-  --bg:#f3f5f4; --surface:#ffffff; --fg:#17201d; --muted:#5d6b66; --line:#dbe2df;
-  --accent:#0f6b5c; --accent-ink:#ffffff; --accent-soft:#e1efeb;
-  --warn:#a86400; --warn-soft:#fbefd9; --crit:#b3261e; --crit-soft:#fbe4e2;
+  --bg:#fbf8f8; --surface:#ffffff; --fg:#1d1416; --muted:#6e5f61; --line:#eadfe0;
+  --accent:#c8102e; --accent-ink:#ffffff; --accent-soft:#fce8eb;
+  --warn:#a86400; --warn-soft:#fbefd9; --crit:#8e1b12; --crit-soft:#f8dedb;
   --font-body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
   --font-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
@@ -161,6 +161,9 @@ div.kpi.click.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--acc
 .langsw button{border:none;border-radius:0;padding:2px 8px;font-size:.72rem;font-family:var(--font-mono);background:var(--surface)}
 .langsw button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .lockcard .langsw{float:right}
+.lockcard .themesw{float:right;clear:right;margin-top:6px}
+.themesw{margin-left:6px}
+html{transition:background-color .2s}
 html[lang="en"] .rsmcard summary::after{content:"Show partners ▾"}
 html[lang="en"] .rsmcard[open] summary::after{content:"Hide list ▴"}
 .pdfroot .langsw{display:none!important}
@@ -407,7 +410,7 @@ table.rank td{vertical-align:top}
 
 <div class="lock" id="lock">
   <form class="lockcard" id="lockForm" autocomplete="on">
-    <div class="eyebrow">Aftersales · Pending RO · V.9 <span class="langsw" role="group" aria-label="Language"><button type="button" data-lang="th" aria-pressed="true">TH</button><button type="button" data-lang="en" aria-pressed="false">EN</button></span></div>
+    <div class="eyebrow">Aftersales · Pending RO · V.015 <span class="langsw" role="group" aria-label="Language"><button type="button" data-lang="th" aria-pressed="true">TH</button><button type="button" data-lang="en" aria-pressed="false">EN</button></span><span class="langsw themesw" role="group" aria-label="Light / Dark"><button type="button" data-thm="light" aria-pressed="true" title="Light">☀ Light</button><button type="button" data-thm="dark" aria-pressed="false" title="Dark">☾ Dark</button></span></div>
     <h2>เข้าสู่ระบบ</h2>
     <p class="sub">ใส่รหัสผ่านเพื่อเปิด Dashboard และข้อมูล Pending RO</p>
     <input type="text" name="username" value="rsm" autocomplete="username" hidden>
@@ -419,7 +422,7 @@ table.rank td{vertical-align:top}
 </div>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Aftersales · Pending RO · <span class="ver">V.9 by Natchanon C.</span> <span class="pill muted" id="roleTag"></span> <button id="lockOut" class="linkbtn" type="button">ออกจากระบบ</button> <span class="langsw" role="group" aria-label="Language"><button type="button" data-lang="th" aria-pressed="true">TH</button><button type="button" data-lang="en" aria-pressed="false">EN</button></span></div>
+    <div class="eyebrow">Aftersales · Pending RO · <span class="ver">V.015 by Natchanon C.</span> <span class="pill muted" id="roleTag"></span> <button id="lockOut" class="linkbtn" type="button">ออกจากระบบ</button> <span class="langsw" role="group" aria-label="Language"><button type="button" data-lang="th" aria-pressed="true">TH</button><button type="button" data-lang="en" aria-pressed="false">EN</button></span><span class="langsw themesw" role="group" aria-label="Light / Dark"><button type="button" data-thm="light" aria-pressed="true" title="Light">☀ Light</button><button type="button" data-thm="dark" aria-pressed="false" title="Dark">☾ Dark</button></span></div>
     <h1>Pending RO · Dashboard และแยกไฟล์ตาม PS</h1>
     <form class="gsearch" id="gSearch" hidden role="search"><input type="search" id="gQ" placeholder="ค้นหา VIN / RO (SP, BP)…" aria-label="ค้นหา VIN หรือเลข RO" autocomplete="off"><button type="submit" class="primary">ค้นหา</button></form>
     <p>อัปโหลดไฟล์ Pending RO แล้วดู Dashboard แบบ Overview, ราย RSM หรือราย Partner พร้อมอันดับวันค้างซ่อมและสาเหตุ จากนั้นแยกไฟล์ส่ง Dealer ได้ในแท็บถัดไป ไฟล์ถูกประมวลผลในเบราว์เซอร์ของคุณเท่านั้น</p>
@@ -3273,6 +3276,16 @@ trObs = new MutationObserver(ms => {
 });
 trObs.observe(document.body, {childList:true, subtree:true, characterData:true});
 document.addEventListener('click', e => { const b = e.target.closest('.langsw [data-lang]'); if (b) setLang(b.dataset.lang); });
+// Day (white / red) or Night; remembered in this browser only
+function setTheme(t){
+  t = t === 'dark' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  document.querySelectorAll('.themesw [data-thm]').forEach(b => b.setAttribute('aria-pressed', b.dataset.thm === t));
+  try { localStorage.setItem('roTheme', t); } catch(e){}
+  try { if (state && state.recs && !$('dash').hidden) renderDash(); } catch(e){}
+}
+document.addEventListener('click', e => { const b = e.target.closest('.themesw [data-thm]'); if (b) setTheme(b.dataset.thm); });
+(() => { let t = 'light'; try { t = localStorage.getItem('roTheme') || 'light'; } catch(e){} setTheme(t); })();
 setLang(lang);
 </script>
 
