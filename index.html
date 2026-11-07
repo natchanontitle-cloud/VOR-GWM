@@ -625,6 +625,7 @@ table.rank td{vertical-align:top}
     <button id="spClose" class="primary" aria-label="ปิดรายละเอียด">✕ ปิด</button></div>
   <div class="spchips" id="spChips"></div>
   <div class="spgrid" id="spGrid"></div>
+  <div id="spCdescWrap" hidden><h4>คำอธิบายลูกค้า</h4><div class="fullrem spremark" id="spCdesc"></div></div>
   <h4>Remark</h4>
   <div class="fullrem spremark" id="spRemark"></div>
   <h4>ข้อมูลทุกคอลัมน์จากไฟล์</h4>
@@ -1542,7 +1543,7 @@ function stLabel(s){ if (!s || s === 'ไม่ระบุ') return isEn() ? 'U
 function parseDMY(s){ const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s || ''); return m ? new Date(+m[3], +m[2]-1, +m[1]) : null; }
 function buildRecords(){
   const c = {sp: colByName(/^repair_?order$|^repairorder$/), model: colByName(/basicmodel|^model$/), status: colByName(/repairstatus/),
-             dd: colByName(/^สาเหตุงานค้าง$/), vin: colByName(/^vin(code|no|number)?$|^vin_?code$|^vin$/)};
+             dd: colByName(/^สาเหตุงานค้าง$/), cdesc: colByName(/^(คำอธิบายลูกค้า|อาการที่ลูกค้าแจ้ง|อาการลูกค้า|ลูกค้าแจ้ง|customerdescription|customercomplaint|customerconcern|customervoice)$/), vin: colByName(/^vin(code|no|number)?$|^vin_?code$|^vin$/)};
   const today = new Date(); today.setHours(0,0,0,0);
   const recs = [];
   for (const g of state.list) for (const r of g.rows){
@@ -1555,7 +1556,7 @@ function buildRecords(){
     const sp = c.sp>=0 ? txt(r[c.sp]) : '', etaLate = !!(etaD && etaD < today);
     recs.push({store:g.name, rsm:[...g.rsm][0] || 'ไม่ระบุ RSM', age, sp, jt: /^BP/i.test(sp) ? 'BP' : 'GR', model: c.model>=0 ? txt(r[c.model]) : '',
       status: c.status>=0 ? stNorm(txt(r[c.status])) : '', park, cause: causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate, park, c.status>=0 ? txt(r[c.status]) : ''), detail: detailOf(rem), ...(() => { const st = c.status>=0 ? txt(r[c.status]) : ''; const [g2, d2] = ownerOf(rem, ex, st, causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate, park, st)); return {ownGrp:g2, ownDept:d2, ownKey:g2 + ':' + d2}; })(),
-      tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', deliv: ex.deliv||'', etaLate: !!(etaD && etaD < today), remark: rem, vin: c.vin>=0 ? txt(r[c.vin]) : '', row: r, idx: recs.length});
+      tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', deliv: ex.deliv||'', etaLate: !!(etaD && etaD < today), remark: rem, cdesc: c.cdesc>=0 ? String(txt(r[c.cdesc]) || '').trim() : '', vin: c.vin>=0 ? txt(r[c.vin]) : '', row: r, idx: recs.length});
   }
   return recs;
 }
@@ -1833,7 +1834,7 @@ function renderRemark(){
 }
 function renderRank(){
   const q = dash.q.trim().toLowerCase();
-  let recs = filtered(scopeRecs()).filter(r => (!q || (r.sp + ' ' + r.vin + ' ' + r.store + ' ' + r.detail + ' ' + r.part + ' ' + r.war + ' ' + r.tech).toLowerCase().includes(q)));
+  let recs = filtered(scopeRecs()).filter(r => (!q || (r.sp + ' ' + r.vin + ' ' + r.store + ' ' + r.detail + ' ' + (r.cdesc || '') + ' ' + r.part + ' ' + r.war + ' ' + r.tech).toLowerCase().includes(q)));
   recs = recs.slice().sort((a,b) => (b.age ?? -1) - (a.age ?? -1));
   const lim = (dash.showAll || dash.view === 'store') ? recs.length : 50;
   const lab = Object.fromEntries(CAUSES.map(c => [c.k, c.label]));
@@ -1847,7 +1848,7 @@ function renderRank(){
       <td data-l="Partner">${esc(r.store.replace(/^GWM\s+/,''))}<div class="sub">${esc(r.rsm)}</div></td>
       <td data-l="รถ">${r.park === 'Parking' ? '<span class="pill">จอด</span>' : r.park === 'Not Parking' ? '<span class="pill muted">ไม่จอด</span>' : '<span class="sub">–</span>'}</td>
       <td data-l="ติดที่" class="wide"><span class="cause"><span class="sw" style="background:${causeColor(r.cause)}"></span>${esc(lab[r.cause])}</span> <span class="own ${r.ownGrp}">ค้างที่ ${r.ownGrp} · ${esc(OWNER_TH[r.ownDept])}</span>
-          <div class="detail">${esc(r.detail) || '<span class="sub">ไม่มีรายละเอียดใน Remark</span>'}</div>${refs ? `<div class="refs">${refs}</div>` : ''}</td>
+          <div class="detail">${esc(r.detail) || '<span class="sub">ไม่มีรายละเอียดใน Remark</span>'}</div>${r.cdesc ? `<div class="sub cdesc">${T2('ลูกค้าแจ้ง','Customer')}: ${esc(r.cdesc.length > 140 ? r.cdesc.slice(0, 138) + '…' : r.cdesc)}</div>` : ''}${refs ? `<div class="refs">${refs}</div>` : ''}</td>
       <td class="num" data-l="ETA">${r.eta ? `<span class="${r.etaLate ? 'late' : ''}">${esc(r.eta)}</span>${r.etaLate ? '<div class="sub late">เลย ETA</div>' : ''}` : (PART_KEYS.includes(r.cause) ? '<span class="pill warn">ไม่มี ETA</span>' : '–')}</td>
     </tr>`;
   }).join('') || `<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>`;
@@ -2029,6 +2030,7 @@ function openSp(i){
     f('วันคาดว่าส่งมอบ', esc(r.deliv || '')),
     f('ETA', r.eta ? esc(r.eta) + (r.etaLate ? ' <span class="late">(เลย ETA)</span>' : '') : (PART_KEYS.includes(r.cause) ? '<span class="late">ไม่มี ETA</span>' : ''))
   ].join('');
+  $('spCdescWrap').hidden = !r.cdesc; $('spCdesc').textContent = r.cdesc || '';
   $('spRemark').textContent = r.remark.trim() || '';
   if (!r.remark.trim()) $('spRemark').innerHTML = '<span class="sub">ไม่มี Remark</span>';
   $('spAll').innerHTML = state.hdr.map((h, k) => { const c = r.row[k]; const v = c ? (c.w ?? String(c.v)) : '';
@@ -2911,9 +2913,10 @@ function parkExcel(){
   const wbk = XLSX.utils.book_new(), ws0 = XLSX.utils.aoa_to_sheet(sum); ws0['!cols'] = [{wch:34}, {wch:12}, {wch:12}, {wch:12}, {wch:12}, {wch:10}];
   XLSX.utils.book_append_sheet(wbk, ws0, T2('สรุป','Summary'));
   const cols = ['#', T2('สถานะรถ','Parking'), T2('ติดที่ (Category)','Category'), T2('ค้างที่ (GWM / PS)','Held at'), 'PS', 'RSM', 'Repair_Order', 'VIN', T2('รุ่น','Model'), 'Repair_Status', 'Pending day', 'JS', 'YS', 'PO / BO', 'ETA', T2('เลย ETA','Past ETA'), T2('วันคาดว่าส่งมอบ','Est. delivery'), 'Remark'];
-  const sheet = (name, rs) => { const rows = rs.slice().sort(byCase).map((r, i) => [i + 1, pkName(parkKey(r)), catName(r.cause), heldAt(r), r.store, r.rsm, r.sp, r.vin, r.model, stLabel(r.status), r.age ?? '', r.tech, r.war, r.part, r.eta, r.etaLate ? T2('เลย ETA','Past ETA') : '', r.deliv || '', String(r.remark || '').trim()]);
+  const hasCd = all.some(r => r.cdesc); if (hasCd) cols.push(T2('คำอธิบายลูกค้า','Customer description'));
+  const sheet = (name, rs) => { const rows = rs.slice().sort(byCase).map((r, i) => [i + 1, pkName(parkKey(r)), catName(r.cause), heldAt(r), r.store, r.rsm, r.sp, r.vin, r.model, stLabel(r.status), r.age ?? '', r.tech, r.war, r.part, r.eta, r.etaLate ? T2('เลย ETA','Past ETA') : '', r.deliv || '', String(r.remark || '').trim(), ...(hasCd ? [r.cdesc || ''] : [])]);
     const ws = XLSX.utils.aoa_to_sheet([cols, ...rows]);
-    ws['!cols'] = [6, 11, 28, 22, 30, 12, 20, 20, 12, 18, 11, 18, 18, 22, 12, 10, 14, 70].map(w => ({wch:w}));
+    ws['!cols'] = [6, 11, 28, 22, 30, 12, 20, 20, 12, 18, 11, 18, 18, 22, 12, 10, 14, 70, ...(hasCd ? [60] : [])].map(w => ({wch:w}));
     ws['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:0, c:0}, e:{r: Math.max(rows.length, 1), c: cols.length - 1}})};
     XLSX.utils.book_append_sheet(wbk, ws, name); };
   for (const k of PK){ const rs = all.filter(r => parkKey(r) === k); if (rs.length) sheet(pkName(k), rs); }
@@ -2953,7 +2956,7 @@ async function parkPptx(){
           .concat(chunk.map((r, i) => { const rem = String(r.remark || '').replace(/\s+/g, ' ').trim();
             return [cell(p * PER + i + 1), cell(`${r.sp}\n${r.vin || '–'}`, {fontSize:8}), cell(r.store.replace(/^GWM\s+/, ''), {fontSize:8}), cell(r.age ?? '–', {bold:true, color: r.age > 90 ? RED : '1F2933'}),
               cell(stLabel(r.status), {fontSize:8}), cell([r.tech, r.war, r.part].filter(Boolean).join(' ') + (r.eta ? `\nETA ${r.eta}${r.etaLate ? ' (' + T2('เลย','late') + ')' : ''}` : ''), {fontSize:8}),
-              cell(rem.length > 90 ? rem.slice(0, 88) + '…' : rem || '–', {fontSize:7.5, color: rem ? '374151' : MUTED})]; }));
+              cell((rem.length > 90 ? rem.slice(0, 88) + '…' : rem || '–') + (r.cdesc ? `\n${T2('ลูกค้าแจ้ง','Customer')}: ${r.cdesc.length > 60 ? r.cdesc.slice(0, 58) + '…' : r.cdesc}` : ''), {fontSize:7.5, color: rem ? '374151' : MUTED})]; }));
         sl.addTable(rows, {x:0.3, y:1.05, w:9.4, colW:[0.42, 1.55, 1.45, 0.45, 1.0, 1.6, 2.93], border:{type:'solid', pt:0.5, color:LINE}, autoPage:false}); } }
     await saveFile(safeFile(`Pending_RO_by_case_${pk ? pk.replace(/\s+/g, '_') : 'All'}_${fileBase}_${stampDay()}`) + '.pptx', await pptxBlob(pres));
   } catch(e){ console.error(e); toast(T2('สร้าง PPTX ไม่สำเร็จ','Could not build the PPTX')); }
@@ -3080,6 +3083,7 @@ $('lockOut').addEventListener('click', () => { try { localStorage.removeItem('ro
 })();
 /* ---------- EN / TH switch: UI text only; Remark text written by dealers is never translated ---------- */
 const I18N_PAIRS = [
+['คำอธิบายลูกค้า','Customer description'],
 ['รวม RO ที่ไม่มีชื่อศูนย์','Include RO without a PS name'],
 ['แสดง ▾','Show ▾'],['ซ่อน ▴','Hide ▴'],
 ['ดูรายละเอียด Tech / Warranty / Spare part ▾','Show Tech / Warranty / Spare part details ▾'],['ซ่อนรายละเอียด ▴','Hide details ▴'],
