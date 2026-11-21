@@ -146,6 +146,7 @@ button.act-mail{background:#0f6cbd;border-color:#0f6cbd;color:#fff;font-weight:6
 .linepv summary,.mailsec summary{cursor:pointer;font-weight:600;font-size:.9rem;padding:6px 0}
 .linepv textarea{width:100%;box-sizing:border-box}
 .mailsec{border-top:1px solid var(--line);padding-top:2px}
+.mailprev{background:#fff;color:#222;border:1px solid var(--line);border-radius:8px;padding:14px;max-height:520px;overflow:auto;margin-top:6px}
 button.big{font-size:1rem;padding:10px 18px}
 @media (max-width:760px){.actgrp{width:100%}.actlbl{flex-basis:100%}.actgrp:last-child{order:-1}.actgrp button{flex:1 1 auto}}
 .pptrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
@@ -241,6 +242,7 @@ tr.click:hover td{background:var(--bg)}
   display:flex;flex-direction:column;gap:14px}
 .pdfroot .pdfhead h1{margin:2px 0;font-size:1.5rem}
 .pdfroot .dbar, .pdfroot .rankf, .pdfroot #dMore, .pdfroot #remMore{display:none!important}
+#remCard.ownonly #remChart{display:none}
 .pdfroot .grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .pdfroot .kpis{grid-template-columns:repeat(4,1fr)}
 .pdfroot .linkbtn{display:none!important}
@@ -546,11 +548,14 @@ table.rank td{vertical-align:top}
           <div class="maillist" id="mailList"></div></details>
         <details class="mailsec mailtpl"><summary>✎ แก้หัวข้อและข้อความอีเมล</summary>
           <label class="sub">หัวข้อ<input id="mailSubj" type="text"></label>
-          <label class="sub">ข้อความ<textarea id="mailBody" rows="10"></textarea></label>
-          <span class="sub">ใช้คำแทนได้: {PS} {RSM} {date} {total} {over30} {parked} · <button type="button" class="linkbtn" id="mailReset">คืนค่าเริ่มต้น</button></span></details>
-        <details class="mailsec"><summary>⚙ รายชื่ออีเมล Partner <span class="sub" id="mailStatS"></span></summary>
+          <label class="sub">ข้อความ<textarea id="mailBody" rows="16"></textarea></label>
+          <span class="sub">ตัวเลขที่ระบบเติมให้: {PS} {RSM} {date} {total} {over30} {avg} {parked} {notparked} {nopark} {tech} {war} {part} {repair} {cust} {missing} · {dashboard} = รูป Dashboard ของศูนย์</span>
+          <span class="sub">จัดรูปแบบ: **ตัวหนา** · บรรทัดขึ้นต้น "- " = หัวข้อย่อย · "1. " = ลำดับ · หมวดที่เป็น 0 คันระบบตัดออกให้ · แก้แล้วกด <b>เผยแพร่ให้ RSM ทุกคน</b> ในหัวข้อรายชื่ออีเมล เพื่อให้ทุกคนใช้ข้อความเดียวกัน</span>
+          <span class="pptrow"><button type="button" id="mailPrev">ดูตัวอย่างอีเมล</button><button type="button" class="linkbtn" id="mailReset">คืนค่าเริ่มต้น</button></span>
+          <div id="mailPrevBox" class="mailprev" hidden></div></details>
+        <details class="mailsec"><summary>⚙ รายชื่ออีเมล Partner และการเผยแพร่ <span class="sub" id="mailStatS"></span></summary>
           <p class="sub" id="mailStat" style="margin:4px 0"></p>
-          <div class="pptrow"><button id="mailTpl">ดาวน์โหลดไฟล์อีเมล (.xlsx)</button><button id="mailUp">อัปโหลดไฟล์อีเมล (เพิ่ม / แก้)</button><button id="mailPub">เผยแพร่ให้ RSM ทุกคน (GitHub)</button><input type="file" id="mailFile" accept=".xlsx,.xls,.csv" hidden></div></details>
+          <div class="pptrow"><button id="mailTpl">ดาวน์โหลดไฟล์อีเมล (.xlsx)</button><button id="mailUp">อัปโหลดไฟล์อีเมล (เพิ่ม / แก้)</button><button id="mailPub">เผยแพร่รายชื่อ + ข้อความ ให้ RSM ทุกคน (GitHub)</button><input type="file" id="mailFile" accept=".xlsx,.xls,.csv" hidden></div></details>
         <details class="mailsec"><summary>ส่งผ่าน Power Automate (OneDrive)</summary>
           <p class="sub" style="margin:4px 0">สร้าง PDF ทุก PS ชื่อไฟล์ตาม FileKey → บันทึกลงโฟลเดอร์ <b>VOR-Send</b> ใน OneDrive บริษัท → Flow ส่งอีเมลให้แต่ละ PS</p>
           <div class="pptrow"><button id="mailPrepAll">สร้าง PDF ทุก PS</button><button id="mailShareAll" hidden>บันทึกไป OneDrive ↗</button><span class="sub" id="mailAllTxt"></span></div></details>
@@ -622,11 +627,12 @@ table.rank td{vertical-align:top}
         <tbody id="fSpBody"></tbody></table></div>
     </section>
     <div class="card rsmonly" id="remCard">
-      <div class="rankhead"><h3>อันดับ Partner ที่ไม่กรอก Remark</h3><span class="sub" id="remCount"></span>
-        <div class="rankf"><div class="seg" id="remSort" role="group" aria-label="เรียงตาม"><button data-s="pct" aria-pressed="true">เรียงตาม %</button><button data-s="n" aria-pressed="false">เรียงตามจำนวน</button></div></div></div>
+      <div class="rankhead"><h3 id="remTitle">อันดับ Partner · รถจอดที่ศูนย์</h3><span class="sub" id="remCount"></span>
+        <div class="rankf"><div class="seg" id="remMetric" role="group" aria-label="ดูอันดับตาม"><button data-m="park" aria-pressed="true">จอด</button><button data-m="notpark" aria-pressed="false">ไม่จอด</button><button data-m="none" aria-pressed="false">ไม่กรอกข้อมูล</button></div>
+        <div class="seg" id="remSort" role="group" aria-label="เรียงตาม"><button data-s="n" aria-pressed="true">จำนวน</button><button data-s="pct" aria-pressed="false">%</button><button data-s="avg" aria-pressed="false">ค้างเฉลี่ย</button></div></div></div>
       <div id="remChart" class="chart"></div>
       <div class="tablebox flat"><table class="rank cards" id="remTable">
-        <thead><tr><th class="num">#</th><th>Partner</th><th>RSM</th><th class="num">RO ค้าง</th><th class="num">ไม่กรอก Remark</th><th class="num">%</th><th class="num">ค้างนานสุดที่ไม่กรอก</th></tr></thead>
+        <thead id="remHead"></thead>
         <tbody id="remBody"></tbody></table></div>
       <button id="remMore" hidden style="align-self:center"></button>
     </div>
@@ -1653,7 +1659,7 @@ function vbar(el, items0, opt = {}){
   let items = items0, ctrl = '';
   if (opt.sortId){
     const modes = opt.defaultSort === 'natural' ? [['natural','ตามลำดับเดิม'],['desc','มาก → น้อย'],['asc','น้อย → มาก']] : [['desc','มาก → น้อย'],['asc','น้อย → มาก']];
-    const mode = chartSort[opt.sortId] || opt.defaultSort || 'desc';
+    const mode = chartSort[opt.sortId] || opt.initSort || opt.defaultSort || 'desc';
     if (mode !== 'natural') items = items0.slice().sort((a,b) => mode === 'desc' ? b.value - a.value : a.value - b.value);
     if (opt.limit) items = items.slice(0, opt.limit);
     ctrl = `<div class="csort" role="group" aria-label="เรียงกราฟ">${modes.map(([k,l]) => `<button data-m="${k}" aria-pressed="${k === mode}">${l}</button>`).join('')}</div>`;
@@ -1799,7 +1805,7 @@ function renderDash(){
     key => { dash.fOwner = dash.fOwner === key ? '' : key; dash.showAll = false; renderDash(); revealFilter(); }, dash.fOwner.includes(':') ? '' : dash.fOwner);
   const ownItems = [];
   for (const g of ['GWM','PS']) for (const d of OWNER_DEPTS[g]){ const n = recs.filter(r => r.ownKey === g + ':' + d).length; if (n) ownItems.push({key: g + ':' + d, label: g + ' · ' + OWNER_TH[d], value: n, color: g === 'GWM' ? 'var(--c1)' : 'var(--c2)'}); }
-  vbar($('dOwn'), ownItems, {sortId:'own', defaultSort:'natural', rotate:true, height:270, title:'ค้างที่แผนกไหน', onClick: it => { dash.fOwner = dash.fOwner === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); }});
+  vbar($('dOwn'), ownItems, {sortId:'own', defaultSort:'natural', initSort:'desc', rotate:true, height:270, title:'ค้างที่แผนกไหน', onClick: it => { dash.fOwner = dash.fOwner === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); }});
 
   // cause stacked by bucket? keep pie + vertical bar per cause
   pie($('dCause'), CAUSES.map(c => ({key:c.k, label:c.label, value: recs.filter(r => r.cause === c.k).length, color: causeColor(c.k)})), 'ติดที่อะไร',
@@ -1810,8 +1816,8 @@ function renderDash(){
     {key:'none', label:PARK_LABEL['none'], value: recs.filter(r => !r.park).length, color:'var(--k-none)'}], 'จอด / ไม่จอด',
     key => { dash.fPark = dash.fPark === key ? '' : key; dash.showAll = false; renderDash(); revealFilter(); }, dash.fPark);
   // aging by cause: vertical bars, one per cause, showing average days
-  const causeAvg = CAUSES.map(c => { const a = recs.filter(r => r.cause === c.k && r.age != null).map(r => r.age); return {key:c.k, label:c.label, value: a.length ? Math.round(a.reduce((x,y)=>x+y,0)/a.length) : 0, color: causeColor(c.k), note: a.length + ' RO'}; });
-  vbar($('dCauseAge'), causeAvg, {sortId:'causeAge', defaultSort:'natural', title:'ค้างเฉลี่ย (วัน) ตามสาเหตุ', rotate:true, height:250, onClick: it => { dash.fCause = dash.fCause === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); }});
+  const causeAvg = CAUSES.map(c => { const a = recs.filter(r => r.cause === c.k && r.age != null).map(r => r.age); return {key:c.k, label:c.label, value: a.length ? Math.round(a.reduce((x,y)=>x+y,0)/a.length) : 0, color: causeColor(c.k), note: a.length + ' RO', n: a.length}; }).filter(x => x.n);
+  vbar($('dCauseAge'), causeAvg, {sortId:'causeAge', defaultSort:'natural', initSort:'desc', title:'ค้างเฉลี่ย (วัน) ตามสาเหตุ', rotate:true, height:250, onClick: it => { dash.fCause = dash.fCause === it.key ? '' : it.key; dash.showAll = false; renderDash(); revealFilter(); }});
 
   renderPark();
   renderFilter();
@@ -1867,32 +1873,63 @@ function renderFilter(){
       <td class="num" data-l="ETA">${r.eta ? `<span class="${r.etaLate ? 'late' : ''}">${esc(r.eta)}</span>${r.etaLate ? '<div class="sub late">เลย ETA</div>' : ''}` : (PART_KEYS.includes(r.cause) ? '<span class="pill warn">ไม่มี ETA</span>' : '–')}</td></tr>`;
   }).join('') || `<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>`;
 }
-let remSort = 'pct', remAll = false;
+let remSort = 'n', remAll = false, remMetric = 'park';
+const REM_M = {
+  park:    {t:'รถจอดที่ศูนย์', col:'จอด', f: r => r.park === 'Parking'},
+  notpark: {t:'รถไม่จอดที่ศูนย์', col:'ไม่จอด', f: r => r.park === 'Not Parking'},
+  none:    {t:'ไม่กรอกข้อมูล (ไม่มี Remark)', col:'ไม่กรอก', f: r => !r.remark.trim()}};
+const remDept = r => (r.ownGrp ? r.ownGrp + ' ' : '') + (OWNER_TH[r.ownDept] || r.ownDept || 'ไม่ระบุ');
+function remRows(pool, key){
+  const M = REM_M[key], m = new Map();
+  for (const r of pool){ if (!m.has(r.store)) m.set(r.store, {store:r.store, rsm:r.rsm, n:0, k:0, sum:0, oldest:null, dept:new Map()});
+    const g = m.get(r.store); g.n++; if (!M.f(r)) continue; g.k++; g.sum += r.age || 0; if (r.age != null) g.oldest = Math.max(g.oldest ?? 0, r.age);
+    const d = remDept(r); g.dept.set(d, (g.dept.get(d) || 0) + 1); }
+  return [...m.values()].map(g => ({...g, pct: g.n ? g.k / g.n * 100 : 0, avg: g.k ? Math.round(g.sum / g.k) : 0,
+      depts: [...g.dept.entries()].sort((a, b) => b[1] - a[1])}))
+    .sort((a, b) => remSort === 'pct' ? (b.pct - a.pct || b.k - a.k) : remSort === 'avg' ? (b.avg - a.avg || b.k - a.k) : (b.k - a.k || b.pct - a.pct));
+}
+const remDeptTxt = (g, n = 3) => g.depts.length ? g.depts.slice(0, n).map(([d, c]) => `${esc(d)} <b>${c}</b>`).join(' · ') + (g.depts.length > n ? ` · +${g.depts.length - n}` : '') : '–';
 function renderRemark(){
   // scope: overview = every Partner, RSM view = that RSM, Partner view = the Partner's RSM with the Partner highlighted
   const base0 = baseRecs(), base = dash.view === 'rsm' && dash.rsm === TERMINATED ? base0 : base0.filter(isLive); const pool = dash.view === 'overview' ? base : base.filter(r => r.rsm === (dash.view === 'rsm' ? dash.rsm : (state.recs.find(x => x.store === dash.store) || {}).rsm));
-  const m = new Map();
-  for (const r of pool){ if (!m.has(r.store)) m.set(r.store, {store:r.store, rsm:r.rsm, n:0, empty:0, oldest:null});
-    const g = m.get(r.store); g.n++; if (!r.remark.trim()){ g.empty++; if (r.age != null) g.oldest = Math.max(g.oldest ?? 0, r.age); } }
-  const rows = [...m.values()].map(g => ({...g, pct: g.n ? g.empty / g.n * 100 : 0}))
-    .sort((a,b) => remSort === 'pct' ? (b.pct - a.pct || b.empty - a.empty) : (b.empty - a.empty || b.pct - a.pct));
-  const totE = rows.reduce((s,g) => s + g.empty, 0), totN = rows.reduce((s,g) => s + g.n, 0);
-  $('remCount').textContent = `${totE.toLocaleString()} จาก ${totN.toLocaleString()} RO ไม่มี Remark (${totN ? Math.round(totE/totN*100) : 0}%)` + (dash.view === 'store' ? ' · เทียบกับ Partner ใน RSM เดียวกัน' : '');
+  const M = REM_M[remMetric], rows = remRows(pool, remMetric);
   document.querySelectorAll('#remSort button').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === remSort));
+  document.querySelectorAll('#remMetric button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === remMetric));
+  // PDF of one Partner: only that Partner's own position, nothing about the others
+  const ownOnly = dash.view === 'store' && dash.store && !!$('dash').closest('.pdfroot');
+  $('remCard').classList.toggle('ownonly', ownOnly);
+  if (ownOnly){
+    const N = rows.length;
+    $('remTitle').textContent = 'อันดับของศูนย์บริการ';
+    $('remCount').textContent = `เทียบกับ ${N} ศูนย์บริการใน RSM เดียวกัน · เรียงจากมากไปน้อย · ไม่แสดงข้อมูลศูนย์อื่น`;
+    $('remChart').innerHTML = '';
+    $('remHead').innerHTML = '<tr><th>หัวข้อ</th><th class="num">อันดับ</th><th class="num">จำนวน</th><th class="num">%</th><th class="num">ค้างเฉลี่ย</th><th>ค้างแผนกไหน</th></tr>';
+    $('remBody').innerHTML = Object.keys(REM_M).map(key => { const rr = remRows(pool, key), i = rr.findIndex(g => g.store === dash.store), g = rr[i];
+      if (!g) return '';
+      return `<tr><td data-l="หัวข้อ"><b>${REM_M[key].t}</b></td><td class="num" data-l="อันดับ">${g.k ? `${i + 1} / ${N}` : '–'}</td><td class="num" data-l="จำนวน">${g.k} / ${g.n} RO</td>
+        <td class="num" data-l="%">${Math.round(g.pct)}%</td><td class="num" data-l="ค้างเฉลี่ย">${g.k ? g.avg + ' วัน' : '–'}</td><td data-l="ค้างแผนกไหน">${remDeptTxt(g, 4)}</td></tr>`; }).join('');
+    $('remMore').hidden = true; return;
+  }
+  $('remTitle').textContent = 'อันดับ Partner · ' + M.t;
+  const totE = rows.reduce((s,g) => s + g.k, 0), totN = rows.reduce((s,g) => s + g.n, 0);
+  $('remCount').textContent = `${M.col} ${totE.toLocaleString()} จาก ${totN.toLocaleString()} RO (${totN ? Math.round(totE/totN*100) : 0}%)` + (dash.view === 'store' ? ' · เทียบกับ Partner ใน RSM เดียวกัน' : '');
   const N = $('remChart').clientWidth < 600 ? 10 : 20;
-  const top = rows;
-  const remNote = () => `<div class="sub">${remSort === 'pct' ? '% RO ที่ไม่กรอก Remark' : 'จำนวน RO ที่ไม่กรอก Remark'} · ${(chartSort.rem || 'desc') === 'asc' ? 'น้อยสุด' : 'มากสุด'} ${N} อันดับ · สีแดง ≥ 80% · สีส้ม ≥ 50%</div>`;
-  vbar($('remChart'), top.map(g => ({label: g.store.replace(/^GWM\s+/,''), value: remSort === 'pct' ? Math.round(g.pct) : g.empty, key:g.store,
-      color: g.store === dash.store ? 'var(--c2)' : g.pct >= 80 ? 'var(--crit)' : g.pct >= 50 ? 'var(--warn)' : 'var(--c1)',
-      note: `ไม่กรอก ${g.empty}/${g.n} RO (${Math.round(g.pct)}%)`})),
-    {limit: N, sortId:'rem', after: () => $('remChart').insertAdjacentHTML('afterbegin', remNote()), rotate:true, height:280, title:'Partner ที่ไม่กรอก Remark', onClick: it => { if (dash.view === 'store' && it.key === dash.store){ dash.fCause = 'none'; dash.showAll = false; renderDash(); revealFilter(); return; } dash.view = 'store'; dash.store = it.key; dash.rsm = (state.recs.find(r => r.store === it.key)||{}).rsm || ''; renderDash(); }});
+  const lab = remSort === 'pct' ? `% RO ที่${M.col}` : remSort === 'avg' ? `ค้างเฉลี่ย (วัน) ของรถ${M.col}` : `จำนวน RO ที่${M.col}`;
+  const bad = remMetric === 'none';   // colour by severity only where a higher number is bad
+  const remNote = () => `<div class="sub">${lab} · ${(chartSort.rem || 'desc') === 'asc' ? 'น้อยสุด' : 'มากสุด'} ${N} อันดับ${bad ? ' · สีแดง ≥ 80% · สีส้ม ≥ 50%' : ''}</div>`;
+  vbar($('remChart'), rows.filter(g => g.k).map(g => ({label: g.store.replace(/^GWM\s+/,''), value: remSort === 'pct' ? Math.round(g.pct) : remSort === 'avg' ? g.avg : g.k, key:g.store,
+      color: g.store === dash.store ? 'var(--c2)' : !bad ? 'var(--c1)' : g.pct >= 80 ? 'var(--crit)' : g.pct >= 50 ? 'var(--warn)' : 'var(--c1)',
+      note: `${M.col} ${g.k}/${g.n} RO (${Math.round(g.pct)}%) · ค้างเฉลี่ย ${g.avg} วัน`})),
+    {limit: N, sortId:'rem', after: () => $('remChart').insertAdjacentHTML('afterbegin', remNote()), rotate:true, height:280, title:'Partner · ' + M.t, onClick: it => { if (dash.view === 'store' && it.key === dash.store){ if (remMetric === 'none') dash.fCause = 'none'; else dash.fPark = remMetric === 'park' ? 'Parking' : 'Not Parking'; dash.showAll = false; renderDash(); revealFilter(); return; } dash.view = 'store'; dash.store = it.key; dash.rsm = (state.recs.find(r => r.store === it.key)||{}).rsm || ''; renderDash(); }});
   $('remChart').insertAdjacentHTML('afterbegin', remNote());
+  $('remHead').innerHTML = `<tr><th class="num">#</th><th>Partner</th><th>RSM</th><th class="num">RO ค้าง</th><th class="num">${M.col}</th><th class="num">%</th><th class="num">ค้างเฉลี่ย</th><th>ค้างแผนกไหน</th><th class="num">ค้างนานสุด</th></tr>`;
   const shown = remAll ? rows : rows.slice(0, 15);
   $('remMore').hidden = rows.length <= 15; $('remMore').textContent = remAll ? 'แสดง 15 อันดับแรก' : `แสดงทั้งหมด ${rows.length} Partner`;
   $('remBody').innerHTML = shown.map((g,i) => {
-    const sev = g.pct >= 80 ? 'crit' : g.pct >= 50 ? 'warn' : '';
+    const sev = !bad ? '' : g.pct >= 80 ? 'crit' : g.pct >= 50 ? 'warn' : '';
     return `<tr class="click ${g.store === dash.store ? 'hl' : ''}" data-remstore="${esc(g.store)}"><td class="num" data-l="อันดับ">${i+1}</td><td data-l="Partner"><button class="splink">${esc(g.store.replace(/^GWM\s+/,''))}</button></td><td data-l="RSM">${esc(g.rsm)}</td>
-      <td class="num" data-l="RO ค้าง">${g.n}</td><td class="num" data-l="ไม่กรอก">${g.empty}</td><td class="num" data-l="%"><span class="pill ${sev}">${Math.round(g.pct)}%</span></td>
+      <td class="num" data-l="RO ค้าง">${g.n}</td><td class="num" data-l="${M.col}">${g.k}</td><td class="num" data-l="%"><span class="pill ${sev}">${Math.round(g.pct)}%</span></td>
+      <td class="num" data-l="ค้างเฉลี่ย">${g.k ? g.avg + ' วัน' : '–'}</td><td data-l="ค้างแผนกไหน" class="sub">${remDeptTxt(g)}</td>
       <td class="num" data-l="ค้างนานสุด">${g.oldest != null ? g.oldest + ' วัน' : '–'}</td></tr>`; }).join('');
 }
 function renderRank(){
@@ -1938,9 +1975,10 @@ function initDash(){
     const next = {...dash.types, [i.dataset.t]: i.checked}; if (!next.GR && !next.BP){ i.checked = true; toast('ต้องเลือกอย่างน้อย 1 ประเภทงาน'); return; }
     dash.types = next; dash.showAll = false; renderDash(); });
   $('remBody').addEventListener('click', e => { const tr = e.target.closest('[data-remstore]'); if (!tr) return; const st = tr.dataset.remstore;
-    dash.view = 'store'; dash.store = st; dash.rsm = (state.recs.find(r => r.store === st)||{}).rsm || ''; dash.fCause = 'none'; dash.showAll = false; renderDash(); revealFilter(); });
+    dash.view = 'store'; dash.store = st; dash.rsm = (state.recs.find(r => r.store === st)||{}).rsm || ''; if (remMetric === 'none') dash.fCause = 'none'; else dash.fPark = remMetric === 'park' ? 'Parking' : 'Not Parking'; dash.showAll = false; renderDash(); revealFilter(); });
   $('remMore').addEventListener('click', () => { remAll = !remAll; renderRemark(); });
   $('remSort').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (!b) return; remSort = b.dataset.s; renderRemark(); });
+  $('remMetric').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; remMetric = b.dataset.m; renderRemark(); });
   $('dMore').addEventListener('click', () => { dash.showAll = !dash.showAll; renderRank(); });
   $('dCauseF').innerHTML = '<option value="">ทุกสาเหตุ</option>' + CAUSES.map(c => `<option value="${c.k}">${c.label}</option>`).join('');
   $('dParkF').innerHTML = '<option value="">รถ: ทั้งหมด</option>' + Object.entries(PARK_LABEL).map(([k,v]) => `<option value="${k}">${v}</option>`).join('');
@@ -1975,6 +2013,15 @@ async function renderPdfBlob(opt = {}){
     const pdf = new jsPDF({unit:'mm', format:'a4', orientation:'portrait', compress:true});
     const M = 10, PW = 210 - 2*M; let y = M;
     const bg = getComputedStyle(root).backgroundColor;
+    if (opt.snap){ try {
+      const parts = [];
+      for (const el of [root.querySelector('.pdfhead'), dashEl.querySelector('.kpis'), $('parkCard')]) if (el && el.offsetHeight) parts.push(await html2canvas(el, {scale: 1, backgroundColor: bg, useCORS:true, logging:false}));
+      const W = Math.max(...parts.map(c => c.width)), H = parts.reduce((a, c) => a + c.height + 8, 0), cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      const g = cv.getContext('2d'); g.fillStyle = bg; g.fillRect(0, 0, W, H); let yy = 0; for (const c of parts){ g.drawImage(c, 0, yy); yy += c.height + 8; }
+      const k = Math.min(1, 760 / W), out = document.createElement('canvas'); out.width = Math.round(W * k); out.height = Math.round(H * k);
+      const og = out.getContext('2d'); og.imageSmoothingQuality = 'high'; og.drawImage(cv, 0, 0, out.width, out.height);
+      opt.snap(out.toDataURL('image/jpeg', 0.88), out.width, out.height);
+    } catch(e){ console.warn('snapshot', e); } }
     const blocks = [root.querySelector('.pdfhead'), dashEl.querySelector('.kpis'), $('parkCard'), $('cancelCard'), dashEl.querySelector('.grid2'), $('fPanel'), $('remCard'), $('rankCard')];
     const place = async (el, light) => {
       const sc = light ? Math.min(scale, 1.15) : scale, q = light ? Math.min(quality, 0.62) : quality;
@@ -2891,17 +2938,46 @@ $('lineBtns').addEventListener('click', async e => {
    B) one PS at a time: the page copies the addresses and opens the share sheet with that PS's PDF → Outlook app. */
 const mkey = s => String(s ?? '').toLowerCase().replace(/^\s*gwm\s+/, '').replace(/co\.?,?\s*ltd\.?/g, '').replace(/[^a-z0-9ก-๙]+/g, '');
 const fileKey = s => 'VOR_' + String(s ?? '').replace(/^\s*GWM\s+/i, '').replace(/[^A-Za-z0-9ก-๙]+/g, '_').replace(/^_+|_+$/g, '');
-const MAIL_DEF = {subj: '[GWM] Pending RO Report · {PS} · {date}',
-  body: 'เรียน ทีม {PS}\n\nสรุปงานค้างซ่อม (GR) ณ วันที่ {date}\n• RO ค้างทั้งหมด {total} RO\n• ค้างเกิน 30 วัน {over30} RO\n• รถจอดที่ศูนย์ {parked} คัน\n\nรายละเอียดตามไฟล์แนบ (Partner Report) รบกวนติดตามงานตามฝ่ายที่รับผิดชอบ และอัปเดตรายละเอียดบริการใน GCIP ให้ครบถ้วน\n\nขอบคุณครับ\n{RSM} · RSM GWM Thailand'};
+const MAIL_DEF_OLD = {subj: '[GWM] Pending RO Report · {PS} · {date}', body: 'เรียน ทีม {PS}\n\nสรุปงานค้างซ่อม (GR) ณ วันที่ {date}\n• RO ค้างทั้งหมด {total} RO\n• ค้างเกิน 30 วัน {over30} RO\n• รถจอดที่ศูนย์ {parked} คัน\n\nรายละเอียดตามไฟล์แนบ (Partner Report) รบกวนติดตามงานตามฝ่ายที่รับผิดชอบ และอัปเดตรายละเอียดบริการใน GCIP ให้ครบถ้วน\n\nขอบคุณครับ\n{RSM} · RSM GWM Thailand'};
+const MAIL_DEF = {subj: '[GWM] ขอความร่วมมืออัปเดตข้อมูลรถค้างซ่อมในระบบ GCIP – {PS} ข้อมูล ณ วันที่ {date}',
+  body: [
+'เรียน ผู้จัดการศูนย์บริการ {PS} และทีมงานทุกท่าน', '',
+'GWM ขอความร่วมมือศูนย์บริการตรวจสอบและอัปเดตข้อมูลรถค้างซ่อมในระบบ GCIP ให้ครบถ้วนและเป็นปัจจุบันภายในวันศุกร์ของทุกสัปดาห์ โดย GWM จะตรวจสอบข้อมูลทุกวันจันทร์ เพื่อใช้ในการประชุมติดตามสถานะรถค้างซ่อม ทบทวนปัญหา เร่งรัดการดำเนินงาน และประสานงานเมื่อศูนย์บริการต้องการการสนับสนุนจาก GWM', '',
+'การอัปเดตข้อมูลให้ถูกต้องและเป็นปัจจุบันช่วยให้การติดตามงานและการประสานความช่วยเหลือเป็นไปอย่างมีประสิทธิภาพ อีกทั้งยังเป็นข้อมูลประกอบการประเมิน SSOS และการพิจารณาผลประโยชน์ด้าน Incentive ของศูนย์บริการ จึงขอความร่วมมือทุกศูนย์บริการตรวจสอบและอัปเดตข้อมูลให้ครบถ้วนตามสถานะจริง เพื่อให้การประเมินและการพิจารณาเป็นไปอย่างถูกต้อง', '',
+'**สรุปรถค้างซ่อมของศูนย์บริการ ข้อมูล ณ วันที่ {date}**',
+'- RO ค้างซ่อมทั้งหมด {total} คัน โดยเกิน 30 วัน {over30} คัน และมีระยะเวลาค้างเฉลี่ย {avg} วัน',
+'- สถานะรถ: จอดที่ศูนย์ {parked} คัน / ไม่จอดที่ศูนย์ {notparked} คัน / ยังไม่ระบุ {nopark} คัน',
+'- สาเหตุที่ค้าง: รอการสนับสนุนทางเทคนิค (JS) {tech} คัน / รออนุมัติ Warranty (YS) {war} คัน / รออะไหล่ (PO/BO) {part} คัน / อยู่ระหว่างซ่อม {repair} คัน / อยู่ระหว่างนัดหมายลูกค้า {cust} คัน',
+'- ข้อมูลยังไม่ครบถ้วน {missing} คัน ได้แก่ ไม่ระบุสถานะรถ ไม่ระบุวันที่ประมาณการส่งมอบ หรือรออะไหล่แต่ไม่ระบุ ETA', '',
+'{dashboard}', '',
+'โปรดดูรายละเอียดรถแต่ละคันจากไฟล์ PDF ที่แนบมาพร้อมอีเมลนี้', '',
+'**ข้อมูลที่ต้องระบุและอัปเดต**',
+'1. สถานะรถ: จอด / ไม่จอด',
+'2. สาเหตุที่ค้างให้ตรงกับสถานะปัจจุบัน โดยระบุรายละเอียดตามกรณี ดังนี้',
+'   - อยู่ระหว่างตรวจสอบสาเหตุ',
+'   - รอการสนับสนุนทางเทคนิค JS-XXXXX',
+'   - รออนุมัติก่อนซ่อม YS-XXXXX',
+'   - รออะไหล่ PO/BO-XXXXXX พร้อมระบุ ETA: XX/XX/XXXX ทุกกรณี',
+'   - อยู่ระหว่างซ่อม',
+'   - อยู่ระหว่างนัดหมายลูกค้า',
+'3. วันที่ประมาณการส่งมอบ โดยอ้างอิงข้อมูลล่าสุด', '',
+'**ข้อควรปฏิบัติ**',
+'1. อัปเดตข้อมูลให้เป็นปัจจุบันภายในวันศุกร์ของทุกสัปดาห์ เพื่อให้พร้อมสำหรับการตรวจสอบในวันจันทร์',
+'2. ใช้วันที่ประมาณการส่งมอบล่าสุด และปรับปรุงเมื่อมีการเปลี่ยนแปลง ไม่ใช้วันที่เดิมโดยไม่มีการอัปเดต',
+'3. เมื่อซ่อมเสร็จและส่งมอบรถให้ลูกค้าแล้ว กรุณาปิดสถานะในระบบ GCIP ทันที เพื่อไม่ให้มีรถค้างอยู่ในระบบโดยที่สถานะไม่เป็นปัจจุบัน', '',
+'จึงเรียนมาเพื่อโปรดดำเนินการ และขอขอบคุณทุกศูนย์บริการสำหรับความร่วมมือ', '',
+'ขอแสดงความนับถือ', '{RSM}', 'Regional Service Manager', 'Great Wall Motor (Thailand)'].join('\n')};
 let MAIL = {list: [], src: '', at: '', subj: MAIL_DEF.subj, body: MAIL_DEF.body};
 const MAIL_FILE = 'email_list.json';
 const cleanMail = v => { const t = String(v ?? '').trim(); return /^(ไม่พบ|#n\/a|n\/a|-|–)$/i.test(t) ? '' : t.replace(/[,\s]+/g, '; ').replace(/^;\s*|;\s*$/g, ''); };
 function useMailList(list, src, at, by){ if (!Array.isArray(list) || !list.length) return false; if (MAIL.at && at && new Date(at) <= new Date(MAIL.at)) return false; MAIL.list = list.map(x => ({...x, to: cleanMail(x.to), cc: cleanMail(x.cc)})); MAIL.src = src; MAIL.at = at || ''; MAIL.by = by || ''; saveMail(); return true; }
-async function loadSharedMail(){ try { const r = await fetch(MAIL_FILE + '?t=' + Date.now(), {cache:'no-store'}); if (!r.ok) return; const V = await r.json(); if (!V || V.kind !== 'pending-ro-shared') return; const d = await openVaultOne(UNLOCK_PW, V); if (d && d.kind === 'mail') useMailList(d.list, d.src || MAIL_FILE, d.at, d.by); } catch(e){} }
+async function loadSharedMail(){ try { const r = await fetch(MAIL_FILE + '?t=' + Date.now(), {cache:'no-store'}); if (!r.ok) return; const V = await r.json(); if (!V || V.kind !== 'pending-ro-shared') return; const d = await openVaultOne(UNLOCK_PW, V); if (d && d.kind === 'mail' && useMailList(d.list, d.src || MAIL_FILE, d.at, d.by) && d.subj && d.body){ MAIL.subj = d.subj; MAIL.body = d.body; saveMail(); } } catch(e){} }
 try { const m = JSON.parse(localStorage.getItem('roMail') || 'null'); if (m && Array.isArray(m.list)) MAIL = Object.assign(MAIL, m); } catch(e){}
+if (MAIL.subj === MAIL_DEF_OLD.subj) MAIL.subj = MAIL_DEF.subj; if (MAIL.body === MAIL_DEF_OLD.body) MAIL.body = MAIL_DEF.body;
 const saveMail = () => { try { localStorage.setItem('roMail', JSON.stringify(MAIL)); } catch(e){} };
 const mailOf = store => { const k = mkey(store); return MAIL.list.find(x => mkey(x.store) === k || x.key === fileKey(store)) || null; };
 const mailPrepared = new Map();   // store -> File
+const mailSnap = new Map();       // store -> {url, w, h} dashboard picture for the e-mail body
 let mailRsm = null;               // RSM chosen in the panel ('' = every RSM); null = follow the page
 const mailOff = new Set();        // PS unticked in the panel
 function mailStores(){
@@ -2909,11 +2985,47 @@ function mailStores(){
   return state.list.filter(g => counts.get(g.name) && g.name !== NO_STORE).map(g => ({name: g.name, rsm: [...g.rsm][0] || 'ไม่ระบุ RSM'}))
     .filter(s => { const want = mailRsm ?? dash.rsm ?? ''; return s.rsm !== TERMINATED && (!want || s.rsm === want); }).sort((a, b) => a.rsm.localeCompare(b.rsm) || a.name.localeCompare(b.name));
 }
-function mailFill(t, s){
-  const rs = baseRecs().filter(r => r.store === s.name), d = new Date();
-  const v = {PS: s.name, RSM: s.rsm, date: `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`, total: rs.length, over30: rs.filter(r => r.age > 30).length, parked: rs.filter(r => r.park === 'Parking').length};
-  return String(t).replace(/\{(PS|RSM|date|total|over30|parked)\}/g, (_, k) => v[k]);
+const MAIL_KEYS = ['PS','RSM','date','total','over30','avg','parked','notparked','nopark','tech','war','part','repair','cust','missing'];
+function mailVals(s){
+  const rs = baseRecs().filter(r => r.store === s.name), d = new Date(), n = f => rs.filter(f).length;
+  return {PS: s.name, RSM: s.rsm, date: `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`, total: rs.length, over30: n(r => r.age > 30),
+    avg: rs.length ? Math.round(rs.reduce((a, r) => a + (r.age || 0), 0) / rs.length) : 0,
+    parked: n(r => r.park === 'Parking'), notparked: n(r => r.park === 'Not Parking'), nopark: n(r => !r.park),
+    tech: n(r => r.cause === 'tech' || r.cause === 'tech0'), war: n(r => r.cause === 'war' || r.cause === 'war0'), part: n(r => r.cause === 'part' || r.cause === 'part0'),
+    repair: n(r => r.cause === 'repair'), cust: n(r => r.cause === 'cust'),
+    missing: n(r => r.cause !== 'cancel' && (!r.park || !r.deliv || ((r.part || PART_KEYS.includes(r.cause)) && !r.eta)))};
 }
+// fills {PS} {total} … ; in a line split by " / ", a part whose count is 0 is dropped; the "missing" line turns into "complete" at 0
+function mailFill(t, s){
+  const v = mailVals(s), re = new RegExp('\\{(' + MAIL_KEYS.join('|') + ')\\}', 'g'), cnt = k => k !== 'PS' && k !== 'RSM' && k !== 'date';
+  return String(t).split('\n').map(line => {
+    if (/\{missing\}/.test(line) && v.missing === 0) return line.replace(/^(\s*(?:[-•]|\d+\.)\s*)?.*$/, (_, pre) => (pre || '') + 'ข้อมูลครบถ้วนทุกคัน');
+    if (line.includes(' / ')){
+      const segs = line.split(' / '), keep = segs.filter(g => { const ks = [...g.matchAll(re)].map(m => m[1]).filter(cnt); return !ks.length || ks.some(k => v[k] > 0); });
+      if (keep.length && keep.length < segs.length){ if (!keep[0].includes(':') && segs[0].includes(':')) keep[0] = segs[0].split(':')[0] + ': ' + keep[0].trim(); line = keep.join(' / '); }
+    }
+    return line.replace(re, (_, k) => v[k]);
+  }).join('\n');
+}
+// light markup → HTML: **bold**, "- " bullets, "1. " numbers, indented "- " under a number, {dashboard} picture
+function mailHtml(text, img){
+  const L = text.split('\n'), out = []; let list = null, sub = false;
+  const close = () => { if (sub){ out.push('</ul>'); sub = false; } if (list){ out.push(list === 'ol' ? '</li></ol>' : '</ul>'); list = null; } };
+  const inl = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  for (const raw of L){
+    const m1 = raw.match(/^(\s*)[-•]\s+(.*)$/), m2 = raw.match(/^\s*(\d+)\.\s+(.*)$/);
+    if (m1 && m1[1].length >= 2 && list === 'ol'){ if (!sub){ out.push('<ul style="margin:2px 0 2px 0;padding-left:20px">'); sub = true; } out.push('<li>' + inl(m1[2]) + '</li>'); continue; }
+    if (m1){ if (list !== 'ul'){ close(); out.push('<ul style="margin:4px 0 10px;padding-left:22px">'); list = 'ul'; } out.push('<li style="margin:2px 0">' + inl(m1[2]) + '</li>'); continue; }
+    if (m2){ if (sub){ out.push('</ul>'); sub = false; } if (list !== 'ol'){ close(); out.push('<ol style="margin:4px 0 10px;padding-left:22px">'); list = 'ol'; } else out.push('</li>'); out.push('<li style="margin:2px 0">' + inl(m2[2])); continue; }
+    close();
+    if (raw.trim() === '{dashboard}'){ if (img) out.push(`<p style="margin:6px 0"><img src="cid:dashboard@vor" width="${img.w}" alt="Dashboard" style="max-width:100%;height:auto;border:1px solid #ddd"></p>`); continue; }
+    if (!raw.trim()){ out.push('<div style="height:10px"></div>'); continue; }
+    out.push('<div>' + inl(raw) + '</div>');
+  }
+  close();
+  return '<div style="font-family:Tahoma,Arial,sans-serif;font-size:14px;line-height:1.5;color:#222">' + out.join('') + '</div>';
+}
+const mailPlain = t => t.split('\n').filter(l => l.trim() !== '{dashboard}').join('\n').replace(/\*\*(.+?)\*\*/g, '$1').replace(/\n{3,}/g, '\n\n');
 function renderMailPanel(){
   const st = mailStores(), withMail = st.filter(s => mailOf(s.name)?.to);
   { const want = mailRsm ?? dash.rsm ?? '', counts = countBy(baseRecs(), r => r.rsm);
@@ -2937,7 +3049,7 @@ async function mailPdf(s){
   try {
     dash.fCause = ''; dash.fPark = ''; dash.fAge = ''; dash.fOwner = ''; dash.fStatus = ''; dash.fEta = ''; dash.fStage = ''; dash.fStore = ''; dash.view = 'store'; dash.showAll = false;
     dash.store = s.name; dash.rsm = s.rsm;
-    const blob = await renderPdfBlob({scale:1.4, quality:0.8});
+    const blob = await renderPdfBlob({scale:1.4, quality:0.8, snap: (url, w, h) => mailSnap.set(s.name, {url, w, h})});
     return new File([blob], fileKey(s.name) + '.pdf', {type:'application/pdf'});
   } finally { Object.assign(dash, keep); }
 }
@@ -2950,7 +3062,7 @@ async function mailPrepOne(name){
 }
 async function mailSendOne(name){
   const s = mailStores().find(x => x.name === name), m = mailOf(name), f = mailPrepared.get(name); if (!s || !m || !f) return;
-  const subj = mailFill(MAIL.subj, s), body = mailFill(MAIL.body, s), to = [m.to, m.cc].filter(Boolean).join('; ');
+  const subj = mailPlain(mailFill(MAIL.subj, s)), body = mailPlain(mailFill(MAIL.body, s)), to = [m.to, m.cc].filter(Boolean).join('; ');
   try { await navigator.clipboard.writeText(to); } catch(e){}
   if (canShareFiles([f])){
     try { await navigator.share({files:[f], title: subj, text: body}); m.sent = stampDay(); saveMail(); toast(`คัดลอกอีเมล ${m.to} แล้ว · วางในช่อง "ถึง" ของ Outlook`, 6000); }
@@ -3015,10 +3127,10 @@ async function mailPublish(){
   const btn = $('mailPub'), label = btn.textContent; btn.disabled = true; btn.textContent = 'กำลังเผยแพร่…';
   try {
     const at = new Date().toISOString();
-    const out = await encryptShared(UNLOCK_PW, {ok:'pending-ro', kind:'mail', by, at, src: MAIL.src, list: MAIL.list});
+    const out = await encryptShared(UNLOCK_PW, {ok:'pending-ro', kind:'mail', by, at, src: MAIL.src, list: MAIL.list, subj: MAIL.subj, body: MAIL.body});
     const url = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${MAIL_FILE}`, H = {'Authorization': 'Bearer ' + tok, 'Accept': 'application/vnd.github+json'};
     let sha; { const r = await fetch(url + '?t=' + Date.now(), {headers: H, cache:'no-store'}); if (r.status === 401) throw new Error('auth'); if (r.ok) sha = (await r.json()).sha; }
-    const r = await fetch(url, {method:'PUT', headers: {...H, 'Content-Type':'application/json'}, body: JSON.stringify({message: `VOR e-mail list · ${MAIL.list.filter(x => x.to).length} PS · by ${by || 'RSM'}`, content: u8b64(new TextEncoder().encode(JSON.stringify(out))), ...(sha ? {sha} : {})})});
+    const r = await fetch(url, {method:'PUT', headers: {...H, 'Content-Type':'application/json'}, body: JSON.stringify({message: `VOR e-mail list + text · ${MAIL.list.filter(x => x.to).length} PS · by ${by || 'RSM'}`, content: u8b64(new TextEncoder().encode(JSON.stringify(out))), ...(sha ? {sha} : {})})});
     if (r.status === 401) throw new Error('auth'); if (r.status === 403) throw new Error('perm'); if (r.status === 404) throw new Error('repo'); if (!r.ok) throw new Error('http ' + r.status);
     MAIL.at = at; MAIL.dirty = false; saveMail(); renderMailPanel(); toast('เผยแพร่อีเมลแล้ว · RSM ทุกคนจะได้รายชื่อนี้ตอนเปิดเว็บครั้งต่อไป', 7000);
   } catch(e){ console.error(e); toast(e.message === 'auth' ? 'GitHub ไม่รู้จัก token นี้ (401) · ใส่ token ใหม่ที่ปุ่ม เผยแพร่ให้ RSM' : e.message === 'perm' ? 'token ไม่มีสิทธิ์เขียน (403)' : e.message === 'repo' ? 'token ไม่ได้เลือก repo VOR-GWM (404)' : 'เผยแพร่ไม่สำเร็จ ลองใหม่อีกครั้ง', 8000); }
@@ -3029,13 +3141,17 @@ const b64u = str => u8b64(new TextEncoder().encode(str));
 const wrap76 = b => b.replace(/.{1,76}/g, '$&\r\n');
 const encWord = t => /^[\x20-\x7e]*$/.test(t) ? t : '=?UTF-8?B?' + b64u(t) + '?=';
 async function emlOf(s, file){
-  const m = mailOf(s.name) || {}, subj = mailFill(MAIL.subj, s), body = mailFill(MAIL.body, s), bd = 'vor' + Math.random().toString(36).slice(2);
-  const html = '<div style="font-family:Tahoma,Arial,sans-serif;font-size:14px">' + esc(body).replace(/\n/g, '<br>') + '</div>';
-  const pdf = u8b64(new Uint8Array(await file.arrayBuffer())), alt = 'alt' + bd;
-  return ['X-Unsent: 1', 'To: ' + (m.to || '').replace(/;\s*/g, ', '), ...(m.cc ? ['Cc: ' + m.cc.replace(/;\s*/g, ', ')] : []), 'Subject: ' + encWord(subj), 'MIME-Version: 1.0',
-    `Content-Type: multipart/mixed; boundary="${bd}"`, '', `--${bd}`, `Content-Type: multipart/alternative; boundary="${alt}"`, '',
+  const m = mailOf(s.name) || {}, subj = mailPlain(mailFill(MAIL.subj, s)), filled = mailFill(MAIL.body, s), body = mailPlain(filled), bd = 'vor' + Math.random().toString(36).slice(2);
+  const img = mailSnap.get(s.name), wantImg = img && /\{dashboard\}/.test(MAIL.body);
+  const html = mailHtml(filled, wantImg ? img : null);
+  const pdf = u8b64(new Uint8Array(await file.arrayBuffer())), alt = 'alt' + bd, rel = 'rel' + bd;
+  const altPart = [`Content-Type: multipart/alternative; boundary="${alt}"`, '',
     `--${alt}`, 'Content-Type: text/plain; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap76(b64u(body)),
-    `--${alt}`, 'Content-Type: text/html; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap76(b64u(html)), `--${alt}--`, '',
+    `--${alt}`, 'Content-Type: text/html; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap76(b64u(html)), `--${alt}--`, ''];
+  const bodyPart = wantImg ? [`Content-Type: multipart/related; boundary="${rel}"; type="multipart/alternative"`, '', `--${rel}`, ...altPart,
+    `--${rel}`, 'Content-Type: image/jpeg; name="dashboard.jpg"', 'Content-Transfer-Encoding: base64', 'Content-ID: <dashboard@vor>', 'Content-Disposition: inline; filename="dashboard.jpg"', '', wrap76(img.url.split(',')[1]), `--${rel}--`, ''] : altPart;
+  return ['X-Unsent: 1', 'To: ' + (m.to || '').replace(/;\s*/g, ', '), ...(m.cc ? ['Cc: ' + m.cc.replace(/;\s*/g, ', ')] : []), 'Subject: ' + encWord(subj), 'MIME-Version: 1.0',
+    `Content-Type: multipart/mixed; boundary="${bd}"`, '', `--${bd}`, ...bodyPart,
     `--${bd}`, `Content-Type: application/pdf; name="${file.name}"`, 'Content-Transfer-Encoding: base64', `Content-Disposition: attachment; filename="${file.name}"`, '', wrap76(pdf),
     `--${bd}--`, ''].join('\r\n');
 }
@@ -3048,7 +3164,7 @@ async function mailEmlZip(){
     for (const s of st){
       if (batchCancel) break;
       $('batchTxt').textContent = `กำลังทำอีเมล ${done + 1} / ${st.length} · ${s.name.replace(/^GWM\s+/, '')}`; $('batchFill').style.width = (done / st.length * 100) + '%';
-      const f = mailPrepared.get(s.name) || await mailPdf(s); mailPrepared.set(s.name, f);
+      const f = (mailPrepared.has(s.name) && mailSnap.has(s.name)) ? mailPrepared.get(s.name) : await mailPdf(s); mailPrepared.set(s.name, f);
       zip.file(`${String(done + 1).padStart(2, '0')}_${fileKey(s.name).replace(/^VOR_/, '')}.eml`, await emlOf(s, f)); done++;
     }
     if (batchCancel){ toast(`ยกเลิกแล้ว (ทำไป ${done} ฉบับ)`); return; }
@@ -3090,9 +3206,21 @@ $('mailTpl').addEventListener('click', mailTemplate);
 $('mailPub').addEventListener('click', mailPublish);
 $('mailUp').addEventListener('click', () => $('mailFile').click());
 $('mailFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) mailUpload(f); e.target.value = ''; });
-$('mailSubj').addEventListener('change', e => { MAIL.subj = e.target.value || MAIL_DEF.subj; saveMail(); });
-$('mailBody').addEventListener('change', e => { MAIL.body = e.target.value || MAIL_DEF.body; saveMail(); });
-$('mailReset').addEventListener('click', () => { MAIL.subj = MAIL_DEF.subj; MAIL.body = MAIL_DEF.body; saveMail(); renderMailPanel(); });
+$('mailSubj').addEventListener('change', e => { MAIL.subj = e.target.value || MAIL_DEF.subj; MAIL.dirty = true; saveMail(); renderMailPanel(); });
+$('mailBody').addEventListener('change', e => { MAIL.body = e.target.value || MAIL_DEF.body; MAIL.dirty = true; saveMail(); renderMailPanel(); });
+$('mailPrev').addEventListener('click', async () => {
+  const box = $('mailPrevBox'); if (!box.hidden){ box.hidden = true; return; }
+  const st = mailStores().filter(x => !mailOff.has(x.name) && mailOf(x.name)?.to), s = st[0] || mailStores()[0]; if (!s){ toast('ไม่มี PS ในขอบเขตนี้'); return; }
+  MAIL.subj = $('mailSubj').value || MAIL_DEF.subj; MAIL.body = $('mailBody').value || MAIL_DEF.body;
+  const b = $('mailPrev'); b.disabled = true; b.textContent = 'กำลังสร้างตัวอย่าง…';
+  try { if (!mailSnap.has(s.name)) mailPrepared.set(s.name, await mailPdf(s)); } catch(e){}
+  finally { b.disabled = false; b.textContent = 'ดูตัวอย่างอีเมล'; renderDash(); $('mailPanel').hidden = false; renderMailPanel(); }
+  const img = mailSnap.get(s.name), m = mailOf(s.name) || {};
+  box.innerHTML = `<div style="font:13px Tahoma,Arial;color:#555;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #ddd">ตัวอย่าง: <b>${esc(s.name)}</b><br>ถึง: ${esc(m.to || '–')}${m.cc ? '<br>CC: ' + esc(m.cc) : ''}<br>หัวข้อ: <b>${esc(mailPlain(mailFill(MAIL.subj, s)))}</b></div>`
+    + mailHtml(mailFill(MAIL.body, s), img || null).replace('cid:dashboard@vor', img ? img.url : '');
+  $('mailPrevBox').hidden = false;
+});
+$('mailReset').addEventListener('click', () => { MAIL.subj = MAIL_DEF.subj; MAIL.body = MAIL_DEF.body; MAIL.dirty = true; saveMail(); renderMailPanel(); });
 $('mailPrepAll').addEventListener('click', mailPrepAll);
 $('mailEml').addEventListener('click', mailEmlZip);
 $('mailShareAll').addEventListener('click', mailShareAll);
