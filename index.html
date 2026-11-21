@@ -534,9 +534,9 @@ table.rank td{vertical-align:top}
       <div class="pptpanel card" id="linePanel" hidden>
         <div class="rankhead"><h3>💬 ข้อความติดตาม · LINE</h3><span class="sub" id="lineScope"></span><div class="rankf"><button id="lineClose" class="linkbtn">✕ ปิด</button></div></div>
         <div class="pptrow" id="lineBtns"></div>
-        <div class="pptrow lineopt"><span class="sub" id="lineCount"></span><label class="chip"><input type="checkbox" id="lineGwmOnly"> เฉพาะที่ขาดข้อมูล</label><label class="chip"><input type="checkbox" id="lineRemark" checked> ใส่รายละเอียด</label></div>
+        <div class="pptrow lineopt"><span class="sub" id="lineCount"></span><label class="chip"><input type="checkbox" id="lineGwmOnly" checked> เฉพาะที่ต้องติดตาม</label></div>
         <details class="linepv"><summary>ดู / แก้ข้อความก่อนส่ง</summary><textarea id="lineText" rows="14" spellcheck="false"></textarea>
-          <p class="sub" style="margin:4px 0 0">เรียงวันค้างมาก → น้อย · ตามตัวกรองที่เลือกอยู่ · ข้อความยาวเกิน 5,000 ตัวอักษรจะแบ่งเป็นหลายส่วน</p></details>
+          <p class="sub" style="margin:4px 0 0">ต้องติดตาม = ขาดข้อมูล หรือเลยวันส่งมอบแล้ว · เรียงวันค้างมาก → น้อย · ตามตัวกรองที่เลือกอยู่ · ยาวเกิน 5,000 ตัวอักษรจะแบ่งเป็นหลายส่วน</p></details>
       </div>
       <div class="pptpanel card rsmonly" id="mailPanel" hidden>
         <div class="rankhead"><h3>✉ ส่งอีเมล Partner Report</h3><span class="sub" id="mailScope"></span><div class="rankf"><button id="mailClose" class="linkbtn">✕ ปิด</button></div></div>
@@ -1521,6 +1521,7 @@ const CAUSE_FROM_DROPDOWN = {'parts order process':'part0','warranty approval':'
   'require technical support':'tech0','ps investigation':'tech0','waiting customer appointment':'cust','on process of repairing':'repair','partner internal problem':'other'};
 const AGE_BUCKETS = [[0,7,'≤7'],[8,15,'8–15'],[16,21,'16–21'],[22,30,'22–30'],[31,Infinity,'>30']];
 const PARK_LABEL = {'Parking':'จอด (Parking)', 'Not Parking':'ไม่จอด (Not Parking)', 'none':'ไม่ระบุ'};
+const DEF_RSM = 'Natchanon';   // the RSM picked first in the RSM / Partner views
 let dash = {view:'overview', rsm:'', store:'', showAll:false, q:'', fCause:'', fPark:'', fAge:'', fOwner:'', fStatus:'', fEta:'', fStage:'', fStore:'', pk:'Parking', parkScope:'', types:{GR:true, BP:false}};
 
 function colByName(re){ return state.hdr.findIndex(h => re.test(norm(h))); }
@@ -1725,6 +1726,7 @@ function renderDash(){
   if (!state || !state.recs) return;
   if (ROLE === 'ps'){ dash.view = 'store'; dash.rsm = ''; }
   const rsms = [...new Set(state.recs.map(r => r.rsm))].sort();
+  if (dash.view !== 'overview' && !dash.rsm && ROLE !== 'ps') dash.rsm = rsms.includes(DEF_RSM) ? DEF_RSM : (rsms[0] || '');
   $('dRsm').innerHTML = rsms.map(r => `<option ${r===dash.rsm?'selected':''}>${esc(r)}</option>`).join('');
   const stores = (dash.rsm && dash.view !== 'overview' ? state.list.filter(g => ([...g.rsm][0] || 'ไม่ระบุ RSM') === dash.rsm) : state.list).map(g => g.name).sort();
   $('dStore').innerHTML = stores.map(s => `<option ${s===dash.store?'selected':''}>${esc(s)}</option>`).join('');
@@ -2827,65 +2829,65 @@ $('batchRsm').addEventListener('click', () => batchPdf('rsm'));
    LINE takes at most 5,000 characters per message, so long lists are split into numbered parts. */
 const LINE_MAX = 4500;
 function lineMissing(r){
-  if (r.cause === 'cancel') return ['แนะนำ SVM ยกเลิก Job'];
+  if (r.cause === 'cancel') return ['แนะนำยกเลิก Job'];
   const m = [];
-  if (r.cause === 'none') m.push('รายละเอียดบริการ (Remark)');
-  if (!r.park) m.push('สถานะรถ (จอด/ไม่จอด)');
+  if (!r.park) m.push('สถานะรถ');
+  if (r.cause === 'none') m.push('Remark');
   if (r.cause === 'tech0') m.push('JS');
   if (r.cause === 'war0') m.push('YS');
   if (r.cause === 'part0') m.push('PO/BO');
-  if ((r.part || PART_KEYS.includes(r.cause)) && r.cause !== 'part0'){ if (!r.eta) m.push('ETA'); else if (r.etaLate) m.push(`ETA ใหม่ (เลย ETA ${r.eta})`); }
-  if (!r.deliv) m.push('วันคาดว่าส่งมอบ');
+  if ((r.part || PART_KEYS.includes(r.cause)) && r.cause !== 'part0'){ if (!r.eta) m.push('ETA'); else if (r.etaLate) m.push(`ETA ใหม่ (เลย ${r.eta})`); }
+  if (!r.deliv) m.push('วันส่งมอบ');
   return m;
 }
-function lineHave(r){
-  return [r.tech, r.war, r.part].filter(Boolean).map(x => String(x).trim()).concat(r.eta ? ['ETA ' + r.eta] : [], r.deliv ? ['ส่งมอบ ' + r.deliv] : []);
+// days past the expected delivery date (negative = still ahead), null when there is no date
+function lineDue(r){
+  const d = parseDMY(String(r.deliv || '').trim()); if (!d) return null;
+  const t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((t - d) / 864e5);
 }
+const lineFollow = r => lineMissing(r).length > 0 || (lineDue(r) ?? -1) > 0;
 function lineRecs(){
   let rs = scopeRecs();
   if (!$('fPanel').hidden) rs = filtered(rs);
-  if ($('lineGwmOnly').checked) rs = rs.filter(r => lineMissing(r).length);
+  if ($('lineGwmOnly').checked) rs = rs.filter(lineFollow);
   return rs.slice().sort((a, b) => (b.age ?? -1) - (a.age ?? -1) || String(a.sp).localeCompare(String(b.sp)));
 }
 function lineText(){
   const rs = lineRecs(), d = new Date(), date = `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
-  const multiPs = new Set(rs.map(r => r.store)).size > 1, withRem = $('lineRemark').checked;
-  const scope = dash.view === 'store' && dash.store ? dash.store : dash.view === 'rsm' && dash.rsm ? 'RSM ' + dash.rsm : 'ทุก Partner';
-  const head = [`📋 ติดตามงานค้าง · ${scope}`, `ณ ${date} · สถานะรถ: ${PK_NAME(dash.parkScope)} · ${rs.length} RO (เรียงวันค้างมาก→น้อย)`];
+  let all = scopeRecs(); if (!$('fPanel').hidden) all = filtered(all);
+  const multiPs = new Set(rs.map(r => r.store)).size > 1;
+  const scope = dash.view === 'store' && dash.store ? dash.store.replace(/^GWM\s+/, '') : dash.view === 'rsm' && dash.rsm ? 'RSM ' + dash.rsm : 'ทุก Partner';
+  const GN = {'Parking':'จอด', 'Not Parking':'ไม่จอด', 'none':'ไม่ระบุสถานะรถ'};
+  const head = [`ติดตามงานค้าง · ${scope}${dash.parkScope ? ' · ' + (GN[dash.parkScope] || PK_NAME(dash.parkScope)) : ''}`, `ข้อมูล ณ ${date} · ${all.length} คัน · ต้องติดตาม ${all.filter(lineFollow).length} คัน`];
   const groups = dash.parkScope ? [[dash.parkScope, rs]] : ['Parking', 'Not Parking', 'none'].map(k => [k, rs.filter(r => parkKey(r) === k)]).filter(g => g[1].length);
-  const icon = {'Parking':'🅿️', 'Not Parking':'🚗', 'none':'❔'};
-  const blocks = []; let n = 0;
-  for (const [k, list] of groups){
-    blocks.push({group:true, text:`${icon[k] || '•'} ${PK_NAME(k)} · ${list.length} RO`});
-    for (const r of list){
-      n++;
-      const miss = lineMissing(r), have = lineHave(r);
-      const det = String(r.detail || r.remark || '').replace(/\s+/g, ' ').trim();
-      const lines = [`${n}) VIN ${r.vin || '–'} · ${r.sp || '–'} · ค้าง ${r.age ?? '–'} วัน${multiPs ? ' · ' + r.store.replace(/^GWM\s+/, '') : ''}`];
-      if (withRem) lines.push(`รายละเอียด : ${det ? (det.length > 140 ? det.slice(0, 138) + '…' : det) : '— ไม่มีรายละเอียดบริการ —'}`);
-      lines.push(`ติดที่ : ${(CAT_XL[r.cause] || r.cause || '–')}${r.ownGrp ? ' · ' + r.ownGrp + ' ' + (OWNER_TH[r.ownDept] || r.ownDept || '') : ''}`);
-      if (have.length) lines.push(`มีแล้ว : ${have.join(' · ')}`);
-      lines.push(miss.length ? (r.cause === 'cancel' ? `⚠ ${miss[0]}` : `❗ขาด : ${miss.join(', ')}`) : '✅ ข้อมูลครบ');
+  const showHead = !dash.parkScope;
+  const blocks = [];
+  groups.forEach(([k, list], gi) => {
+    if (showHead) blocks.push({group:true, sep: gi > 0, text:`${GN[k] || PK_NAME(k)} · ${list.length} คัน`});
+    list.forEach((r, i) => {
+      const miss = lineMissing(r), due = lineDue(r);
+      const lines = [`${i + 1}) ${r.sp || '–'} · ค้าง ${r.age ?? '–'} วัน${multiPs ? ' · ' + r.store.replace(/^GWM\s+/, '') : ''}`];
+      if (miss.length) lines.push(`   ขาด: ${miss.join(', ')}`);
+      if (due != null) lines.push(`   ส่งมอบ: ${r.deliv} (${due > 0 ? 'เลยกำหนด ' + due + ' วัน' : due === 0 ? 'ครบกำหนดวันนี้' : 'อีก ' + (-due) + ' วัน'})`);
+      if (!miss.length && due == null) lines.push('   ข้อมูลครบ');
       blocks.push({text: lines.join('\n')});
-    }
-  }
-  // split into LINE-sized parts, never inside one RO
-  const parts = []; let cur = '';
-  let grp = '', lastIsGrp = false;
+    });
+  });
+  if (!blocks.length) return [head.join('\n') + '\n\nไม่มีรายการที่ต้องติดตาม'];
+  // pack blocks into LINE-sized parts, never inside one RO; a heading never ends a part; a group that runs over repeats its heading with (ต่อ)
+  const partsB = [[]]; let len = 0, grp = '';
+  const txt = (b, first) => b.group ? ((b.sep && !first ? '------\n' : '') + b.text) : b.text;
   for (const b of blocks){
-    if (b.group){ grp = b.text; }
-    const add = (cur ? '\n\n' : '') + b.text;
-    if (cur && (cur.length + add.length) > LINE_MAX - 300){
-      // a group heading never sits alone at the end of a part; a group that runs over repeats its heading with (ต่อ)
-      if (lastIsGrp){ const k = cur.lastIndexOf('\n\n'); const g = cur.slice(k < 0 ? 0 : k + 2); cur = k < 0 ? '' : cur.slice(0, k); if (cur) parts.push(cur); cur = g + '\n\n' + b.text; }
-      else { parts.push(cur); cur = b.group ? b.text : (grp ? grp + ' (ต่อ)\n\n' : '') + b.text; }
-    } else cur += add;
-    lastIsGrp = !!b.group;
+    if (b.group) grp = b.text;
+    const cur = partsB[partsB.length - 1], add = txt(b, !cur.length).length + 1;
+    if (cur.length && len + add > LINE_MAX - 300){
+      const carry = cur[cur.length - 1].group ? [cur.pop()] : (b.group || !grp ? [] : [{group:true, text: grp + ' (ต่อ)'}]);
+      partsB.push([...carry, b]); len = [...carry, b].reduce((a, x) => a + txt(x).length + 1, 0);
+    } else { cur.push(b); len += add; }
   }
-  if (cur) parts.push(cur);
-  if (!parts.length) parts.push('ไม่มีรายการในขอบเขตนี้');
-  const tot = parts.length;
-  return parts.map((p, i) => head.join('\n') + (tot > 1 ? ` · ส่วน ${i + 1}/${tot}` : '') + '\n\n' + p);
+  const partsRaw = partsB.filter(x => x.length).map(list => list.map((b, i) => txt(b, i === 0)).join('\n'));
+  const tot = partsRaw.length;
+  return partsRaw.map((p, i) => head.join('\n') + (tot > 1 ? ` (ส่วน ${i + 1}/${tot})` : '') + '\n\n' + p);
 }
 let lineParts = [];
 // LINE's share link only works on phones; on a computer (LINE desktop) we copy the text and the user pastes it into the chat
@@ -2896,9 +2898,9 @@ async function copyText(text){
 }
 function renderLine(){
   lineParts = lineText();
-  const rs = lineRecs(), missing = rs.filter(r => lineMissing(r).length).length;
+  let all = scopeRecs(); if (!$('fPanel').hidden) all = filtered(all); const rs = all, missing = all.filter(lineFollow).length;
   $('lineScope').textContent = `${$('dScope').textContent} · ${PK_NAME(dash.parkScope)}`;
-  $('lineCount').innerHTML = `<b>${rs.length}</b> RO · ขาดข้อมูล <b>${missing}</b>${lineParts.length > 1 ? ' · ' + lineParts.length + ' ข้อความ' : ''}`;
+  $('lineCount').innerHTML = `<b>${rs.length}</b> คัน · ต้องติดตาม <b>${missing}</b>${lineParts.length > 1 ? ' · ' + lineParts.length + ' ข้อความ' : ''}`;
   $('lineText').value = lineParts.join('\n\n────────\n\n');
   const tag = i => lineParts.length > 1 ? ` ส่วน ${i + 1}/${lineParts.length}` : '';
   $('lineBtns').innerHTML = lineParts.map((p, i) => `<button type="button" class="lineGo" data-part="${i}">${IS_PHONE ? '💬 เปิด LINE' + tag(i) : '📋 คัดลอกไปวางใน LINE' + tag(i)}</button>`).join('')
@@ -2923,7 +2925,6 @@ async function lineSend(i){
 $('lineBtn').addEventListener('click', () => { $('linePanel').hidden = !$('linePanel').hidden; if (!$('linePanel').hidden){ renderLine(); $('linePanel').scrollIntoView({behavior:'smooth', block:'nearest'}); } });
 $('lineClose').addEventListener('click', () => { $('linePanel').hidden = true; });
 $('lineGwmOnly').addEventListener('change', renderLine);
-$('lineRemark').addEventListener('change', renderLine);
 $('lineBtns').addEventListener('click', async e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.id === 'lineCopy'){ toast(await copyText($('lineText').value) ? 'คัดลอกแล้ว · วางในแชท LINE ได้เลย' : 'คัดลอกไม่ได้ · เลือกข้อความในกล่องแล้วกด Ctrl+C'); return; }
