@@ -628,7 +628,7 @@ table.rank td{vertical-align:top}
     </section>
     <div class="card rsmonly" id="remCard">
       <div class="rankhead"><h3 id="remTitle">อันดับ Partner · รถจอดที่ศูนย์</h3><span class="sub" id="remCount"></span>
-        <div class="rankf"><div class="seg" id="remMetric" role="group" aria-label="ดูอันดับตาม"><button data-m="park" aria-pressed="true">จอด</button><button data-m="notpark" aria-pressed="false">ไม่จอด</button><button data-m="none" aria-pressed="false">ไม่กรอกข้อมูล</button></div>
+        <div class="rankf"><div class="seg" id="remMetric" role="group" aria-label="ดูอันดับตาม"><button data-m="none" aria-pressed="false">ไม่กรอก Remark</button><button data-m="park" aria-pressed="true">จอด</button><button data-m="notpark" aria-pressed="false">ไม่จอด</button></div>
         <div class="seg" id="remSort" role="group" aria-label="เรียงตาม"><button data-s="n" aria-pressed="true">จำนวน</button><button data-s="pct" aria-pressed="false">%</button><button data-s="avg" aria-pressed="false">ค้างเฉลี่ย</button></div></div></div>
       <div id="remChart" class="chart"></div>
       <div class="tablebox flat"><table class="rank cards" id="remTable">
@@ -1879,7 +1879,7 @@ let remSort = 'n', remAll = false, remMetric = 'park';
 const REM_M = {
   park:    {t:'รถจอดที่ศูนย์', col:'จอด', f: r => r.park === 'Parking'},
   notpark: {t:'รถไม่จอดที่ศูนย์', col:'ไม่จอด', f: r => r.park === 'Not Parking'},
-  none:    {t:'ไม่กรอกข้อมูล (ไม่มี Remark)', col:'ไม่กรอก', f: r => !r.remark.trim()}};
+  none:    {t:'ไม่กรอก Remark', col:'ไม่กรอก Remark', f: r => !r.remark.trim()}};
 const remDept = r => (r.ownGrp ? r.ownGrp + ' ' : '') + (OWNER_TH[r.ownDept] || r.ownDept || 'ไม่ระบุ');
 function remRows(pool, key){
   const M = REM_M[key], m = new Map();
@@ -2867,6 +2867,7 @@ function lineText(){
     list.forEach((r, i) => {
       const miss = lineMissing(r), due = lineDue(r);
       const lines = [`${i + 1}) ${r.sp || '–'} · ค้าง ${r.age ?? '–'} วัน${multiPs ? ' · ' + r.store.replace(/^GWM\s+/, '') : ''}`];
+      if (r.vin) lines.push(`   VIN ${r.vin}`);
       if (miss.length) lines.push(`   ขาด: ${miss.join(', ')}`);
       if (due != null) lines.push(`   ส่งมอบ: ${r.deliv} (${due > 0 ? 'เลยกำหนด ' + due + ' วัน' : due === 0 ? 'ครบกำหนดวันนี้' : 'อีก ' + (-due) + ' วัน'})`);
       if (!miss.length && due == null) lines.push('   ข้อมูลครบ');
