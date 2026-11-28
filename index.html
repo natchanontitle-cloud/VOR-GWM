@@ -476,6 +476,7 @@ table.rank td{vertical-align:top}
     <label class="field">Sheet<select id="sheetSel"></select></label>
     <label class="field">แยกตามคอลัมน์<select id="colSel"></select></label>
     <button id="pubBtn" class="rsmonly" style="margin-left:auto">เผยแพร่ให้ RSM</button>
+    <label class="chip rsmonly" title="Excel ทุกปุ่ม: เอาเฉพาะ RO ที่ตรงกับตัวกรองในหน้า Dashboard (สถานะรถ, ประเภทงาน, ตัวกรองรายการ)"><input type="checkbox" id="xlFollow"> Excel ตามตัวกรอง Dashboard <span class="sub" id="xlFollowTxt"></span></label>
     <button id="fullBtn" class="primary rsmonly">ดาวน์โหลด Excel ทั้งไฟล์ (กรอก RSM แล้ว)</button>
   </section>
 
@@ -1201,13 +1202,18 @@ const CAT_XL = {none:'ไม่กรอกข้อมูล (ไม่มี R
   part:'ติด Spare part (PO/BO)', part0:'รออะไหล่ · ยังไม่มี PO/BO', cust:'รอลูกค้า / CR', repair:'กำลังซ่อม / เปลี่ยนอะไหล่', cancel:'แนะนำ Cancel Job (SVM)', other:'อื่นๆ (มี Remark)'};
 // dropdown lists in the standard file (Sheet2): reason (col B) and pending status (col D, copy in G)
 const DD_REASON = ['PS Investigation','Require Technical Support','Parts order process','On Process of Repairing','Warranty Approval','Waiting customer appointment','Waiting collect claim data.','Partner internal Problem','อื่น','ยกเลิก Job'];
-const DD_STATUS = ['Delivery Completed','Customers use','On Repairing','รอ Tech','รอ Warranty','รออะไหล่'];
+const DD_STATUS = ['กำลังซ่อม','กำลังสั่งอะไหล่','รออะไหล่','วิเคราะห์ปัญหา','ขอการสนับสนุนเทคนิค','ขออนุมัติก่อนซ่อม','นัดหมายลูกค้า','อื่นๆ'];
 // filled only when the dealer left the cell empty, from what the system read in the remark / status
 const REASON_OF = {tech:'Require Technical Support', tech0:'Require Technical Support', war:'Warranty Approval', war0:'Warranty Approval', part:'Parts order process', part0:'Parts order process', cust:'Waiting customer appointment', repair:'On Process of Repairing', other:'อื่น', cancel:'ยกเลิก Job'};
-const PSTATUS_OF = {tech:'รอ Tech', tech0:'รอ Tech', war:'รอ Warranty', war0:'รอ Warranty', part:'รออะไหล่', part0:'รออะไหล่', repair:'On Repairing'};
-const STD_COLS = [['Pending day','num',1],['Repair_Order'],['VIN_Code'],['Basic_Model'],['Repair_Status'],['Remark'],['Create on','date',2],['Store_Name'],
-  ['RSM',null,0,'rsm'],['ประเภทงาน',null,0,'jobtype'],['สถานะรถ',null,0,'park'],['สาเหตุงานค้าง'],['สถานะงานค้าง'],['Date of Delivery Completed','date',2],
-  ['Tech (JS)',null,0,'tech'],['Warranty (YS)',null,0,'war'],['Part (PO/BO)',null,0,'part'],['ETA',null,0,'eta']];
+const PSTATUS_OF = {repair:'กำลังซ่อม', part0:'กำลังสั่งอะไหล่', part:'รออะไหล่', none:'วิเคราะห์ปัญหา', tech:'ขอการสนับสนุนเทคนิค', tech0:'ขอการสนับสนุนเทคนิค', war:'ขออนุมัติก่อนซ่อม', war0:'ขออนุมัติก่อนซ่อม', cust:'นัดหมายลูกค้า', other:'อื่นๆ', cancel:'อื่นๆ'};
+const STD_COLS = [['Pending day','num',1],['ช่วงวันค้าง',null,0,'ageband'],['Repair_Order'],['VIN_Code'],['Repair_Status'],['Remark'],['Create on','date',2],['Store_Name'],
+  ['RSM',null,0,'rsm'],['ประเภทงาน',null,0,'jobtype'],['สถานะรถ',null,0,'park'],['สถานะงานค้าง'],['ประมาณการส่งมอบ','date',2,'deliv',/^(ประมาณการส่งมอบ|เวลาประมาณการที่จะส่งมอบรถ|วันที่ประมาณการส่งมอบ|ประมาณการส่งมอบรถ|estimateddelivery|expecteddelivery|estimateddeliverydate)$/],
+  ['Tech (JS)',null,0,'tech'],['Warranty (YS)',null,0,'war'],['Part (PO/BO)',null,0,'part'],['ETA',null,0,'eta'],['ETA (GWM Spare part)',null,0,'gwm']];
+const AGE_BANDS = ['1) ≤7 วัน', '2) 8–15 วัน', '3) 16–21 วัน', '4) 22–30 วัน', '5) 30+ วัน'];
+const AGE_BAND = a => AGE_BANDS[a <= 7 ? 0 : a <= 15 ? 1 : a <= 21 ? 2 : a <= 30 ? 3 : 4];
+const STD_IX = n => STD_COLS.findIndex(d => d[0] === n);
+// GCIP columns left out of the Excel (not needed for follow-up)
+const STD_DROP = /^(คำอธิบายลูกค้า|อาการที่ลูกค้าแจ้ง|อาการลูกค้า|ลูกค้าแจ้ง|customerdescription|customercomplaint|basicmodel|basic_model|สาเหตุงานค้าง|ชื่อรุ่นรถยนต์|รุ่นรถยนต์|ประเภทใบงาน|ประเภทบริการ|รายการตรวจสอบpdi|หมายเลขป้ายทะเบียน|ป้ายทะเบียน|หมายเลขการนัดหมาย|ผู้ให้คำแนะนำบริการ|ประเภทลูกค้า|วันที่เริ่มต้นการรับประกันคุณภาพ.*|วันที่สิ้นสุดการรับประกันคุณภาพ.*|เลขไมล์ตอนรถเข้า.*|เวลาที่เรียกเก็บเงิน|สร้างโดย|การแจ้งเตือนงานรับประกัน.*|dateofdeliverycompleted)$/;
 let stdTpl = null;
 async function loadStd(){ if (!stdTpl) stdTpl = await prepareTemplate(Uint8Array.from(atob(STD_TEMPLATE_B64), c => c.charCodeAt(0))); return stdTpl; }
 const isDateFmt = z => !!z && /[dmy]/i.test(z) && !/general/i.test(z);
@@ -1229,33 +1235,53 @@ function setColumn(xml, colIdx, values, firstRow, lastColIdx){
   values.forEach((v, i) => { const rn = firstRow + i; byR.set(rn, withCells(byR.get(rn) || `<row r="${rn}"></row>`, rn, [{col: colIdx, text: v}], lastColIdx)); });
   return sp.prefix + [...byR].sort((a,b) => a[0]-b[0]).map(x => x[1]).join('') + sp.suffix;
 }
+function xlKeepRow(){
+  if (!$('xlFollow') || !$('xlFollow').checked || !state.recs) return null;
+  const recOf = new Map(state.recs.map(x => [x.row, x])), ok = new Set(filtered(baseRecs()).map(x => x.row));
+  return r => ok.has(r) || !recOf.has(r);
+}
 async function buildStandard(groups){
+  const keep = xlKeepRow(); if (keep) groups = groups.map(g => ({...g, rows: g.rows.filter(keep)})).filter(g => g.rows.length);
   const T = await loadStd(), path = T.sheets['Sheet1'];
+  const xmlOut0 = {}; let GWS = {h:'4', c:''};
+  { let st = T.get('xl/styles.xml'); const c = tag => +(new RegExp(`<${tag} count="(\\d+)"`).exec(st) || [0, 0])[1];
+    const F = c('fonts'), L = c('fills'), B = c('borders'), X = c('cellXfs');
+    st = st.replace(/<fonts count="\d+">([\s\S]*?)<\/fonts>/, (m, a) => `<fonts count="${F + 1}">${a}<font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font></fonts>`)
+      .replace(/<fills count="\d+">([\s\S]*?)<\/fills>/, (m, a) => `<fills count="${L + 2}">${a}<fill><patternFill patternType="solid"><fgColor rgb="FF1F4E79"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDDEBF7"/><bgColor indexed="64"/></patternFill></fill></fills>`)
+      .replace(/<borders count="\d+">([\s\S]*?)<\/borders>/, (m, a) => `<borders count="${B + 1}">${a}<border><left style="thin"><color rgb="FF9DC3E6"/></left><right style="thin"><color rgb="FF9DC3E6"/></right><top style="thin"><color rgb="FF9DC3E6"/></top><bottom style="thin"><color rgb="FF9DC3E6"/></bottom><diagonal/></border></borders>`)
+      .replace(/<cellXfs count="\d+">([\s\S]*?)<\/cellXfs>/, (m, a) => `<cellXfs count="${X + 2}">${a}<xf numFmtId="0" fontId="${F}" fillId="${L}" borderId="${B}" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top" wrapText="1"/></xf><xf numFmtId="0" fontId="0" fillId="${L + 1}" borderId="${B}" xfId="0" applyFill="1" applyBorder="1"/></cellXfs>`);
+    xmlOut0['xl/styles.xml'] = st; GWS = {h: String(X), c: String(X + 1)}; }
   const sp = splitSheet(T.get(path)), HR = 3;
-  const src = STD_COLS.map(d => state.hdr.findIndex(h => norm(h) === norm(d[0])));
-  const extras = state.hdr.map((h,i) => i).filter(i => !src.includes(i) && !/^Column \d+$/.test(state.hdr[i]));
+  const src = STD_COLS.map(d => state.hdr.findIndex(h => norm(h) === norm(d[0]) || (d[4] && d[4].test(norm(h)))));
+  const extras = state.hdr.map((h,i) => i).filter(i => !src.includes(i) && !/^Column \d+$/.test(state.hdr[i]) && !STD_DROP.test(norm(cleanHead(state.hdr[i]))));
   const recOf = new Map((state.recs || []).map(x => [x.row, x]));
-  const CALC = [['ติดที่ (Category)', x => CAT_XL[x.cause] || ''], ['ค้างที่ (GWM / PS)', x => x.ownGrp ? x.ownGrp + ' · ' + (OWNER_TH[x.ownDept] || x.ownDept) : ''],
-    ...(rsmSetsAll().length > 1 ? rsmSetsAll().map(st => [st.name, x => rsmInList(st.list, x.store)]) : [])];
+  const CALC = [...(rsmSetsAll().length > 1 ? rsmSetsAll().map(st => [st.name, x => rsmInList(st.list, x.store)]) : [])];
   const nX = extras.length + CALC.length;
   const lastCol = STD_COLS.length - 1 + nX, L = colLetter(lastCol);
-  const keyed = {tech:'tech', war:'war', part:'part', eta:'eta', park:'park'};
+  const keyed = {tech:'tech', war:'war', part:'part', eta:'eta', park:'park', deliv:'deliv'};
   let header = sp.rows.find(r => +attr(r.slice(0, r.indexOf('>')+1), 'r') === HR);
   const used = new Set(STD_COLS.map(d => d[0].toLowerCase()));
   const extraNames = extras.map(i => { let n = state.hdr[i], k = 2; while (used.has(n.toLowerCase())) n = state.hdr[i] + ' (' + (k++) + ')'; used.add(n.toLowerCase()); return n; }).concat(CALC.map(c => c[0]));
-  if (nX) header = withCells(header, HR, extraNames.map((n, j) => ({col: STD_COLS.length + j, text: n, style: '4'})), lastCol);
-  const out = [header]; let n = 0;
+  header = `<row r="${HR}" spans="1:${lastCol + 1}" ht="26">` + STD_COLS.concat(extraNames.map(n => [n])).map((d, k) => inlineCell(colLetter(k) + HR, k < 8 ? null : d[3] === 'gwm' ? GWS.h : '4', d[0])).join('') + '</row>';
+  const out = [`<row r="1" ht="20" customHeight="1">${inlineCell('A1', null, 'กรองช่วงวันค้าง: กดลูกศร ▼ ที่หัวคอลัมน์ B "ช่วงวันค้าง" แล้วติ๊กช่วงที่ต้องการ (เลือกได้หลายช่วง) · ดูสรุปและกราฟที่ชีต Dashboard')}</row>`, header]; let n = 0; const dashRows = [];
   for (const g of groups) for (const r of g.rows){
     const rn = HR + (++n), ex = r.extra || {};
-    let cells = '';
+    let cells = ''; const dr = {st:'', age:null, park:'', store: g.name}; dashRows.push(dr);
+    { const a = src[0] >= 0 ? r[src[0]] : null; const v = a && a.v !== '' && a.v != null ? +a.v : NaN; if (!isNaN(v)) dr.age = v; }
     STD_COLS.forEach((d, k) => {
       const ref = colLetter(k) + rn, c = src[k] >= 0 ? r[src[k]] : null, fill = d[3];
-      if (fill === 'jobtype'){ const ro = src[1] >= 0 ? txt(r[src[1]]) : ''; const v = (c && c.t !== 'e' && txt(c)) || (/^BP/i.test(ro) ? 'BP' : /^SP/i.test(ro) ? 'GR' : ''); if (v) cells += inlineCell(ref, null, v); }
+      if (fill === 'ageband'){ const a = dr.age, lab = a == null ? '' : AGE_BAND(a);
+        cells += `<c r="${ref}" t="str"><f>IF(A${rn}="","",IF(A${rn}&lt;=7,"${AGE_BANDS[0]}",IF(A${rn}&lt;=15,"${AGE_BANDS[1]}",IF(A${rn}&lt;=21,"${AGE_BANDS[2]}",IF(A${rn}&lt;=30,"${AGE_BANDS[3]}","${AGE_BANDS[4]}")))))</f><v>${xmlEsc(lab)}</v></c>`; }
+      else if (fill === 'gwm'){ const v = c && c.t !== 'e' ? txt(c) : ''; cells += v ? inlineCell(ref, GWS.c, v) : `<c r="${ref}" s="${GWS.c}"/>`; }
+      else if (fill === 'deliv'){ if (c && c.t !== 'e' && txt(c)) cells += srcCell(ref, c, d); else if (ex.deliv){ const dd = parseDMY(ex.deliv); cells += dd ? `<c r="${ref}" s="2"><v>${(Date.UTC(dd.getFullYear(), dd.getMonth(), dd.getDate()) - Date.UTC(1899, 11, 30)) / 864e5}</v></c>` : inlineCell(ref, null, ex.deliv); } }
+      else if (fill === 'jobtype'){ const iRO = STD_IX('Repair_Order'), ro = src[iRO] >= 0 ? txt(r[src[iRO]]) : ''; const v = (c && c.t !== 'e' && txt(c)) || (/^BP/i.test(ro) ? 'BP' : /^SP/i.test(ro) ? 'GR' : ''); if (v) cells += inlineCell(ref, null, v); }
       else if (fill === 'rsm'){ const v = state.rsmMap.get(g.name) || (c && c.t !== 'e' ? txt(c) : ''); if (v) cells += inlineCell(ref, null, v); }
-      else if (fill){ const v = (c && c.t !== 'e' && txt(c)) || ex[keyed[fill]] || ''; if (v) cells += inlineCell(ref, null, v); }
-      else if ((d[0] === 'สาเหตุงานค้าง' || d[0] === 'สถานะงานค้าง') && !(c && c.t !== 'e' && txt(c))){ const x = recOf.get(r); if (x){
-          const v = d[0] === 'สาเหตุงานค้าง' ? REASON_OF[x.cause] : PSTATUS_OF[x.cause];
+      else if (fill){ const v = (c && c.t !== 'e' && txt(c)) || ex[keyed[fill]] || ''; if (fill === 'park') dr.park = v; if (v) cells += inlineCell(ref, null, v); }
+      else if (d[0] === 'สถานะงานค้าง' && !(c && c.t !== 'e' && txt(c))){ const x = recOf.get(r); if (x){
+          const v = PSTATUS_OF[x.cause];
+          if (d[0] === 'สถานะงานค้าง') dr.st = v || '';
           if (v) cells += inlineCell(ref, null, v); } }
+      else if (d[0] === 'สถานะงานค้าง'){ dr.st = txt(c); cells += srcCell(ref, c, d); }
       else cells += srcCell(ref, c, d);
     });
     extras.forEach((i, j) => { cells += srcCell(colLetter(STD_COLS.length + j) + rn, r[i], []); });
@@ -1263,30 +1289,159 @@ async function buildStandard(groups){
     out.push(`<row r="${rn}" spans="1:${lastCol+1}">${cells}</row>`);
   }
   const lastRow = HR + Math.max(n, 1);
-  let prefix = sp.prefix.replace(/<dimension ref="[^"]*"/, `<dimension ref="A${HR}:${L}${lastRow}"`);
-  if (nX) prefix = prefix.replace('</cols>', extraNames.map((nm,j) => `<col min="${STD_COLS.length+j+1}" max="${STD_COLS.length+j+1}" width="18" customWidth="1"/>`).join('') + '</cols>');
+  let prefix = sp.prefix.replace(/<dimension ref="[^"]*"/, `<dimension ref="A1:${L}${lastRow}"`);
+  { const W = {'Pending day':9, 'ช่วงวันค้าง':14, 'Repair_Order':20, 'VIN_Code':20, 'Repair_Status':14, 'Remark':60, 'Create on':12, 'Store_Name':28, 'RSM':13, 'ประเภทงาน':10, 'สถานะรถ':13, 'สถานะงานค้าง':20, 'ประมาณการส่งมอบ':14, 'ETA':12, 'ETA (GWM Spare part)':16};
+    const names = STD_COLS.map(d => d[0]).concat(extraNames);
+    prefix = prefix.replace(/<cols>[\s\S]*?<\/cols>/, '<cols>' + names.map((nm, k) => `<col min="${k + 1}" max="${k + 1}" width="${W[nm] || 16}" customWidth="1"/>`).join('') + '</cols>'); }
   const rsmNames = [...new Set(rsmBook.list.map(x => x[3]))].sort();
-  const suffix = sp.suffix.replace(/(<xm:sqref>)([^<]*)/g, (m, p, v) => p + clampRefs(v, HR, lastRow))
+  const ddTo = lastRow + 500, DV = [[STD_IX('RSM'), `Sheet2!$E$2:$E$${1 + Math.max(rsmNames.length, 1)}`], [STD_IX('ประเภทงาน'), 'Sheet2!$A$2:$A$3'], [STD_IX('สถานะรถ'), 'Sheet2!$C$2:$C$3'], [STD_IX('สถานะงานค้าง'), `Sheet2!$D$2:$D$${1 + DD_STATUS.length}`]];
+  const dvXml = `<x14:dataValidations count="${DV.length}" xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">` + DV.map(([k, f]) => `<x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="0"><x14:formula1><xm:f>${f}</xm:f></x14:formula1><xm:sqref>${colLetter(k)}${HR + 1}:${colLetter(k)}${ddTo}</xm:sqref></x14:dataValidation>`).join('') + '</x14:dataValidations>';
+  const suffix = sp.suffix.replace(/<x14:dataValidations\b[\s\S]*?<\/x14:dataValidations>/, dvXml).replace(/(<xm:sqref>)([^<]*)/g, (m, p, v) => p + clampRefs(v, HR, ddTo))
                           .replace(/(sqref=")([^"]*)"/g, (m, p, v) => p + clampRefs(v, HR, lastRow) + '"')
                           .replace(/Sheet2!\$E\$2:\$E\$\d+/, `Sheet2!$E$2:$E$${1 + Math.max(rsmNames.length, 1)}`)
                           .replace(/Sheet2!\$B\$2:\$B\$\d+/, `Sheet2!$B$2:$B$${1 + DD_REASON.length}`).replace(/Sheet2!\$D\$2:\$D\$\d+/, `Sheet2!$D$2:$D$${1 + DD_STATUS.length}`);
-  const xmlOut = {};
+  const xmlOut = Object.assign({}, xmlOut0);
   xmlOut[path] = prefix + out.join('') + suffix;
   const tpath = 'xl/tables/table1.xml';
   xmlOut[tpath] = T.get(tpath).replace(/(<(?:table|autoFilter)\b[^>]*\sref=")([^"]*)"/g, (m, p) => `${p}A${HR}:${L}${lastRow}"`)
-    .replace(/<tableColumns count="(\d+)">([\s\S]*?)<\/tableColumns>/, (m, c, inner) => !nX ? m :
-      `<tableColumns count="${+c + nX}">${inner}${extraNames.map((nm, j) => `<tableColumn id="${+c + j + 1}" name="${xmlEsc(nm)}"/>`).join('')}</tableColumns>`);
+    .replace(/<tableColumns count="(\d+)">([\s\S]*?)<\/tableColumns>/, () => { const names = STD_COLS.map(d => d[0]).concat(extraNames);
+      return `<tableColumns count="${names.length}">${names.map((nm, k) => `<tableColumn id="${k + 1}" name="${xmlEsc(nm)}"${k === 0 ? ' dataDxfId="1"' : nm === 'Create on' ? ' dataDxfId="0"' : ''}/>`).join('')}</tableColumns>`; });
   // dropdown list of RSM names (Sheet2 column E) and the Store → Region → RSM reference (Sheet4)
   const s2 = T.sheets['Sheet2'], s4 = T.sheets['Sheet4'];
-  if (s2){ let x = T.get(s2); x = setColumn(x, 0, ['GR','BP'], 2, 6); x = setColumn(x, 1, DD_REASON, 2, 6); x = setColumn(x, 3, DD_STATUS, 2, 6); x = setColumn(x, 6, DD_STATUS, 2, 6); x = setColumn(x, 4, rsmNames.concat(Array(Math.max(0, 4 - rsmNames.length)).fill('')), 2, 6); xmlOut[s2] = x; }
+  if (s2){ let x = T.get(s2); x = setColumn(x, 0, ['GR','BP'], 2, 6); x = setColumn(x, 1, DD_REASON, 2, 6); x = setColumn(x, 2, ['Parking','Not Parking'], 2, 6); x = setColumn(x, 3, DD_STATUS, 2, 6); x = setColumn(x, 6, DD_STATUS, 2, 6); x = setColumn(x, 4, rsmNames.concat(Array(Math.max(0, 4 - rsmNames.length)).fill('')), 2, 6); xmlOut[s2] = x; }
   if (s4){ let x = T.get(s4); const L4 = rsmBook.list;
     x = setColumn(x, 0, L4.map(e => e[1]), 2, 2); x = setColumn(x, 1, L4.map(e => e[2]), 2, 2); x = setColumn(x, 2, L4.map(e => e[3]), 2, 2);
     xmlOut[s4] = x.replace(/<dimension ref="[^"]*"/, `<dimension ref="A1:C${L4.length + 1}"`); }
+  const extra = stdDashboard(T, xmlOut, path, dashRows, groups);
   const z = new JSZip();
   for (const [p, data] of Object.entries(T.files)) z.file(p, xmlOut[p] !== undefined ? enc.encode(xmlOut[p]) : data);
+  for (const [p, x] of Object.entries(extra)) z.file(p, enc.encode(x));
   return z.generateAsync({type:'uint8array', compression:'DEFLATE', mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
 }
 
+// front sheet "Dashboard": KPI tiles, VOR status and VOR period with vertical charts.
+// Every number is an Excel formula on Sheet1, filtered by the "สถานะรถ" cell and sorted by the "เรียงกราฟ" cell, so it follows edits.
+function stdDashboard(T, xmlOut, sheetPath, rows, groups){
+  // ---- styles appended to the template
+  const stP = 'xl/styles.xml'; let stX = xmlOut[stP] !== undefined ? xmlOut[stP] : T.get(stP);
+  const cnt = tag => +(new RegExp(`<${tag} count="(\\d+)"`).exec(stX) || [0, 0])[1];
+  const F0 = cnt('fonts'), L0 = cnt('fills'), B0 = cnt('borders'), X0 = cnt('cellXfs');
+  const FN = 'Kanit';
+  const fonts = [`<font><b/><sz val="18"/><color rgb="FFFFFFFF"/><name val="${FN}"/></font>`, `<font><sz val="10"/><color rgb="FFFDE8EA"/><name val="${FN}"/></font>`,
+    `<font><sz val="9"/><color rgb="FF6B7280"/><name val="${FN}"/></font>`, `<font><b/><sz val="20"/><color rgb="FF111827"/><name val="${FN}"/></font>`,
+    `<font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="${FN}"/></font>`, `<font><sz val="10"/><color rgb="FF1F2937"/><name val="${FN}"/></font>`,
+    `<font><b/><sz val="13"/><color rgb="FF111827"/><name val="${FN}"/></font>`, `<font><b/><sz val="10"/><color rgb="FF111827"/><name val="${FN}"/></font>`,
+    `<font><b/><sz val="20"/><color rgb="FFC8102E"/><name val="${FN}"/></font>`, `<font><sz val="9"/><color rgb="FF9CA3AF"/><name val="${FN}"/></font>`];
+  const fill = c => `<fill><patternFill patternType="solid"><fgColor rgb="FF${c}"/><bgColor indexed="64"/></patternFill></fill>`;
+  const fills = [fill('C8102E'), fill('F3F4F6'), fill('1F2937'), fill('FFF4CC'), fill('F9FAFB')];
+  const bd = c => `<border><left style="thin"><color rgb="FF${c}"/></left><right style="thin"><color rgb="FF${c}"/></right><top style="thin"><color rgb="FF${c}"/></top><bottom style="thin"><color rgb="FF${c}"/></bottom><diagonal/></border>`;
+  const borders = [bd('E5E7EB'), `<border><left/><right/><top/><bottom style="medium"><color rgb="FFC8102E"/></bottom><diagonal/></border>`];
+  const xf = (f, fl, b, al, num) => `<xf numFmtId="${num || 0}" fontId="${F0 + f}" fillId="${fl == null ? 0 : L0 + fl}" borderId="${b == null ? 0 : B0 + b}" xfId="0" applyFont="1"${fl != null ? ' applyFill="1"' : ''}${b != null ? ' applyBorder="1"' : ''}${num ? ' applyNumberFormat="1"' : ''} applyAlignment="1"><alignment ${al}/></xf>`;
+  const XS = { title: xf(0, 0, null, 'vertical="center" indent="1"'), sub: xf(1, 0, null, 'vertical="center" indent="1"'), band: xf(1, 0, null, 'vertical="center"'),
+    kL: xf(2, 1, 0, 'horizontal="center" vertical="center"'), kV: xf(3, 1, 0, 'horizontal="center" vertical="center"'), kR: xf(8, 1, 0, 'horizontal="center" vertical="center"'),
+    kA: xf(3, 1, 0, 'horizontal="center" vertical="center"'),
+    head: xf(4, 2, 0, 'horizontal="center" vertical="center"'), cL: xf(5, null, 0, 'vertical="center" indent="1"'), cN: xf(5, null, 0, 'horizontal="center" vertical="center"'),
+    tL: xf(7, 4, 0, 'vertical="center" indent="1"'), tN: xf(7, 4, 0, 'horizontal="center" vertical="center"'),
+    sec: xf(6, null, 1, 'vertical="center"'), secB: xf(6, null, 1, 'vertical="center"'), ctlL: xf(7, null, null, 'horizontal="right" vertical="center"'),
+    ctl: xf(7, 3, 0, 'horizontal="center" vertical="center"'), note: xf(9, null, null, 'vertical="center" wrapText="0"'), hid: xf(5, null, null, '') };
+  const keys = Object.keys(XS), ST = {}; keys.forEach((k, i) => ST[k] = String(X0 + i));
+  stX = stX.replace(/<fonts count="\d+">([\s\S]*?)<\/fonts>/, (m, a) => `<fonts count="${F0 + fonts.length}">${a}${fonts.join('')}</fonts>`)
+           .replace(/<fills count="\d+">([\s\S]*?)<\/fills>/, (m, a) => `<fills count="${L0 + fills.length}">${a}${fills.join('')}</fills>`)
+           .replace(/<borders count="\d+">([\s\S]*?)<\/borders>/, (m, a) => `<borders count="${B0 + borders.length}">${a}${borders.join('')}</borders>`)
+           .replace(/<cellXfs count="\d+">([\s\S]*?)<\/cellXfs>/, (m, a) => `<cellXfs count="${X0 + keys.length}">${a}${keys.map(k => XS[k]).join('')}</cellXfs>`);
+  xmlOut[stP] = stX;
+
+  // ---- ranges on Sheet1
+  const LR = 5000, R = k => `Sheet1!$${colLetter(k)}$4:$${colLetter(k)}$${LR}`;
+  const A = R(0), Bc = R(STD_IX('Repair_Order')), K = R(STD_IX('สถานะรถ')), M = R(STD_IX('สถานะงานค้าง'));
+  const PF = ['ทั้งหมด', 'จอด', 'ไม่จอด', 'จอด + ไม่จอด', 'ไม่ระบุ'], SO = ['ตามลำดับ', 'สูง → ต่ำ', 'ต่ำ → สูง'], AG = ['ทั้งหมด', '≤7 วัน', '8–15 วัน', '16–21 วัน', '22–30 วัน', '30+ วัน', 'เกิน 15 วัน'];
+  const arr = l => '{' + l.map(x => `"${x}"`).join(',') + '}';
+  const mask = `(${Bc}<>"")*(($T$4=1)+($T$4=2)*(${K}="Parking")+($T$4=3)*(${K}="Not Parking")+($T$4=4)*((${K}="Parking")+(${K}="Not Parking"))+($T$4=5)*(${K}<>"Parking")*(${K}<>"Not Parking"))*(($T$6=1)+ISNUMBER(${A})*(($T$6=2)*(${A}<=7)+($T$6=3)*(${A}>=8)*(${A}<=15)+($T$6=4)*(${A}>=16)*(${A}<=21)+($T$6=5)*(${A}>=22)*(${A}<=30)+($T$6=6)*(${A}>30)+($T$6=7)*(${A}>15)))`;
+  const SP = x => `SUMPRODUCT(${mask}${x ? '*' + x : ''})`;
+  const num = `ISNUMBER(${A})`;
+  const d = new Date(), date = `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+  const stores = [...new Set(rows.map(r => r.store))], rsmsG = [...new Set(stores.map(n => state.rsmMap.get(n)).filter(Boolean))];
+  const scope = stores.length === 1 ? stores[0] : (rsmsG.length === 1 ? `RSM ${rsmsG[0]} · ` : '') + `${stores.length} Partner`;
+  const filt = xlKeepRow() ? ' · ตามตัวกรองในเว็บ: ' + [dash.parkScope ? PK_NAME(dash.parkScope) : '', anyFilter() ? 'ตัวกรองรายการ' : ''].filter(Boolean).join(' · ') : '';
+
+  // ---- cells
+  const cells = {}, put = (ref, x) => { cells[ref] = x; };
+  const str = (ref, t, st) => put(ref, inlineCell(ref, st, t));
+  const fml = (ref, f, v, st, isStr) => put(ref, isStr ? `<c r="${ref}" s="${st}" t="str"><f>${xmlEsc(f)}</f><v>${xmlEsc(v)}</v></c>` : `<c r="${ref}"${st ? ` s="${st}"` : ''}><f>${xmlEsc(f)}</f><v>${v}</v></c>`);
+  const blank = (ref, st) => put(ref, `<c r="${ref}" s="${st}"/>`);
+  const COLS = 'ABCDEFGHIJKLMNOP'.split('');
+  // title band rows 1–2
+  COLS.forEach(c => { blank(c + '1', ST.title); blank(c + '2', ST.band); });
+  str('A1', `VOR Dashboard · ${scope}`, ST.title); str('A2', `Pending RO · ข้อมูล ณ ${date}${filt} · ตัวเลขเป็นสูตรจาก Sheet1 แก้ข้อมูลแล้วเปลี่ยนตาม`, ST.sub);
+  // controls row 4
+  str('B4', 'สถานะรถ', ST.ctlL); str('C4', 'ทั้งหมด', ST.ctl); str('E4', 'ช่วงวันค้าง', ST.ctlL); str('F4', 'ทั้งหมด', ST.ctl); blank('G4', ST.ctl);
+  str('I4', 'เรียงกราฟ', ST.ctlL); str('J4', 'ตามลำดับ', ST.ctl); blank('K4', ST.ctl); str('M4', '◀ เลือกจาก dropdown สีเหลือง', ST.note);
+  fml('T6', `IFERROR(MATCH($F$4,${arr(AG)},0),1)`, 1, ST.hid);
+  fml('T4', `IFERROR(MATCH($C$4,${arr(PF)},0),1)`, 1, ST.hid); fml('T5', `IFERROR(MATCH($J$4,${arr(SO)},0),1)`, 1, ST.hid);
+  // KPI tiles rows 6–7 (merged pairs)
+  const all = rows, n = all.length, ages = all.filter(r => r.age != null);
+  const kpis = [['RO ค้างทั้งหมด', SP(''), n, ST.kV], ['เกิน 30 วัน', SP(`${num}*(${A}>30)`), ages.filter(r => r.age > 30).length, ST.kR],
+    ['ค้างเฉลี่ย (วัน)', `IFERROR(ROUND(SUMPRODUCT(${mask}*${num},${A})/${SP(num)},1),0)`, ages.length ? Math.round(ages.reduce((a, r) => a + r.age, 0) / ages.length * 10) / 10 : 0, ST.kA],
+    ['จอด (Parking)', SP(`(${K}="Parking")`), all.filter(r => r.park === 'Parking').length, ST.kV], ['ไม่จอด (Not Parking)', SP(`(${K}="Not Parking")`), all.filter(r => r.park === 'Not Parking').length, ST.kV],
+    ['ไม่ระบุสถานะรถ', SP(`(${K}<>"Parking")*(${K}<>"Not Parking")`), all.filter(r => r.park !== 'Parking' && r.park !== 'Not Parking').length, ST.kV]];
+  const merges = ['A1:P1', 'A2:P2', 'F4:G4', 'J4:K4'];
+  kpis.forEach(([l, f, v, st], i) => { const c1 = COLS[1 + i * 2 + (i ? 1 : 0)] , c0 = i === 0 ? 'B' : COLS[2 + i * 2], c2 = COLS[COLS.indexOf(c0) + 1];
+    str(c0 + '6', l, ST.kL); blank(c2 + '6', ST.kL); fml(c0 + '7', f, v, st); blank(c2 + '7', st); merges.push(`${c0}6:${c2}6`, `${c0}7:${c2}7`); });
+  // a sorted table: hidden helpers in T:X (label, value, key↓, key↑, position), visible table in B:C
+  const table = (r0, title, head, list) => {
+    str('B' + r0, title, ST.sec); blank('C' + r0, ST.sec); str('B' + (r0 + 1), head, ST.head); str('C' + (r0 + 1), 'จำนวนเคส', ST.head);
+    const a = r0 + 2, b = a + list.length - 1, nL = list.length;
+    list.forEach(([l, f, v], i) => { const rr = a + i;
+      str('T' + rr, l, ST.hid); fml('U' + rr, f, v, ST.hid); fml('V' + rr, `U${rr}+${(nL - i) / 1000}`, v + (nL - i) / 1000, ST.hid); fml('W' + rr, `U${rr}+${(i + 1) / 1000}`, v + (i + 1) / 1000, ST.hid);
+      fml('X' + rr, `IF($T$5=1,${i + 1},IF($T$5=2,MATCH(LARGE($V$${a}:$V$${b},${i + 1}),$V$${a}:$V$${b},0),MATCH(SMALL($W$${a}:$W$${b},${i + 1}),$W$${a}:$W$${b},0)))`, i + 1, ST.hid);
+      fml('B' + rr, `INDEX($T$${a}:$T$${b},X${rr})`, l, ST.cL, true); fml('C' + rr, `INDEX($U$${a}:$U$${b},X${rr})`, v, ST.cN); });
+    str('B' + (b + 1), 'รวม', ST.tL); fml('C' + (b + 1), `SUM(C${a}:C${b})`, list.reduce((s, x) => s + x[2], 0), ST.tN);
+    return [a, b];
+  };
+  const status = DD_STATUS.map(v => [v, SP(`(${M}="${v}")`), rows.filter(r => r.st === v).length]);
+  const sa = 11; status.push(['ไม่ระบุ / นอกรายการ', `${SP('')}-SUM(U${sa}:U${sa + DD_STATUS.length - 1})`, rows.filter(r => !DD_STATUS.includes(r.st)).length]);
+  const P = [['≤7 วัน', `(${A}<=7)`, r => r <= 7], ['8–15 วัน', `(${A}>=8)*(${A}<=15)`, r => r >= 8 && r <= 15], ['16–21 วัน', `(${A}>=16)*(${A}<=21)`, r => r >= 16 && r <= 21],
+             ['22–30 วัน', `(${A}>=22)*(${A}<=30)`, r => r >= 22 && r <= 30], ['30+ วัน', `(${A}>30)`, r => r > 30]];
+  const period = P.map(([l, x, f]) => [l, SP(`${num}*${x}`), rows.filter(r => r.age != null && f(r.age)).length]);
+  const sR = table(9, 'VOR Status · ติดเรื่องไหนกี่เคส', 'สถานะงานค้างซ่อม', status);
+  const p0 = 30, pR = table(p0, 'VOR Period · ค้างกี่วัน', 'ช่วงวันค้าง', period);
+  str('B50', 'สถานะงานค้างซ่อม = คอลัมน์ ' + colLetter(STD_IX('สถานะงานค้าง')) + ' · วันค้าง = Pending day (คอลัมน์ A) · สถานะรถ = คอลัมน์ ' + colLetter(STD_IX('สถานะรถ')) + ' ใน Sheet1', ST.note);
+  // section lines across the chart area
+  ['D','E','F','G','H','I','J','K','L','M','N','O','P'].forEach(c => { blank(c + '9', ST.sec); blank(c + p0, ST.sec); });
+  const byRow = {}; for (const ref of Object.keys(cells)){ const rn = +ref.replace(/^[A-Z]+/, ''); (byRow[rn] = byRow[rn] || []).push(ref); }
+  const colIdx = ref => { const L = ref.replace(/\d+$/, ''); return L.length === 1 ? L.charCodeAt(0) : 100 + L.charCodeAt(1); };
+  const HT = {1: 34, 2: 20, 4: 22, 6: 18, 7: 36, 9: 22, [p0]: 22};
+  const sd = Object.keys(byRow).map(Number).sort((a, b) => a - b).map(rn => `<row r="${rn}"${HT[rn] ? ` ht="${HT[rn]}" customHeight="1"` : ''}>${byRow[rn].sort((a, b) => colIdx(a) - colIdx(b)).map(x => cells[x]).join('')}</row>`).join('');
+  const colsX = `<cols><col min="1" max="1" width="2" customWidth="1"/><col min="2" max="2" width="24" customWidth="1"/><col min="3" max="3" width="11" customWidth="1"/><col min="4" max="16" width="10.5" customWidth="1"/><col min="20" max="24" width="12" hidden="1" customWidth="1"/></cols>`;
+  const dv = `<dataValidations count="3"><dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="C4"><formula1>"${PF.join(',')}"</formula1></dataValidation><dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="F4"><formula1>"${AG.join(',')}"</formula1></dataValidation><dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="J4"><formula1>"${SO.join(',')}"</formula1></dataValidation></dataValidations>`;
+  const sheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetPr><tabColor rgb="FFC8102E"/><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:X50"/><sheetViews><sheetView tabSelected="1" showGridLines="0" zoomScale="90" zoomScaleNormal="90" workbookViewId="0"><selection activeCell="C4" sqref="C4"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="16"/>${colsX}<sheetData>${sd}</sheetData><mergeCells count="${merges.length}">${merges.map(m => `<mergeCell ref="${m}"/>`).join('')}</mergeCells>${dv}<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="1"/><drawing r:id="rId1"/></worksheet>`;
+  // ---- vertical bar charts on the sorted tables
+  const chart = (title, r1, r2, list, color) => {
+    const pts = fn => list.map((x, i) => `<c:pt idx="${i}"><c:v>${fn(x)}</c:v></c:pt>`).join('');
+    const tx = (sz, b, col) => `<c:txPr><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:defRPr sz="${sz}"${b ? ' b="1"' : ''}><a:solidFill><a:srgbClr val="${col}"/></a:solidFill><a:latin typeface="${FN}"/><a:cs typeface="${FN}"/></a:defRPr></a:pPr><a:endParaRPr lang="th-TH"/></a:p></c:txPr>`;
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><c:roundedCorners val="0"/><c:chart><c:title><c:tx><c:rich><a:bodyPr/><a:p><a:pPr><a:defRPr sz="1200" b="1"/></a:pPr><a:r><a:rPr lang="th-TH" sz="1200" b="1"><a:solidFill><a:srgbClr val="111827"/></a:solidFill><a:latin typeface="${FN}"/><a:cs typeface="${FN}"/></a:rPr><a:t>${xmlEsc(title)}</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title><c:autoTitleDeleted val="0"/><c:plotArea><c:layout/><c:barChart><c:barDir val="col"/><c:grouping val="clustered"/><c:varyColors val="0"/><c:ser><c:idx val="0"/><c:order val="0"/><c:tx><c:v>จำนวนเคส</c:v></c:tx><c:spPr><a:solidFill><a:srgbClr val="${color}"/></a:solidFill><a:ln><a:noFill/></a:ln></c:spPr><c:invertIfNegative val="0"/><c:dLbls><c:spPr><a:noFill/><a:ln><a:noFill/></a:ln></c:spPr>${tx(1000, true, '111827')}<c:dLblPos val="outEnd"/><c:showLegendKey val="0"/><c:showVal val="1"/><c:showCatName val="0"/><c:showSerName val="0"/><c:showPercent val="0"/><c:showBubbleSize val="0"/></c:dLbls><c:cat><c:strRef><c:f>Dashboard!$B$${r1}:$B$${r2}</c:f><c:strCache><c:ptCount val="${list.length}"/>${pts(x => xmlEsc(x[0]))}</c:strCache></c:strRef></c:cat><c:val><c:numRef><c:f>Dashboard!$C$${r1}:$C$${r2}</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="${list.length}"/>${pts(x => x[2])}</c:numCache></c:numRef></c:val></c:ser><c:gapWidth val="45"/><c:axId val="5001"/><c:axId val="5002"/></c:barChart><c:catAx><c:axId val="5001"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:delete val="0"/><c:axPos val="b"/><c:numFmt formatCode="General" sourceLinked="0"/><c:majorTickMark val="none"/><c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/><c:spPr><a:ln w="9525"><a:solidFill><a:srgbClr val="D1D5DB"/></a:solidFill></a:ln></c:spPr>${tx(900, false, '374151')}<c:crossAx val="5002"/><c:crosses val="autoZero"/><c:auto val="1"/><c:lblAlgn val="ctr"/><c:lblOffset val="100"/><c:tickLblSkip val="1"/><c:noMultiLvlLbl val="0"/></c:catAx><c:valAx><c:axId val="5002"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:delete val="0"/><c:axPos val="l"/><c:majorGridlines><c:spPr><a:ln w="6350"><a:solidFill><a:srgbClr val="EEF0F3"/></a:solidFill></a:ln></c:spPr></c:majorGridlines><c:numFmt formatCode="0" sourceLinked="0"/><c:majorTickMark val="none"/><c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/><c:spPr><a:ln><a:noFill/></a:ln></c:spPr>${tx(900, false, '6B7280')}<c:crossAx val="5001"/><c:crosses val="autoZero"/><c:crossBetween val="between"/></c:valAx><c:spPr><a:noFill/><a:ln><a:noFill/></a:ln></c:spPr></c:plotArea><c:plotVisOnly val="1"/><c:dispBlanksAs val="gap"/></c:chart><c:spPr><a:solidFill><a:srgbClr val="FFFFFF"/></a:solidFill><a:ln w="9525"><a:solidFill><a:srgbClr val="E5E7EB"/></a:solidFill></a:ln></c:spPr></c:chartSpace>`;
+  };
+  const anchor = (id, rel, r1, r2) => `<xdr:twoCellAnchor editAs="oneCell"><xdr:from><xdr:col>4</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${r1}</xdr:row><xdr:rowOff>60000</xdr:rowOff></xdr:from><xdr:to><xdr:col>16</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${r2}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to><xdr:graphicFrame macro=""><xdr:nvGraphicFramePr><xdr:cNvPr id="${id + 1}" name="Chart ${id}"/><xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr><xdr:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></xdr:xfrm><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" r:id="${rel}"/></a:graphicData></a:graphic></xdr:graphicFrame><xdr:clientData/></xdr:twoCellAnchor>`;
+  const drawing = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">${anchor(1, 'rId1', 9, 27)}${anchor(2, 'rId2', p0, p0 + 17)}</xdr:wsDr>`;
+  const RT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const out = {
+    'xl/worksheets/sheetDash.xml': sheet,
+    'xl/worksheets/_rels/sheetDash.xml.rels': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${RT}/drawing" Target="../drawings/drawingDash.xml"/></Relationships>`,
+    'xl/drawings/drawingDash.xml': drawing,
+    'xl/drawings/_rels/drawingDash.xml.rels': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${RT}/chart" Target="../charts/chartDash1.xml"/><Relationship Id="rId2" Type="${RT}/chart" Target="../charts/chartDash2.xml"/></Relationships>`,
+    'xl/charts/chartDash1.xml': chart('VOR Status · ติดเรื่องไหนกี่เคส', sR[0], sR[1], status, 'C8102E'),
+    'xl/charts/chartDash2.xml': chart('VOR Period · ค้างกี่วัน', pR[0], pR[1], period, '1F2937')};
+  const wbP = 'xl/workbook.xml', relP = 'xl/_rels/workbook.xml.rels', ctP = '[Content_Types].xml';
+  const g = p => xmlOut[p] !== undefined ? xmlOut[p] : T.get(p);
+  xmlOut[wbP] = g(wbP).replace('<sheets>', '<sheets><sheet name="Dashboard" sheetId="99" r:id="rIdDash"/>').replace(/<calcPr\b([^>]*?)\/>/, (m, a) => `<calcPr${a.replace(/\sfullCalcOnLoad="[^"]*"/, '')} fullCalcOnLoad="1"/>`).replace(/\sactiveTab="\d+"/, '').replace(/\sfirstSheet="\d+"/, '');
+  xmlOut[relP] = g(relP).replace('</Relationships>', `<Relationship Id="rIdDash" Type="${RT}/worksheet" Target="worksheets/sheetDash.xml"/></Relationships>`);
+  xmlOut[ctP] = g(ctP).replace('</Types>', '<Override PartName="/xl/worksheets/sheetDash.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/drawings/drawingDash.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/><Override PartName="/xl/charts/chartDash1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/><Override PartName="/xl/charts/chartDash2.xml" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/></Types>');
+  xmlOut[sheetPath] = xmlOut[sheetPath].replace(/\stabSelected="1"/, '');
+  return out;
+}
 async function fileBytes(groups){
   try { return await buildStandard(groups); } catch(e){ console.error(e); }
   return XLSX.write(workbookFor(groups), {bookType:'xlsx', type:'array'});
@@ -1631,10 +1786,11 @@ function buildRecords(){
   return recs;
 }
 const NO_STORE = '(ไม่ระบุ Store)';
-function baseRecs(){ return state.recs.filter(r => dash.types[r.jt] && (dash.noStore !== false || r.store !== NO_STORE) && (!dash.parkScope || parkKey(r) === dash.parkScope)); }
+function baseRecs(){ return state.recs.filter(r => dash.types[r.jt] && (dash.noStore !== false || r.store !== NO_STORE) && parkIn(r, dash.parkScope)); }
 // the same scope without the parking choice (for the parked / not parked counts themselves)
 function scopeAllPark(){ const k = dash.parkScope; dash.parkScope = ''; try { return scopeRecs(); } finally { dash.parkScope = k; } }
-const PK_NAME = k => ({'Parking': T2('จอด','Parked'), 'Not Parking': T2('ไม่จอด','Not parked'), 'none': T2('ไม่ระบุ','Unspecified')})[k] || T2('ทั้งหมด','All');
+const PK_NAME = k => ({'Parking': T2('จอด','Parked'), 'Not Parking': T2('ไม่จอด','Not parked'), 'both': T2('จอด + ไม่จอด','Parked + not parked'), 'none': T2('ไม่ระบุ','Unspecified')})[k] || T2('ทั้งหมด','All');
+const parkIn = (r, k) => !k || (k === 'both' ? parkKey(r) !== 'none' : parkKey(r) === k);
 const parkKey = r => r.park || 'none';
 const vinCount = recs => new Set(recs.map(r => r.vin).filter(Boolean)).size;
 const vinTag = r => { const n = r.vin && state.vinN ? state.vinN.get(r.vin) : 0; return n > 1 ? ` <span class="pill warn vinrep" title="รถคันนี้มี ${n} RO ค้าง">${n} RO</span>` : ''; };
@@ -1735,11 +1891,13 @@ function renderDash(){
   document.querySelectorAll('#dView button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === dash.view));
   $('dRsmWrap').hidden = dash.view === 'overview'; $('dStoreWrap').hidden = dash.view !== 'store';
   $('batchWrap').hidden = dash.view !== 'store'; $('mailBtn').hidden = dash.view !== 'store'; $('deptBtn').hidden = dash.view !== 'store' || !dash.store; if (dash.view !== 'store'){ $('deptPanel').hidden = true; $('mailPanel').hidden = true; } else if (!$('deptPanel').hidden) renderDeptPanel(); $('batchRsm').textContent = `ZIP PDF ราย PS · ${dash.rsm || ''}` + (dash.parkScope ? ` · ${PK_NAME(dash.parkScope)}` : '');
+  { const f = []; if (dash.parkScope) f.push('สถานะรถ: ' + PK_NAME(dash.parkScope)); if (anyFilter()) f.push('ตัวกรองรายการ'); if (!dash.types.BP || !dash.types.GR) f.push(dash.types.BP ? 'BP' : 'GR');
+    if ($('xlFollowTxt')) $('xlFollowTxt').textContent = f.length ? `· ${f.join(' · ')} · ${filtered(baseRecs()).length.toLocaleString()} RO` : '· ยังไม่ได้กรอง'; }
   const recs = scopeRecs();
   const scopeName = dash.view === 'overview' ? 'ทุก Partner' : dash.view === 'rsm' ? 'RSM ' + dash.rsm : dash.store;
   $('dScope').textContent = scopeName + (dash.parkScope ? ' · ' + T2('รถ','') + PK_NAME(dash.parkScope) : '');
   { const all = scopeAllPark(), n = all.length;
-    $('dParkScope').innerHTML = `<span class="sub">${T2('สถานะรถ','Parking')}</span>` + ['', 'Parking', 'Not Parking', 'none'].map(k => { const c = k ? all.filter(r => parkKey(r) === k).length : n;
+    $('dParkScope').innerHTML = `<span class="sub">${T2('สถานะรถ','Parking')}</span>` + ['', 'Parking', 'Not Parking', 'both', 'none'].map(k => { const c = k ? all.filter(r => parkIn(r, k)).length : n;
       return `<button type="button" data-ps="${k}" aria-pressed="${dash.parkScope === k}">${PK_NAME(k)} <b>${c.toLocaleString()}</b>${k ? ` <span class="sub">${n ? Math.round(c / n * 100) : 0}%</span>` : ''}</button>`; }).join(''); }
 
   // KPIs
@@ -2386,7 +2544,7 @@ async function exportPptx(){
       const sh = unit === 'pts' ? `${a} ${pc}` : `${a} ${fmtN(Math.abs(d))} (${pc})`;
       return {t, s: sh, c: (up === goodDown) ? 'B42318' : '0F6B5C'}; };
 
-    const scopeTxt = (dash.view === 'overview' ? 'All Partners' : dash.view === 'rsm' ? 'RSM ' + enRsm(dash.rsm) : dash.store + ' (RSM ' + enRsm(dash.rsm) + ')') + (dash.parkScope ? ' · ' + ({'Parking':'Parked','Not Parking':'Not parked','none':'Parking unspecified'})[dash.parkScope] + ' only' : '');
+    const scopeTxt = (dash.view === 'overview' ? 'All Partners' : dash.view === 'rsm' ? 'RSM ' + enRsm(dash.rsm) : dash.store + ' (RSM ' + enRsm(dash.rsm) + ')') + (dash.parkScope ? ' · ' + ({'Parking':'Parked','Not Parking':'Not parked','both':'Parked + not parked','none':'Parking unspecified'})[dash.parkScope] + ' only' : '');
     const jobTxt = ['GR','BP'].filter(t => dash.types[t]).map(t => t === 'GR' ? 'General Repair' : 'Body & Paint').join(' + ');
     const dateTxt = now.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
 
@@ -2859,8 +3017,8 @@ function lineText(){
   const scope = dash.view === 'store' && dash.store ? dash.store.replace(/^GWM\s+/, '') : dash.view === 'rsm' && dash.rsm ? 'RSM ' + dash.rsm : 'ทุก Partner';
   const GN = {'Parking':'จอด', 'Not Parking':'ไม่จอด', 'none':'ไม่ระบุสถานะรถ'};
   const head = [`ติดตามงานค้าง · ${scope}${dash.parkScope ? ' · ' + (GN[dash.parkScope] || PK_NAME(dash.parkScope)) : ''}`, `ข้อมูล ณ ${date} · ${all.length} คัน · ต้องติดตาม ${all.filter(lineFollow).length} คัน`];
-  const groups = dash.parkScope ? [[dash.parkScope, rs]] : ['Parking', 'Not Parking', 'none'].map(k => [k, rs.filter(r => parkKey(r) === k)]).filter(g => g[1].length);
-  const showHead = !dash.parkScope;
+  const groups = dash.parkScope && dash.parkScope !== 'both' ? [[dash.parkScope, rs]] : ['Parking', 'Not Parking', 'none'].map(k => [k, rs.filter(r => parkKey(r) === k)]).filter(g => g[1].length);
+  const showHead = !dash.parkScope || dash.parkScope === 'both';
   const blocks = [];
   groups.forEach(([k, list], gi) => {
     if (showHead) blocks.push({group:true, sep: gi > 0, text:`${GN[k] || PK_NAME(k)} · ${list.length} คัน`});
@@ -3321,7 +3479,7 @@ function rankTable(items, total, attr){
     <div class="pksum">${sumLine(rows.map(x => [x.label, x.value]), total)}</div>`;
 }
 function renderPark(){
-  const all = scopeAllPark(), pk = dash.parkScope || '';
+  const all = scopeAllPark(), pk = dash.parkScope === 'both' ? '' : (dash.parkScope || '');
   const segs = [['Parking', T2('จอด','Parked')], ['Not Parking', T2('ไม่จอด','Not parked')], ['none', T2('ไม่ระบุ','Unspecified')], ['', T2('ทั้งหมด','All')]];
   $('pkSeg').innerHTML = segs.map(([k, l]) => { const rs = k ? all.filter(r => parkKey(r) === k) : all;
     return `<button type="button" data-pk="${k}" aria-pressed="${k === pk}" aria-expanded="${k === pk && !!dash.pkOpen}"><span class="sub">${l}${k === dash.parkScope && k ? ' · ' + T2('กรองทั้งหน้าอยู่','filtering the page') : ''}</span><b>${rs.length.toLocaleString()} <span class="pct">${all.length ? Math.round(rs.length / all.length * 100) : 0}%</span></b><span class="sub">RO · ${vinCount(rs).toLocaleString()} ${T2('คัน','vehicles')}</span></button>`; }).join('');
@@ -3399,7 +3557,7 @@ function parkDrill(set){
   if (!dash.fPark && !dash.fCause && !dash.fStage && !dash.fStore && !dash.fOwner && !dash.fAge) dash.fAge = '0-';
   renderDash(); revealFilter();
 }
-function setParkScope(k){ dash.parkScope = dash.parkScope === k ? '' : k; dash.pk = dash.parkScope || dash.pk; dash.showAll = false; renderDash(); toast(dash.parkScope ? T2('ทั้งหน้าแสดงเฉพาะรถ','The whole page now shows ') + PK_NAME(dash.parkScope) + T2(' · กดซ้ำเพื่อดูทั้งหมด',' only · click again for all') : T2('แสดงรถทุกสถานะ','Showing every parking status')); }
+function setParkScope(k){ dash.parkScope = dash.parkScope === k ? '' : k; dash.pk = (dash.parkScope && dash.parkScope !== 'both' ? dash.parkScope : '') || dash.pk; dash.showAll = false; renderDash(); toast(dash.parkScope ? T2('ทั้งหน้าแสดงเฉพาะรถ','The whole page now shows ') + PK_NAME(dash.parkScope) + T2(' · กดซ้ำเพื่อดูทั้งหมด',' only · click again for all') : T2('แสดงรถทุกสถานะ','Showing every parking status')); }
 $('pkSeg').addEventListener('click', e => { const b = e.target.closest('[data-pk]'); if (b) setParkScope(b.dataset.pk); });
 $('dParkScope').addEventListener('click', e => { const b = e.target.closest('[data-ps]'); if (b) setParkScope(b.dataset.ps); });
 $('rsmSet').addEventListener('change', e => useSet(e.target.value));
@@ -3450,7 +3608,7 @@ async function parkPptx(){
   if (!(await ensurePptx())){ toast('PPTX_LIB_FAIL'); return; }
   const btn = $('pkPptx'), label = btn.textContent; btn.disabled = true; btn.textContent = T2('กำลังสร้าง…','Building…');
   try {
-    const pk = dash.parkScope || '', all = scopeRecs(), recs = all.slice().sort(byCase);
+    const pk = dash.parkScope === 'both' ? '' : (dash.parkScope || ''), all = scopeRecs(), recs = all.slice().sort(byCase);
     const F = 'Tahoma', NAVY = '1B2A41', TEAL = '0F6B5C', MUTED = '6B7280', LINE = 'E5E7EB', RED = 'B42318';
     const pres = new PptxGenJS(); pres.layout = 'LAYOUT_16x9'; pres.title = 'Pending RO by case — ' + pkName(pk); pres.author = 'Natchanon C.';
     let no = 0; const foot = sl => { no++; sl.addText(`Pending RO · ${pkName(pk)} · ${scopeLabel()} · ${stampNow()}`, {x:0.4, y:5.25, w:8, h:0.25, fontSize:8, color:'9CA3AF', fontFace:F});
