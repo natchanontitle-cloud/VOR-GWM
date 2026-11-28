@@ -841,6 +841,14 @@ function etaOf(text){
   while ((m = re.exec(text || ''))){ const d = datesIn(m[1]); if (d.length) last = d[d.length - 1]; }
   return last;
 }
+function cellDMY(c){
+  if (!c || c.v === '' || c.v == null) return '';
+  let d = null;
+  if (c.t === 'n' || typeof c.v === 'number'){ const n = +c.v; if (n > 20000 && n < 80000) d = new Date(Date.UTC(1899, 11, 30) + Math.round(n * 864e5)); }
+  else if (c.v instanceof Date) d = c.v;
+  else { const t = String(c.w || c.v).trim(), m = t.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); if (m) d = new Date(Date.UTC(+m[1], m[2] - 1, +m[3])); else { const x = parseDMY(t); if (x) return `${pad2(x.getDate())}/${pad2(x.getMonth() + 1)}/${x.getFullYear()}`; } }
+  return d && !isNaN(d) ? `${pad2(d.getUTCDate())}/${pad2(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}` : '';
+}
 function delivOf(text){
   // the estimated delivery date the dealer wrote (วันประมาณการที่จะส่งมอบ / คาดว่าจะเสร็จ / กำหนดส่งมอบ …)
   const re = /(?:ประมาณการ(?:ที่จะ|การ)?\s*ส่งมอบ|คาดการณ์\s*ส่งมอบ|คาดว่า(?:จะ)?\s*(?:เสร็จ|ส่งมอบ)(?:\s*ส่งมอบ)?|กำหนด\s*ส่งมอบ|นัด\s*ส่งมอบ|วัน\s*(?:ที่\s*)?ส่งมอบ|ส่งมอบ\s*(?:รถ)?\s*(?:ได้)?\s*วันที่)\s*[:：]?\s*([\s\S]{0,34})/g;
@@ -1250,7 +1258,10 @@ async function buildStandard(groups){
       .replace(/<fills count="\d+">([\s\S]*?)<\/fills>/, (m, a) => `<fills count="${L + 2}">${a}<fill><patternFill patternType="solid"><fgColor rgb="FF1F4E79"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDDEBF7"/><bgColor indexed="64"/></patternFill></fill></fills>`)
       .replace(/<borders count="\d+">([\s\S]*?)<\/borders>/, (m, a) => `<borders count="${B + 1}">${a}<border><left style="thin"><color rgb="FF9DC3E6"/></left><right style="thin"><color rgb="FF9DC3E6"/></right><top style="thin"><color rgb="FF9DC3E6"/></top><bottom style="thin"><color rgb="FF9DC3E6"/></bottom><diagonal/></border></borders>`)
       .replace(/<cellXfs count="\d+">([\s\S]*?)<\/cellXfs>/, (m, a) => `<cellXfs count="${X + 2}">${a}<xf numFmtId="0" fontId="${F}" fillId="${L}" borderId="${B}" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top" wrapText="1"/></xf><xf numFmtId="0" fontId="0" fillId="${L + 1}" borderId="${B}" xfId="0" applyFill="1" applyBorder="1"/></cellXfs>`);
-    xmlOut0['xl/styles.xml'] = st; GWS = {h: String(X), c: String(X + 1)}; }
+    const D = +(/<dxfs count="(\d+)"/.exec(st) || [0, 0])[1];
+    st = /<dxfs count="\d+">/.test(st) ? st.replace(/<dxfs count="\d+">([\s\S]*?)<\/dxfs>/, (m, a) => `<dxfs count="${D + 1}">${a}<dxf><font><b/><color rgb="FFC00000"/></font><fill><patternFill><bgColor rgb="FFFDE2E2"/></patternFill></fill></dxf></dxfs>`)
+                                    : st.replace('</cellXfs>', '</cellXfs>').replace(/(<\/cellStyles>)/, '$1<dxfs count="1"><dxf><font><b/><color rgb="FFC00000"/></font><fill><patternFill><bgColor rgb="FFFDE2E2"/></patternFill></fill></dxf></dxfs>');
+    xmlOut0['xl/styles.xml'] = st; GWS = {h: String(X), c: String(X + 1), od: String(D)}; }
   const sp = splitSheet(T.get(path)), HR = 3;
   const src = STD_COLS.map(d => state.hdr.findIndex(h => norm(h) === norm(d[0]) || (d[4] && d[4].test(norm(h)))));
   const extras = state.hdr.map((h,i) => i).filter(i => !src.includes(i) && !/^Column \d+$/.test(state.hdr[i]) && !STD_DROP.test(norm(cleanHead(state.hdr[i]))));
@@ -1273,7 +1284,8 @@ async function buildStandard(groups){
       if (fill === 'ageband'){ const a = dr.age, lab = a == null ? '' : AGE_BAND(a);
         cells += `<c r="${ref}" t="str"><f>IF(A${rn}="","",IF(A${rn}&lt;=7,"${AGE_BANDS[0]}",IF(A${rn}&lt;=15,"${AGE_BANDS[1]}",IF(A${rn}&lt;=21,"${AGE_BANDS[2]}",IF(A${rn}&lt;=30,"${AGE_BANDS[3]}","${AGE_BANDS[4]}")))))</f><v>${xmlEsc(lab)}</v></c>`; }
       else if (fill === 'gwm'){ const v = c && c.t !== 'e' ? txt(c) : ''; cells += v ? inlineCell(ref, GWS.c, v) : `<c r="${ref}" s="${GWS.c}"/>`; }
-      else if (fill === 'deliv'){ if (c && c.t !== 'e' && txt(c)) cells += srcCell(ref, c, d); else if (ex.deliv){ const dd = parseDMY(ex.deliv); cells += dd ? `<c r="${ref}" s="2"><v>${(Date.UTC(dd.getFullYear(), dd.getMonth(), dd.getDate()) - Date.UTC(1899, 11, 30)) / 864e5}</v></c>` : inlineCell(ref, null, ex.deliv); } }
+      else if (fill === 'deliv'){ const x = recOf.get(r), v = (x && x.deliv) || ex.deliv || ''; const dd = v ? parseDMY(v) : null;
+        if (dd) cells += `<c r="${ref}" s="2"><v>${(Date.UTC(dd.getFullYear(), dd.getMonth(), dd.getDate()) - Date.UTC(1899, 11, 30)) / 864e5}</v></c>`; else if (c && c.t !== 'e' && txt(c)) cells += srcCell(ref, c, d); }
       else if (fill === 'jobtype'){ const iRO = STD_IX('Repair_Order'), ro = src[iRO] >= 0 ? txt(r[src[iRO]]) : ''; const v = (c && c.t !== 'e' && txt(c)) || (/^BP/i.test(ro) ? 'BP' : /^SP/i.test(ro) ? 'GR' : ''); if (v) cells += inlineCell(ref, null, v); }
       else if (fill === 'rsm'){ const v = state.rsmMap.get(g.name) || (c && c.t !== 'e' ? txt(c) : ''); if (v) cells += inlineCell(ref, null, v); }
       else if (fill){ const v = (c && c.t !== 'e' && txt(c)) || ex[keyed[fill]] || ''; if (fill === 'park') dr.park = v; if (v) cells += inlineCell(ref, null, v); }
@@ -1296,11 +1308,16 @@ async function buildStandard(groups){
   const rsmNames = [...new Set(rsmBook.list.map(x => x[3]))].sort();
   const ddTo = lastRow + 500, DV = [[STD_IX('RSM'), `Sheet2!$E$2:$E$${1 + Math.max(rsmNames.length, 1)}`], [STD_IX('ประเภทงาน'), 'Sheet2!$A$2:$A$3'], [STD_IX('สถานะรถ'), 'Sheet2!$C$2:$C$3'], [STD_IX('สถานะงานค้าง'), `Sheet2!$D$2:$D$${1 + DD_STATUS.length}`]];
   const dvXml = `<x14:dataValidations count="${DV.length}" xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">` + DV.map(([k, f]) => `<x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="0"><x14:formula1><xm:f>${f}</xm:f></x14:formula1><xm:sqref>${colLetter(k)}${HR + 1}:${colLetter(k)}${ddTo}</xm:sqref></x14:dataValidation>`).join('') + '</x14:dataValidations>';
-  const suffix = sp.suffix.replace(/<x14:dataValidations\b[\s\S]*?<\/x14:dataValidations>/, dvXml).replace(/(<xm:sqref>)([^<]*)/g, (m, p, v) => p + clampRefs(v, HR, ddTo))
+  let suffixCF = '';
+  const suffix0 = sp.suffix.replace(/<x14:dataValidations\b[\s\S]*?<\/x14:dataValidations>/, dvXml).replace(/(<xm:sqref>)([^<]*)/g, (m, p, v) => p + clampRefs(v, HR, ddTo))
                           .replace(/(sqref=")([^"]*)"/g, (m, p, v) => p + clampRefs(v, HR, lastRow) + '"')
                           .replace(/Sheet2!\$E\$2:\$E\$\d+/, `Sheet2!$E$2:$E$${1 + Math.max(rsmNames.length, 1)}`)
                           .replace(/Sheet2!\$B\$2:\$B\$\d+/, `Sheet2!$B$2:$B$${1 + DD_REASON.length}`).replace(/Sheet2!\$D\$2:\$D\$\d+/, `Sheet2!$D$2:$D$${1 + DD_STATUS.length}`);
   const xmlOut = Object.assign({}, xmlOut0);
+  { const k = STD_IX('ประมาณการส่งมอบ'), Lc = colLetter(k), t = new Date(), ref = `${Lc}${HR + 1}:${Lc}${lastRow + 500}`;
+    const cf = `<conditionalFormatting sqref="${ref}"><cfRule type="expression" dxfId="${GWS.od}" priority="1"><formula>AND(ISNUMBER(${Lc}${HR + 1}),${Lc}${HR + 1}&lt;DATE(${t.getFullYear()},${t.getMonth() + 1},${t.getDate()}))</formula></cfRule></conditionalFormatting>`;
+    suffixCF = cf; }
+  const suffix = suffix0.replace(/<pageMargins\b/, m => suffixCF + m);
   xmlOut[path] = prefix + out.join('') + suffix;
   const tpath = 'xl/tables/table1.xml';
   xmlOut[tpath] = T.get(tpath).replace(/(<(?:table|autoFilter)\b[^>]*\sref=")([^"]*)"/g, (m, p) => `${p}A${HR}:${L}${lastRow}"`)
@@ -1768,7 +1785,7 @@ function stLabel(s){ if (!s || s === 'ไม่ระบุ') return isEn() ? 'U
 function parseDMY(s){ const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s || ''); return m ? new Date(+m[3], +m[2]-1, +m[1]) : null; }
 function buildRecords(){
   const c = {sp: colByName(/^repair_?order$|^repairorder$/), model: colByName(/basicmodel|^model$/), status: colByName(/repairstatus/),
-             dd: colByName(/^สาเหตุงานค้าง$/), cdesc: colByName(/^(คำอธิบายลูกค้า|อาการที่ลูกค้าแจ้ง|อาการลูกค้า|ลูกค้าแจ้ง|customerdescription|customercomplaint|customerconcern|customervoice)$/), vin: colByName(/^vin(code|no|number)?$|^vin_?code$|^vin$/)};
+             dd: colByName(/^สาเหตุงานค้าง$/), cdesc: colByName(/^(คำอธิบายลูกค้า|อาการที่ลูกค้าแจ้ง|อาการลูกค้า|ลูกค้าแจ้ง|customerdescription|customercomplaint|customerconcern|customervoice)$/), vin: colByName(/^vin(code|no|number)?$|^vin_?code$|^vin$/), gdeliv: colByName(/^(เวลาประมาณการที่จะส่งมอบรถ|ประมาณการส่งมอบ|วันที่ประมาณการส่งมอบ|ประมาณการส่งมอบรถ|estimateddelivery|expecteddelivery|estimateddeliverydate)$/)};
   const today = new Date(); today.setHours(0,0,0,0);
   const recs = [];
   for (const g of state.list) for (const r of g.rows){
@@ -1781,7 +1798,7 @@ function buildRecords(){
     const sp = c.sp>=0 ? txt(r[c.sp]) : '', etaLate = !!(etaD && etaD < today);
     recs.push({store:g.name, rsm:[...g.rsm][0] || 'ไม่ระบุ RSM', age, sp, jt: /^BP/i.test(sp) ? 'BP' : 'GR', model: c.model>=0 ? txt(r[c.model]) : '',
       status: c.status>=0 ? stNorm(txt(r[c.status])) : '', park, cause: causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate, park, c.status>=0 ? txt(r[c.status]) : ''), detail: detailOf(rem), ...(() => { const st = c.status>=0 ? txt(r[c.status]) : ''; const [g2, d2] = ownerOf(rem, ex, st, causeOf(rem, ex, c.dd>=0 ? txt(r[c.dd]) : '', etaLate, park, st)); return {ownGrp:g2, ownDept:d2, ownKey:g2 + ':' + d2}; })(),
-      tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', deliv: ex.deliv||'', etaLate: !!(etaD && etaD < today), remark: rem, cdesc: c.cdesc>=0 ? String(txt(r[c.cdesc]) || '').trim() : '', vin: c.vin>=0 ? txt(r[c.vin]) : '', row: r, idx: recs.length});
+      tech: ex.tech||'', war: ex.war||'', part: ex.part||'', eta: ex.eta||'', deliv: ex.deliv || (c.gdeliv >= 0 ? cellDMY(r[c.gdeliv]) : ''), delivSrc: ex.deliv ? 'remark' : (c.gdeliv >= 0 && cellDMY(r[c.gdeliv]) ? 'gcip' : ''), etaLate: !!(etaD && etaD < today), remark: rem, cdesc: c.cdesc>=0 ? String(txt(r[c.cdesc]) || '').trim() : '', vin: c.vin>=0 ? txt(r[c.vin]) : '', row: r, idx: recs.length});
   }
   return recs;
 }
